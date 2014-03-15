@@ -8,6 +8,9 @@ public class PTPPacket extends Packet{
 	public final static short PTP_USB_CONTAINER_RESPONSE = 3;
 	public final static short PTP_USB_CONTAINER_EVENT = 4;
 	
+	public final static short PTP_OPPCODE_CHDK = (short) 0x9999;
+	public final static short PTP_OPPCODE_OpenSession = (short) 0x1002;
+	
 	// Locations of the fields in the PTP Packet
 	// packet length including header. It is 12 bytes + data.length
 	private static final int iPTPLength = 0;
@@ -73,7 +76,7 @@ public class PTPPacket extends Packet{
 		else if (this.getContainerCommand()==this.PTP_USB_CONTAINER_RESPONSE) r += "Response(3)\n";
 		else if (this.getContainerCommand()==this.PTP_USB_CONTAINER_EVENT) r += "Event(4)\n";
 		else r += "Unknown("+this.getContainerCommand()+")\n";
-		r+="\tOppcode:\t0x"+Integer.toHexString( (short)this.getOppcode())+"\n";
+		r+="\tOppcode:\t0x"+Integer.toHexString( (int)this.getOppcode() & 0xFFFF)+"\n";
 		r+="\tTransaction:\t"+this.getTransaction()+"\n";
 		r+="\tData:\t\t("+(this.getLength()-12)+")[";
 		if (this.getLength()>12 & this.getLength()<200) for (int i=12; i<this.getLength(); i++) r+=" "+this.decodeByte(i);

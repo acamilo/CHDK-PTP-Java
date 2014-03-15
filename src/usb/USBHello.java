@@ -16,8 +16,10 @@ import javax.usb.UsbHub;
 import javax.usb.UsbInterface;
 import javax.usb.UsbServices;
 
-import ptp.PTPPacket;
-import ptp.PTPSession;
+import packet.PTPPacket;
+
+import camera.PTPSession;
+
 
 public class USBHello {
 	public static UsbDevice findDevice(UsbHub hub, short vendorId, short productId)
