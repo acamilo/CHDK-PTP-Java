@@ -4,27 +4,98 @@ public class CHDKScreenImage extends Packet{
 	public final static int Aspect_4_3 = 0;
 	public final static int	Aspect_16_9 = 1;
 	
+	public final static int	FrameBuffer_YUV8 = 0; // UYVYYYY, used for live view
+	public final static int	FrameBuffer_PAL8 = 1; // 8 bit palleted. used for bitmap overlay
 	public CHDKScreenImage(byte[] packet) {
 		super(packet);
 		// TODO Auto-generated constructor stub
 	}
 	
-	public int getMajorVersion(){ return 0; }
-	public int getMinorVersion(){ return 0; }
-	public int lcdAspectRatio(){ return 0;}
-	public int palleteType(){ return 0; }
-	public int paletteDataStart(){ return 0; }
-	public int viewportDescriptorStart(){ return 0; }
-	public int bitmapDescriptorStart(){ return 0; }
+	public String toString(){
+		String r = "\nCHDK Image--------\n";
+		r+= "\tImage Data Header\n";
+		r+= "\t\tVersion Number:\t\t\t"+getMajorVersion()+"."+getMinorVersion()+"\n";
+		r+= "\t\tAspect Ratio:\t\t\t"+getLCDAspectRatio()+"\n";
+		r+= "\t\tPallete Type:\t\t\t"+getPalleteType();
+				r+=""+"\n";
+		r+= "\t\tPallete Data Start:\t\t"+getPaletteDataStart()+"\n";
+		r+= "\t\tViewport Descriptor Start:\t"+getViewportDescriptorStart()+"\n";
+		r+= "\t\tBitmap Descriptor Start:\t"+getBitmapDescriptorStart()+"\n";
+		
+		
+		
+		r+= "\n\tViewportDescriptor@("+getViewportDescriptorStart()+")\n";
+		r+= "\t\tFrame Buffer Type:\t\t"+viewportFramebufferType();
+		if (viewportFramebufferType()==FrameBuffer_YUV8) r+= " (YUV8)";
+		else if (viewportFramebufferType()==FrameBuffer_PAL8) r+= " (PAL8)";
+		r+="\n";
+		r+= "\t\tData Start:\t\t\t"+viewportDataStart();
+		if(viewportDataStart()==0)r+="(No Image)";
+		else r+="[Valid Image]";			
+		r+="\n";
+		r+= "\t\tBuffer Width:\t\t\t"+viewportBufferWidth()+"\n";
+		r+= "\t\tBuffer Visable Width:\t\t"+viewportVisableWidth()+"\n";
+		r+= "\t\tBuffer Visable Height:\t\t"+viewportVisableHeight()+"\n";
+		r+= "\t\tMargin Left:\t\t\t"+viewportMarginLeft()+"\n";
+		r+= "\t\tMargin Top:\t\t\t"+viewportMarginTop()+"\n";
+		r+= "\t\tMargin Right:\t\t\t"+viewportMarginRight()+"\n";
+		r+= "\t\tMargin Bottom:\t\t\t"+viewportMarginBottom()+"\n";
+		
+		
+		r+= "\n\tBitmapDescriptor@("+getBitmapDescriptorStart()+")\n";
+		r+= "\t\tFrame Buffer Type:\t\t"+bitmapFramebufferType();
+			if (bitmapFramebufferType()==FrameBuffer_YUV8) r+= " (YUV8)";
+			else if (bitmapFramebufferType()==FrameBuffer_PAL8) r+= " (PAL8)";
+		r+="\n";
+		r+= "\t\tData Start:\t\t\t"+bitmapDataStart();
+			if(bitmapDataStart()==0)r+=" (No Image)";
+			else r+="[Valid Image]";			
+		r+="\n";
+		r+= "\t\tBuffer Width:\t\t\t"+bitmapBufferWidth()+"\n";
+		r+= "\t\tBuffer Visable Width:\t\t"+bitmapVisableWidth()+"\n";
+		r+= "\t\tBuffer Visable Height:\t\t"+bitmapVisableHeight()+"\n";
+		r+= "\t\tMargin Left:\t\t\t"+bitmapMarginLeft()+"\n";
+		r+= "\t\tMargin Top:\t\t\t"+bitmapMarginTop()+"\n";
+		r+= "\t\tMargin Right:\t\t\t"+bitmapMarginRight()+"\n";
+		r+= "\t\tMargin Bottom:\t\t\t"+bitmapMarginBottom()+"\n\n";
+		return r;
+	}
 	
+	// field locations for header
+	private static final int iViewDataHeaderVersionNumberMajor= 0;
+	private static final int iViewDataHeaderVersionNumberMinor= 4;
+	private static final int iViewDataHeaderLCDAspectRatio= 8;
+	private static final int iViewDataHeaderPalleteType= 12;
+	private static final int iViewDataHeaderPalleteDataStart= 16; // So they can change protocol slightly by adding more metadata and still have old software find the sections right. cool.
+	private static final int iViewDataHeaderViewportDescriptorStart= 20; // in-packet pointer to viewport descriptor (ui overlay)
+	private static final int iViewDataHeaderBitmapDescriptorStart= 24; // in-packet-pointer to bitmap descriptor (image)
+	
+	public int getMajorVersion(){ return this.decodeInt(iViewDataHeaderVersionNumberMajor, ByteOrder.LittleEndian); }
+	public int getMinorVersion(){ return this.decodeInt(iViewDataHeaderVersionNumberMinor, ByteOrder.LittleEndian); }
+	public int getLCDAspectRatio(){ return this.decodeInt(iViewDataHeaderLCDAspectRatio, ByteOrder.LittleEndian);}
+	public int getPalleteType(){ return this.decodeInt(iViewDataHeaderPalleteType, ByteOrder.LittleEndian); }
+	public int getPaletteDataStart(){ return this.decodeInt(iViewDataHeaderPalleteDataStart, ByteOrder.LittleEndian); }
+	public int getViewportDescriptorStart(){ return this.decodeInt(iViewDataHeaderViewportDescriptorStart, ByteOrder.LittleEndian); }
+	public int getBitmapDescriptorStart(){ return this.decodeInt(iViewDataHeaderBitmapDescriptorStart, ByteOrder.LittleEndian); }
+	
+	
+	private static final int iDescriptorFrameBufferType= 0;
+	private static final int iDescriptorFrameBufferDataStart= 4;
+	private static final int iDescriptorFrameBufferWidth= 8;
+	private static final int iDescriptorFrameBufferVisibleWidth= 12;
+	private static final int iDescriptorFrameBufferVisibleHeight= 16;
+	private static final int iDescriptorFrameBufferMarginLeft= 20;
+	private static final int iDescriptorFrameBufferMarginTop= 24;
+	private static final int iDescriptorFrameBufferMarginRight= 28;
+	private static final int iDescriptorFrameBufferMarginBottom= 32;
 	// Viewport Metadata
-	public int viewportFramebufferType(){ return 0; }
-	public int viewportDataStart(){ return 0; }
+	public int viewportFramebufferType(){ return this.decodeInt(iDescriptorFrameBufferType+getViewportDescriptorStart(), ByteOrder.LittleEndian); }
+	public int viewportDataStart(){ return this.decodeInt(iDescriptorFrameBufferDataStart+getViewportDescriptorStart(), ByteOrder.LittleEndian); }
 	/*
     buffer width in pixels
     data size is always buffer_width*visible_height*(buffer bpp based on type)
     */
-	public int viewportBufferWidth(){ return 0; }
+	public int viewportBufferWidth(){ return this.decodeInt(iDescriptorFrameBufferWidth+getViewportDescriptorStart(), ByteOrder.LittleEndian); }
     /*
     visible size in pixels
     describes data within the buffer which contains image data to be displayed
@@ -34,31 +105,50 @@ public class CHDKScreenImage extends Packet{
     if buffer_width is > width, the additional data should be skipped
     visible_height also defines the number of data rows
     */
-	public int viewportVisableHeight(){ return 0; }
-	public int viewportVisableWidth(){ return 0; }
+	public int viewportVisableWidth(){ return this.decodeInt(iDescriptorFrameBufferVisibleWidth+getViewportDescriptorStart(), ByteOrder.LittleEndian); }
+	public int viewportVisableHeight(){ return this.decodeInt(iDescriptorFrameBufferVisibleHeight+getViewportDescriptorStart(), ByteOrder.LittleEndian); }
     /*
     margins
     pixels offsets needed to replicate display position on cameras screen
     not used for any buffer offsets
     */
-	public int viewportMarginLeft(){ return 0; }
-	public int viewportMarginTop(){ return 0; }
-	public int viewportMarginRight(){ return 0; }
-	public int viewportMarginBottom(){ return 0; }
+	public int viewportMarginLeft(){ return this.decodeInt(iDescriptorFrameBufferMarginLeft+getViewportDescriptorStart(), ByteOrder.LittleEndian); }
+	public int viewportMarginTop(){ return this.decodeInt(iDescriptorFrameBufferMarginTop+getViewportDescriptorStart(), ByteOrder.LittleEndian); }
+	public int viewportMarginRight(){ return this.decodeInt(iDescriptorFrameBufferMarginRight+getViewportDescriptorStart(), ByteOrder.LittleEndian); }
+	public int viewportMarginBottom(){ return this.decodeInt(iDescriptorFrameBufferMarginBottom+getViewportDescriptorStart(), ByteOrder.LittleEndian); }
 	
 	// Bitmap Metadata
-	public int bitmapFramebufferType(){ return 0; }
-	public int bitmapDataStart(){ return 0; }
-	public int bitmapBufferWidth(){ return 0; }
-	public int bitmapVisableHeight(){ return 0; }
-	public int bitmapVisableWidth(){ return 0; }
-	public int bitmapMarginLeft(){ return 0; }
-	public int bitmapMarginTop(){ return 0; }
-	public int bitmapMarginRight(){ return 0; }
-	public int bitmapMarginBottom(){ return 0; }
+	public int bitmapFramebufferType(){ return this.decodeInt(iDescriptorFrameBufferType+getBitmapDescriptorStart(), ByteOrder.LittleEndian); }
+	public int bitmapDataStart(){ return this.decodeInt(iDescriptorFrameBufferDataStart+getBitmapDescriptorStart(), ByteOrder.LittleEndian); }
+	/*
+    buffer width in pixels
+    data size is always buffer_width*visible_height*(buffer bpp based on type)
+    */
+	public int bitmapBufferWidth(){ return this.decodeInt(iDescriptorFrameBufferWidth+getBitmapDescriptorStart(), ByteOrder.LittleEndian); }
+    /*
+    visible size in pixels
+    describes data within the buffer which contains image data to be displayed
+    any offsets within buffer data are added before sending, so the top left
+    pixel is always the first first byte of data.
+    width must always be <= buffer_width
+    if buffer_width is > width, the additional data should be skipped
+    visible_height also defines the number of data rows
+    */
+	public int bitmapVisableWidth(){ return this.decodeInt(iDescriptorFrameBufferVisibleWidth+getBitmapDescriptorStart(), ByteOrder.LittleEndian); }
+	public int bitmapVisableHeight(){ return this.decodeInt(iDescriptorFrameBufferVisibleHeight+getBitmapDescriptorStart(), ByteOrder.LittleEndian); }
+    /*
+    margins
+    pixels offsets needed to replicate display position on cameras screen
+    not used for any buffer offsets
+    */
+	public int bitmapMarginLeft(){ return this.decodeInt(iDescriptorFrameBufferMarginLeft+getBitmapDescriptorStart(), ByteOrder.LittleEndian); }
+	public int bitmapMarginTop(){ return this.decodeInt(iDescriptorFrameBufferMarginTop+getBitmapDescriptorStart(), ByteOrder.LittleEndian); }
+	public int bitmapMarginRight(){ return this.decodeInt(iDescriptorFrameBufferMarginRight+getBitmapDescriptorStart(), ByteOrder.LittleEndian); }
+	public int bitmapMarginBottom(){ return this.decodeInt(iDescriptorFrameBufferMarginBottom+getBitmapDescriptorStart(), ByteOrder.LittleEndian); }
 	
 	
 	
 
 }
+
 
