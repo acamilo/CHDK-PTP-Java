@@ -1,10 +1,14 @@
 package packet;
 
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
+import java.awt.image.WritableRaster;
+
 public class CHDKScreenImage extends Packet{
 	public final static int Aspect_4_3 = 0;
 	public final static int	Aspect_16_9 = 1;
 	
-	public final static int	FrameBuffer_YUV8 = 0; // UYVYYYY, used for live view
+	public final static int	FrameBuffer_YUV8 = 0; // UYV YYY, used for live view
 	public final static int	FrameBuffer_PAL8 = 1; // 8 bit palleted. used for bitmap overlay
 	public CHDKScreenImage(byte[] packet) {
 		super(packet);
@@ -145,6 +149,68 @@ public class CHDKScreenImage extends Packet{
 	public int bitmapMarginTop(){ return this.decodeInt(iDescriptorFrameBufferMarginTop+getBitmapDescriptorStart(), ByteOrder.LittleEndian); }
 	public int bitmapMarginRight(){ return this.decodeInt(iDescriptorFrameBufferMarginRight+getBitmapDescriptorStart(), ByteOrder.LittleEndian); }
 	public int bitmapMarginBottom(){ return this.decodeInt(iDescriptorFrameBufferMarginBottom+getBitmapDescriptorStart(), ByteOrder.LittleEndian); }
+	
+	
+	public byte clip_yuv(int v) {
+	    return (byte) v;
+	}
+
+	public byte yuv_to_r(byte y, byte v) {
+	    return clip_yuv(((y<<12) +          v*5743 + 2048)>>12);
+	}
+
+	public byte yuv_to_g(byte y, byte u, byte v) {
+	    return clip_yuv(((y<<12) - u*1411 - v*2925 + 2048)>>12);
+	}
+
+	public byte yuv_to_b(byte y, byte u) {
+	    return clip_yuv(((y<<12) + u*7258          + 2048)>>12);
+	}
+	
+	// Decodes a 6 byte uYvYYY 4 pixel group into a provided ARGB int array sutable for a bufferedImage
+	// [color u component for all 4][pixel 0 brightness][color v component for all 4][pixel 1 brightness][pixel 2 brightness][pixel 3 brightness]
+	public BufferedImage decodeViewport(){
+		 
+
+		int buflen = ((this.viewportBufferWidth()*this.viewportVisableHeight())/4)*6; // each group of 4 is represented by 6 bytes;\			
+		BufferedImage b = new BufferedImage(this.viewportBufferWidth(),this.viewportVisableHeight(),BufferedImage.TYPE_INT_ARGB);
+		WritableRaster raster = b.getRaster();
+		DataBufferInt dataBuffer = (DataBufferInt) raster.getDataBuffer();
+		int[] convertedImageArray = dataBuffer.getData();
+		byte[] buf = this.getPacket();
+		int offset = this.viewportDataStart();
+		int rgbIndex = 0;
+		for (int i=0; i<buflen; i+=6){
+			byte u	= buf[(i+offset)];
+			byte y0 = buf[(i+offset)+1];
+			byte v 	= buf[(i+offset)+2];
+			byte y1	= buf[(i+offset)+3];
+			byte y2	= buf[(i+offset)+4];
+			byte y3	= buf[(i+offset)+5];
+			
+			
+			convertedImageArray[rgbIndex+0] = ((byte) 0xff) << 24 |                 // Alpha
+                    (yuv_to_r(y0,v) << 16) & (0xff0000) |      // Red
+                    (yuv_to_g(y0,v,u) << 8) & (0xff00) |       // Green
+                    (yuv_to_b(y0,u)) & (0xff);               // Blue
+			convertedImageArray[rgbIndex+1] = ((byte) 0xff) << 24 |                 // Alpha
+                    (yuv_to_r(y1,v) << 16) & (0xff0000) |      // Red
+                    (yuv_to_g(y1,v,u) << 8) & (0xff00) |       // Green
+                    (yuv_to_b(y1,u)) & (0xff);               // Blue;               // Blue
+			convertedImageArray[rgbIndex+2] = ((byte) 0xff) << 24 |                 // Alpha
+                    (yuv_to_r(y2,v) << 16) & (0xff0000) |      // Red
+                    (yuv_to_g(y2,v,u) << 8) & (0xff00) |       // Green
+                    (yuv_to_b(y2,u)) & (0xff);               // Blue              // Blue
+			convertedImageArray[rgbIndex+3] = ((byte) 0xff) << 24 |                 // Alpha
+                    (yuv_to_r(y3,v) << 16) & (0xff0000) |      // Red
+                    (yuv_to_g(y3,v,u) << 8) & (0xff00) |       // Green
+                    (yuv_to_b(y3,u)) & (0xff);               // Blue              // Blue
+			rgbIndex+=4;
+		}
+		
+
+		return b;
+}
 	
 	
 	

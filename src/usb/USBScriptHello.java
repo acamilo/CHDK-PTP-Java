@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
-import javax.swing.JFrame;
 import javax.usb.UsbConfiguration;
 import javax.usb.UsbDevice;
 import javax.usb.UsbDeviceDescriptor;
@@ -17,14 +16,12 @@ import javax.usb.UsbHub;
 import javax.usb.UsbInterface;
 import javax.usb.UsbServices;
 
-import packet.CHDKScreenImage;
 import packet.PTPPacket;
 
 import camera.PTPSession;
-import camera.displayImage;
 
 
-public class USBImageHello {
+public class USBScriptHello {
 	public static UsbDevice findDevice(UsbHub hub, short vendorId, short productId)
     {
         for (UsbDevice device : (List<UsbDevice>) hub.getAttachedUsbDevices())
@@ -99,28 +96,22 @@ public class USBImageHello {
 	        PTPPacket p = new PTPPacket(PTPPacket.PTP_USB_CONTAINER_COMMAND, PTPPacket.PTP_OPPCODE_OpenSession, 0, new byte[]{0x01,0x00,0x00,0x00});
 	        session.sendPTPPacket(p);
 	        session.getResponse();
-	        displayImage d = null;
-	        while(true){
-	        p = new PTPPacket(PTPPacket.PTP_USB_CONTAINER_COMMAND, PTPPacket.PTP_OPPCODE_CHDK, 1, new byte[]{12,0x00,0x00,0x00,(byte)(0x01),0x00,0x00,0x00});
+	        //while(true){
+	        p = new PTPPacket(PTPPacket.PTP_USB_CONTAINER_COMMAND, PTPPacket.PTP_OPPCODE_CHDK, 1, new byte[]{7,0x00,0x00,0x00,0x00,0x00,0x00,0x00});
 	        session.sendPTPPacket(p);
-	        /*
+	        
 	        p = new PTPPacket(PTPPacket.PTP_USB_CONTAINER_DATA, PTPPacket.PTP_OPPCODE_CHDK, 2, 
 	        		"switch_mode_usb(1)\0".getBytes());
 	        session.sendPTPPacket(p);
-	        */        
+	                
 
-	        
+	        //FileOutputStream fos = new FileOutputStream(new File("ImageFramePacket.bin"));
+	        //BufferedOutputStream bos = new BufferedOutputStream(fos);
 	        p=session.getResponse();
-	        CHDKScreenImage i = new CHDKScreenImage(p.getData());
-	        if (d==null) d = new displayImage(i);
-	        else d.setImage(i);
-	        //System.out.print(i);
-	        
-	        
-
-	        
-	        session.getResponse();
-	        }
+	        //bos.write(p.getPacket());
+	        System.out.println("Wrote: "+ p.getLength());
+	        //session.getResponse();;
+	        //}
 	        
 	        //session.close();
 	        //System.out.println("Done");

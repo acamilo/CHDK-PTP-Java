@@ -52,8 +52,8 @@ public class PTPSession {
 		camOutpipe.syncSubmit(write);
 		write.waitUntilComplete();
 		long stopTime = System.nanoTime();
-        System.out.println("TX Delta:\t"+((stopTime - startTime)/(float)10000000)+"ms");
-        System.out.print(p);
+        //System.out.println("TX Delta:\t"+((stopTime - startTime)/(float)10000000)+"ms");
+        //System.out.print(p);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -75,14 +75,14 @@ public class PTPSession {
 			read.waitUntilComplete();
 	        long stopTime = System.nanoTime();
 	        
-	        System.out.println("RX Delta:\t"+((stopTime - startTime)/(float)1000000)+"ms");
+	        //System.out.println("RX Delta:\t"+((stopTime - startTime)/(float)1000000)+"ms");
 	        startTime = System.nanoTime();
 	        
 	        byte[] image = response.getData();
 	        stopTime = System.nanoTime();
-	        System.out.println("Copy:\t\t"+((stopTime - startTime)/(float)1000000)+"ms");
+	        //System.out.println("Copy:\t\t"+((stopTime - startTime)/(float)1000000)+"ms");
 	        startTime = System.nanoTime();
-	        System.out.print(response);
+	        //System.out.print(response);
 	        return response;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
