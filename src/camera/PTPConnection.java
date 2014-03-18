@@ -5,13 +5,15 @@ import javax.usb.UsbEndpoint;
 import javax.usb.UsbException;
 import javax.usb.UsbIrp;
 import javax.usb.UsbNotActiveException;
+import javax.usb.UsbNotClaimedException;
 import javax.usb.UsbNotOpenException;
 import javax.usb.UsbPipe;
 
 import packet.PTPPacket;
 
 
-public class PTPSession {
+public class PTPConnection {
+	private static final String PTP_USB_CONTAINER_COMMAND = null;
 	private int Seq = 0;
     UsbPipe camInpipe = null;
     UsbPipe camOutpipe = null;
@@ -19,30 +21,35 @@ public class PTPSession {
     UsbIrp read,write;
     byte[] recbuf = new byte[300000];
     
-    public PTPSession(String SerialNumber){
+    public PTPConnection(String SerialNumber){
     	
     }
-	public PTPSession(UsbEndpoint camIn,UsbEndpoint camOut) throws Exception{
+	public PTPConnection(UsbEndpoint camIn,UsbEndpoint camOut) throws CameraConnectionException, UsbNotActiveException, UsbNotClaimedException, UsbDisconnectedException, UsbException{
 		camInpipe = camIn.getUsbPipe();
 		camOutpipe = camOut.getUsbPipe();
 		
 		camInpipe.open();
 		camOutpipe.open();
 		
-		if (camInpipe.isActive()==false || camOutpipe.isActive()==false) throw new Exception("Pipes not active.. Balls");
+		if (camInpipe.isActive()==false || camOutpipe.isActive()==false) throw new CameraConnectionException("Pipes not active.. Balls");
 
-		
+		System.out.println("Sending Begin session Command to camera");
+        PTPPacket p = new PTPPacket(PTPPacket.PTP_USB_CONTAINER_COMMAND, PTPPacket.PTP_OPPCODE_OpenSession, 0, new byte[]{0x01,0x00,0x00,0x00});
+        this.sendPTPPacket(p);
+        PTPPacket r = this.getResponse();
+        if (r.getContainerCommand()==PTPPacket.PTP_USB_CONTAINER_RESPONSE && r.getOppcode()==PTPPacket.PTP_OPPCODE_Response_OK) return;
+        throw new CameraConnectionException("Camera Did not respond OK to our OpenSession Request");
 		
 		
 	}
 	
 	public void sendPTPPacket(PTPPacket p) {
 		try {
-		//p.setTransaction(Seq);
-		//Seq++;
+
+			if (p.getContainerCommand()==p.PTP_USB_CONTAINER_COMMAND) Seq++;// if its a new outgoing command packet, inc seq counter
 		// Send init command
 		long startTime = System.nanoTime();
-
+		p.setTransaction(Seq);
 		write = camOutpipe.createUsbIrp();
         write.setData(p.getPacket());
         write.setLength(p.getPacket().length);
@@ -53,7 +60,7 @@ public class PTPSession {
 		write.waitUntilComplete();
 		long stopTime = System.nanoTime();
         //System.out.println("TX Delta:\t"+((stopTime - startTime)/(float)10000000)+"ms");
-        //System.out.print(p);
+        System.out.print(p);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -82,7 +89,7 @@ public class PTPSession {
 	        stopTime = System.nanoTime();
 	        //System.out.println("Copy:\t\t"+((stopTime - startTime)/(float)1000000)+"ms");
 	        startTime = System.nanoTime();
-	        //System.out.print(response);
+	        System.out.print(response);
 	        return response;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

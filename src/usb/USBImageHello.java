@@ -20,7 +20,7 @@ import javax.usb.UsbServices;
 import packet.CHDKScreenImage;
 import packet.PTPPacket;
 
-import camera.PTPSession;
+import camera.PTPConnection;
 import camera.displayImage;
 
 
@@ -94,7 +94,7 @@ public class USBImageHello {
 	        else System.out.println("\tFound my endpoints, Building pipe");
 
 
-	        PTPSession session = new PTPSession(camIn,camOut);
+	        PTPConnection session = new PTPConnection(camIn,camOut);
 
 	        PTPPacket p = new PTPPacket(PTPPacket.PTP_USB_CONTAINER_COMMAND, PTPPacket.PTP_OPPCODE_OpenSession, 0, new byte[]{0x01,0x00,0x00,0x00});
 	        session.sendPTPPacket(p);

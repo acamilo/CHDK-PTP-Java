@@ -18,7 +18,7 @@ import javax.usb.UsbServices;
 
 import packet.PTPPacket;
 
-import camera.PTPSession;
+import camera.PTPConnection;
 
 
 public class USBScriptHello {
@@ -91,11 +91,11 @@ public class USBScriptHello {
 	        else System.out.println("\tFound my endpoints, Building pipe");
 
 
-	        PTPSession session = new PTPSession(camIn,camOut);
+	        PTPConnection session = new PTPConnection(camIn,camOut);
 
 	        PTPPacket p = new PTPPacket(PTPPacket.PTP_USB_CONTAINER_COMMAND, PTPPacket.PTP_OPPCODE_OpenSession, 0, new byte[]{0x01,0x00,0x00,0x00});
 	        session.sendPTPPacket(p);
-	        session.getResponse();
+	        System.out.println(session.getResponse());
 	        //while(true){
 	        p = new PTPPacket(PTPPacket.PTP_USB_CONTAINER_COMMAND, PTPPacket.PTP_OPPCODE_CHDK, 1, new byte[]{7,0x00,0x00,0x00,0x00,0x00,0x00,0x00});
 	        session.sendPTPPacket(p);
