@@ -70,13 +70,15 @@ public class PTPConnection {
 	public PTPPacket getResponse(){
 		try {
 			long startTime = System.nanoTime();
+			if (camInpipe==null) throw new CameraConnectionException("My pipe is null.!");
 			read = camInpipe.createUsbIrp();
 	        read.setData(recbuf);
 	        read.setLength(recbuf.length);
 			read.setOffset(0);
 			read.setAcceptShortPacket(true);
-	        
+	        if (read==null) throw new CameraConnectionException("I tried to get a packet from the in pipe and got null!");
 			camInpipe.syncSubmit(read);
+			
 	        PTPPacket response;
 			response = new PTPPacket(recbuf);
 			read.waitUntilComplete();

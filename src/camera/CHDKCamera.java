@@ -13,6 +13,8 @@ import javax.usb.UsbException;
 import javax.usb.UsbHostManager;
 import javax.usb.UsbHub;
 import javax.usb.UsbInterface;
+import javax.usb.UsbNotActiveException;
+import javax.usb.UsbNotOpenException;
 import javax.usb.UsbServices;
 
 import packet.ByteOrder;
@@ -25,6 +27,8 @@ public class CHDKCamera {
 	PTPConnection connection;
 	/**
 	 * @param args
+	 * @throws UsbNotOpenException 
+	 * @throws UsbNotActiveException 
 	 * @throws CameraConnectionException 
 	 * @throws CameraNotFoundException 
 	 * @throws UsbException 
@@ -32,15 +36,26 @@ public class CHDKCamera {
 	 * @throws UnsupportedEncodingException 
 	 * @throws SecurityException 
 	 */
-	public static void main(String[] args) throws SecurityException, UnsupportedEncodingException, UsbDisconnectedException, UsbException, CameraNotFoundException, CameraConnectionException {
-		CHDKCamera cam = new CHDKCamera((short)0x04a9,(short)0x325a);
-		cam.executeLuaScript("switch_mode_usb(1)");
+	public static void main(String[] args) throws UsbNotActiveException, UsbNotOpenException, UsbDisconnectedException, UsbException {
+		CHDKCamera cam=null;
+		try {
+			cam = new CHDKCamera((short)0x04a9,(short)0x325a);
+			cam.executeLuaScript("switch_mode_usb(1)");
 		
 		BufferedImagePannel d=null;
 		while(true){
 			if (d==null) d = new BufferedImagePannel(cam.getView());
 	        else d.setImage(cam.getView());
 		}
+		} catch (SecurityException | UnsupportedEncodingException
+				| UsbDisconnectedException | UsbException
+				| CameraNotFoundException | CameraConnectionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			cam.connection.close();
+			return;
+		}
+		
 	}
 	
 	public CHDKCamera(short vid, short pid) throws SecurityException, UsbException, CameraNotFoundException, UnsupportedEncodingException, UsbDisconnectedException, CameraConnectionException{
