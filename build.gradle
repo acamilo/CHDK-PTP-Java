@@ -1,0 +1,20 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'eclipse'
+apply plugin: 'eclipse-wtp'
+apply plugin: 'project-report'
+
+// project name must be set in settings.gradle
+group = 'acamilo'
+
+repositories {
+    maven() {
+        url 'http://nexus.ailis.de/content/groups/public/' // usb4java
+        mavenCentral()
+    }
+}
+
+dependencies {
+    compile 'org.usb4java:usb4java-javax:1.2+'
+    testCompile 'junit:junit:+'
+}
