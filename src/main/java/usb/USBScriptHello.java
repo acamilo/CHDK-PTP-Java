@@ -106,12 +106,12 @@ public class USBScriptHello {
             // BufferedOutputStream bos = new BufferedOutputStream(fos);
             p = session.getResponse();
             // bos.write(p.getPacket());
-            System.out.println("Wrote: " + p.getLength());
+            System.out.println("Received: " + p);
             // session.getResponse();;
             // }
 
-            // session.close();
-            // System.out.println("Done");
+            session.close();
+            System.out.println("Done");
         } catch (UnsupportedEncodingException | UsbDisconnectedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
