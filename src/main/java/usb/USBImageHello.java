@@ -1,12 +1,10 @@
 package usb;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import javax.usb.UsbConfiguration;
 import javax.usb.UsbDevice;
 import javax.usb.UsbDeviceDescriptor;
-import javax.usb.UsbDisconnectedException;
 import javax.usb.UsbEndpoint;
 import javax.usb.UsbHostManager;
 import javax.usb.UsbHub;
@@ -142,8 +140,8 @@ public class USBImageHello {
 
             // session.close();
             // System.out.println("Done");
-        } catch (UnsupportedEncodingException | UsbDisconnectedException e) {
-            // TODO Auto-generated catch block
+        } catch (Exception e) {
+            log.error("Everything went wrong...", e);
             e.printStackTrace();
         }
 
