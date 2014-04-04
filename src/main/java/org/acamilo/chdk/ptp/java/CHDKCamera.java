@@ -1,4 +1,4 @@
-package org.acamilo.chdk.ptp.java.camera;
+package org.acamilo.chdk.ptp.java;
 
 import java.awt.image.BufferedImage;
 import java.io.UnsupportedEncodingException;
@@ -17,9 +17,13 @@ import javax.usb.UsbNotActiveException;
 import javax.usb.UsbNotOpenException;
 import javax.usb.UsbServices;
 
-import org.acamilo.chdk.ptp.java.packet.ByteOrder;
-import org.acamilo.chdk.ptp.java.packet.CHDKScreenImage;
-import org.acamilo.chdk.ptp.java.packet.PTPPacket;
+import org.acamilo.chdk.ptp.java.connection.PTPConnection;
+import org.acamilo.chdk.ptp.java.connection.packet.ByteOrder;
+import org.acamilo.chdk.ptp.java.connection.packet.CHDKScreenImage;
+import org.acamilo.chdk.ptp.java.connection.packet.PTPPacket;
+import org.acamilo.chdk.ptp.java.exception.CameraConnectionException;
+import org.acamilo.chdk.ptp.java.exception.CameraNotFoundException;
+import org.acamilo.chdk.ptp.java.gui.BufferedImagePannel;
 
 public class CHDKCamera {
     PTPConnection connection;
@@ -98,7 +102,7 @@ public class CHDKCamera {
 
         connection.sendPTPPacket(p);
 
-        // Now we prepare the script and send it as a DATA org.acamilo.chdk.ptp.java.packet
+        // Now we prepare the script and send it as a DATA org.acamilo.chdk.ptp.java.connection.packet
         script += "\0"; // make sure string is null terminated
         p = new PTPPacket(PTPPacket.PTP_USB_CONTAINER_DATA, PTPPacket.PTP_OPPCODE_CHDK, 0,
                 script.getBytes());
@@ -121,7 +125,7 @@ public class CHDKCamera {
 
         connection.sendPTPPacket(p);
 
-        // We should get 2 packets back. A Data org.acamilo.chdk.ptp.java.packet and a status.
+        // We should get 2 packets back. A Data org.acamilo.chdk.ptp.java.connection.packet and a status.
         p = connection.getResponse();
         if (p.getContainerCommand() == p.PTP_USB_CONTAINER_DATA) {
             CHDKScreenImage i = new CHDKScreenImage(p.getData());
@@ -130,7 +134,7 @@ public class CHDKCamera {
         } else {
             System.out.println("Was Expecting A Data Packet!");
             throw new CameraConnectionException(
-                    "Camera Did not respond to a Live View request with a data org.acamilo.chdk.ptp.java.packet!");
+                    "Camera Did not respond to a Live View request with a data org.acamilo.chdk.ptp.java.connection.packet!");
         }
         p = connection.getResponse();
         if (p.getContainerCommand() == PTPPacket.PTP_USB_CONTAINER_RESPONSE
@@ -138,7 +142,7 @@ public class CHDKCamera {
             return image;
         else
             throw new CameraConnectionException(
-                    "Camera Did not end session with an OK response even though a data org.acamilo.chdk.ptp.java.packet was sent!");
+                    "Camera Did not end session with an OK response even though a data org.acamilo.chdk.ptp.java.connection.packet was sent!");
     }
 
     public BufferedImage getPicture() {

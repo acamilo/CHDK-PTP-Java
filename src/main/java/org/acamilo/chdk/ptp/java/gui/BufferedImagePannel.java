@@ -1,4 +1,4 @@
-package org.acamilo.chdk.ptp.java.camera;
+package org.acamilo.chdk.ptp.java.gui;
 
 import java.awt.Canvas;
 import java.awt.Color;

@@ -1,4 +1,4 @@
-package org.acamilo.chdk.ptp.java.camera;
+package org.acamilo.chdk.ptp.java.connection;
 
 import javax.usb.UsbDisconnectedException;
 import javax.usb.UsbEndpoint;
@@ -9,7 +9,8 @@ import javax.usb.UsbNotClaimedException;
 import javax.usb.UsbNotOpenException;
 import javax.usb.UsbPipe;
 
-import org.acamilo.chdk.ptp.java.packet.PTPPacket;
+import org.acamilo.chdk.ptp.java.connection.packet.PTPPacket;
+import org.acamilo.chdk.ptp.java.exception.CameraConnectionException;
 
 
 public class PTPConnection {
@@ -33,7 +34,7 @@ public class PTPConnection {
 		
 		if (camInpipe.isActive()==false || camOutpipe.isActive()==false) throw new CameraConnectionException("Pipes not active.. Balls");
 
-		System.out.println("Sending Begin session Command to org.acamilo.chdk.ptp.java.camera");
+		System.out.println("Sending Begin session Command to org.acamilo.chdk.ptp.java.connection");
         PTPPacket p = new PTPPacket(PTPPacket.PTP_USB_CONTAINER_COMMAND, PTPPacket.PTP_OPPCODE_OpenSession, 0, new byte[]{0x01,0x00,0x00,0x00});
         this.sendPTPPacket(p);
         PTPPacket r = this.getResponse();
@@ -46,7 +47,7 @@ public class PTPConnection {
 	public void sendPTPPacket(PTPPacket p) {
 		try {
 
-			if (p.getContainerCommand()==p.PTP_USB_CONTAINER_COMMAND) Seq++;// if its a new outgoing command org.acamilo.chdk.ptp.java.packet, inc seq counter
+			if (p.getContainerCommand()==p.PTP_USB_CONTAINER_COMMAND) Seq++;// if its a new outgoing command org.acamilo.chdk.ptp.java.connection.packet, inc seq counter
 		// Send init command
 		long startTime = System.nanoTime();
 		p.setTransaction(Seq);
@@ -76,7 +77,7 @@ public class PTPConnection {
 	        read.setLength(recbuf.length);
 			read.setOffset(0);
 			read.setAcceptShortPacket(true);
-	        if (read==null) throw new CameraConnectionException("I tried to get a org.acamilo.chdk.ptp.java.packet from the in pipe and got null!");
+	        if (read==null) throw new CameraConnectionException("I tried to get a org.acamilo.chdk.ptp.java.connection.packet from the in pipe and got null!");
 			camInpipe.syncSubmit(read);
 			
 	        PTPPacket response;

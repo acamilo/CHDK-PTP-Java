@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import java.util.Arrays;
 
-import org.acamilo.chdk.ptp.java.packet.PTPPacket;
+import org.acamilo.chdk.ptp.java.connection.packet.PTPPacket;
 import org.junit.Test;
 
 public class testPTPPacket {
