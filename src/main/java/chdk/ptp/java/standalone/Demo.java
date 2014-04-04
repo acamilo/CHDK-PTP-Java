@@ -12,26 +12,30 @@ public class Demo {
 
     /**
      * Runs the demo.
+     * 
+     * @param args
+     *            currently unused
+     * 
      */
-    public static void main() {
-        cam = null;
-        try {
-            short someCanonCamera = 0x325a;
-            short canonSX50 = 0x3259;
-            cam = new Camera(canonVendor, canonSX50);
-            cam.executeLuaScript("switch_mode_usb(1)");
+    public static void main(String[] args) {
+	cam = null;
+	try {
+	    short someCanonCamera = 0x325a;
+	    short canonSX50 = 0x3259;
+	    cam = new Camera(canonVendor, canonSX50);
+	    cam.executeLuaScript("switch_mode_usb(1)");
 
-            BufferedImagePannel d = null;
-            while (true) {
-                if (d == null)
-                    d = new BufferedImagePannel(cam.getView());
-                else
-                    d.setImage(cam.getView());
-            }
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            cam.disconnect();
-        }
+	    BufferedImagePannel d = null;
+	    while (true) {
+		if (d == null)
+		    d = new BufferedImagePannel(cam.getView());
+		else
+		    d.setImage(cam.getView());
+	    }
+	} catch (Exception e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	    cam.disconnect();
+	}
     }
 }
