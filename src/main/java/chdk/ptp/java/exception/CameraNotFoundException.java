@@ -1,4 +1,4 @@
-package org.acamilo.chdk.ptp.java.exception;
+package chdk.ptp.java.exception;
 
 /**
  * Exception thrown when camera device cannot be detected.
