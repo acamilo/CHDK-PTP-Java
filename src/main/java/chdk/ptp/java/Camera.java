@@ -13,8 +13,6 @@ import javax.usb.UsbException;
 import javax.usb.UsbHostManager;
 import javax.usb.UsbHub;
 import javax.usb.UsbInterface;
-import javax.usb.UsbNotActiveException;
-import javax.usb.UsbNotOpenException;
 import javax.usb.UsbServices;
 
 import chdk.ptp.java.connection.PTPConnection;
@@ -23,50 +21,15 @@ import chdk.ptp.java.connection.packet.CHDKScreenImage;
 import chdk.ptp.java.connection.packet.PTPPacket;
 import chdk.ptp.java.exception.CameraConnectionException;
 import chdk.ptp.java.exception.CameraNotFoundException;
-import chdk.ptp.java.gui.BufferedImagePannel;
 
-public class CHDKCamera {
-    PTPConnection connection;
+/**
+ * Camera entry point.
+ */
+public class Camera {
 
-    /**
-     * @param args
-     * @throws UsbNotOpenException
-     * @throws UsbNotActiveException
-     * @throws CameraConnectionException
-     * @throws CameraNotFoundException
-     * @throws UsbException
-     * @throws UsbDisconnectedException
-     * @throws UnsupportedEncodingException
-     * @throws SecurityException
-     */
-    public static void main(String[] args) throws UsbNotActiveException, UsbNotOpenException,
-            UsbDisconnectedException, UsbException {
-        CHDKCamera cam = null;
-        try {
-            short canonVendor = 0x04a9;
-            short someCanonCamera = 0x325a;
-            short canonSX50 = 0x3259;
-            cam = new CHDKCamera(canonVendor, canonSX50);
-            cam.executeLuaScript("switch_mode_usb(1)");
+    private PTPConnection connection;
 
-            BufferedImagePannel d = null;
-            while (true) {
-                if (d == null)
-                    d = new BufferedImagePannel(cam.getView());
-                else
-                    d.setImage(cam.getView());
-            }
-        } catch (SecurityException | UnsupportedEncodingException | UsbDisconnectedException
-                | UsbException | CameraNotFoundException | CameraConnectionException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            cam.connection.close();
-            return;
-        }
-
-    }
-
-    public CHDKCamera(short vid, short pid) throws SecurityException, UsbException,
+    public Camera(short vid, short pid) throws SecurityException, UsbException,
             CameraNotFoundException, UnsupportedEncodingException, UsbDisconnectedException,
             CameraConnectionException {
         UsbServices services = UsbHostManager.getUsbServices();
@@ -78,7 +41,7 @@ public class CHDKCamera {
 
     }
 
-    public CHDKCamera(String SerialNo) throws SecurityException, UsbException,
+    public Camera(String SerialNo) throws SecurityException, UsbException,
             UnsupportedEncodingException, UsbDisconnectedException, CameraNotFoundException,
             CameraConnectionException {
         UsbServices services = UsbHostManager.getUsbServices();
@@ -125,7 +88,8 @@ public class CHDKCamera {
 
         connection.sendPTPPacket(p);
 
-        // We should get 2 packets back. A Data chdk.ptp.java.connection.packet and a status.
+        // We should get 2 packets back. A Data chdk.ptp.java.connection.packet and a
+        // status.
         p = connection.getResponse();
         if (p.getContainerCommand() == p.PTP_USB_CONTAINER_DATA) {
             CHDKScreenImage i = new CHDKScreenImage(p.getData());
@@ -146,7 +110,17 @@ public class CHDKCamera {
     }
 
     public BufferedImage getPicture() {
+        // TODO: ;P
         return null;
+    }
+
+    public void disconnect() {
+        try {
+            connection.close();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     // Device Discovery Functions

@@ -1,4 +1,4 @@
-package chdk.ptp.java.gui;
+package chdk.ptp.java.standalone;
 
 import java.awt.Canvas;
 import java.awt.Color;
