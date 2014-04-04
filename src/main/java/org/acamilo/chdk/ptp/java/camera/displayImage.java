@@ -1,4 +1,4 @@
-package camera;
+package org.acamilo.chdk.ptp.java.camera;
 
 import java.awt.Canvas;
 import java.awt.Color;
@@ -13,7 +13,7 @@ import java.awt.image.WritableRaster;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import packet.CHDKScreenImage;
+import org.acamilo.chdk.ptp.java.packet.CHDKScreenImage;
 
 public class displayImage extends JPanel{
 	CHDKScreenImage image;

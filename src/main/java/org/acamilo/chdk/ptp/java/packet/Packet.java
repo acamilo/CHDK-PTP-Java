@@ -1,4 +1,4 @@
-package packet;
+package org.acamilo.chdk.ptp.java.packet;
 
 import java.util.Arrays;
 

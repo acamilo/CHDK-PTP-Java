@@ -2,10 +2,9 @@ package testing;
 
 import static org.junit.Assert.*;
 
+import org.acamilo.chdk.ptp.java.packet.ByteOrder;
+import org.acamilo.chdk.ptp.java.packet.Packet;
 import org.junit.Test;
-
-import packet.ByteOrder;
-import packet.Packet;
 
 public class testPacket {
 
@@ -14,7 +13,7 @@ public class testPacket {
 		byte[] buff = new byte[100];
 		Packet p = new Packet(buff);
 		
-		// reading out the packet
+		// reading out the org.acamilo.chdk.ptp.java.packet
 		assertArrayEquals(buff,p.getPacket());
 		
 		// encode byte test

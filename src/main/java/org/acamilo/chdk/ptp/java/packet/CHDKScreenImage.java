@@ -1,4 +1,4 @@
-package packet;
+package org.acamilo.chdk.ptp.java.packet;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
@@ -71,8 +71,8 @@ public class CHDKScreenImage extends Packet{
 	private static final int iViewDataHeaderLCDAspectRatio= 8;
 	private static final int iViewDataHeaderPalleteType= 12;
 	private static final int iViewDataHeaderPalleteDataStart= 16; // So they can change protocol slightly by adding more metadata and still have old software find the sections right. cool.
-	private static final int iViewDataHeaderViewportDescriptorStart= 20; // in-packet pointer to viewport descriptor (ui overlay)
-	private static final int iViewDataHeaderBitmapDescriptorStart= 24; // in-packet-pointer to bitmap descriptor (image)
+	private static final int iViewDataHeaderViewportDescriptorStart= 20; // in-org.acamilo.chdk.ptp.java.packet pointer to viewport descriptor (ui overlay)
+	private static final int iViewDataHeaderBitmapDescriptorStart= 24; // in-org.acamilo.chdk.ptp.java.packet-pointer to bitmap descriptor (image)
 	
 	public int getMajorVersion(){ return this.decodeInt(iViewDataHeaderVersionNumberMajor, ByteOrder.LittleEndian); }
 	public int getMinorVersion(){ return this.decodeInt(iViewDataHeaderVersionNumberMinor, ByteOrder.LittleEndian); }

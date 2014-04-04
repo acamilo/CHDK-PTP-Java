@@ -1,4 +1,4 @@
-package camera;
+package org.acamilo.chdk.ptp.java.camera;
 
 import javax.usb.UsbDisconnectedException;
 import javax.usb.UsbEndpoint;
@@ -8,10 +8,9 @@ import javax.usb.UsbNotActiveException;
 import javax.usb.UsbNotOpenException;
 import javax.usb.UsbPipe;
 
+import org.acamilo.chdk.ptp.java.packet.PTPPacket;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import packet.PTPPacket;
 
 public class PTPSession {
 
