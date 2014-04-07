@@ -11,10 +11,11 @@ public class CameraConnectionException extends Exception {
     /**
      * Creates a new instance of
      * 
-     * @param detailedMessage message about the error
+     * @param detailedMessage
+     *            message about the error
      */
     public CameraConnectionException(String detailedMessage) {
-        super(detailedMessage);
+	super(detailedMessage);
     }
 
 }

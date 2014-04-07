@@ -25,10 +25,10 @@ public class Demo {
 	    cam = new Camera(canonVendor, canonSX50);
 	    cam.executeLuaScript("switch_mode_usb(1)");
 
-	    BufferedImagePannel d = null;
+	    BufferedImagePanel d = null;
 	    while (true) {
 		if (d == null)
-		    d = new BufferedImagePannel(cam.getView());
+		    d = new BufferedImagePanel(cam.getView());
 		else
 		    d.setImage(cam.getView());
 	    }
