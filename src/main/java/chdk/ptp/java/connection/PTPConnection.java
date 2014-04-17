@@ -19,7 +19,7 @@ public class PTPConnection {
     UsbPipe camOutpipe = null;
     Boolean isConnected = false;
     UsbIrp read, write;
-    byte[] recbuf = new byte[300000];
+    byte[] recbuf = new byte[600000];
 
     public PTPConnection(String SerialNumber) {
 
@@ -72,7 +72,7 @@ public class PTPConnection {
 	    long stopTime = System.nanoTime();
 	    // System.out.println("TX Delta:\t"+((stopTime -
 	    // startTime)/(float)10000000)+"ms");
-	    System.out.print(p);
+	    // System.out.print(p);
 	} catch (Exception e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
@@ -108,7 +108,7 @@ public class PTPConnection {
 	    // System.out.println("Copy:\t\t"+((stopTime -
 	    // startTime)/(float)1000000)+"ms");
 	    startTime = System.nanoTime();
-	    System.out.print(response);
+	    // System.out.print(response);
 	    return response;
 	} catch (Exception e) {
 	    // TODO Auto-generated catch block
