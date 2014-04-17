@@ -26,9 +26,7 @@ public class BufferedImagePanel extends JPanel {
     }
 
     public void setImage(BufferedImage i) {
-	// TODO Auto-generated method stub
 	image = i;
 	this.repaint();
-
     }
 }

@@ -98,25 +98,24 @@ public class Camera {
 	connection.sendPTPPacket(p);
 
 	// We should get 2 packets back. A Data chdk.ptp.java.connection.packet
-	// and a
-	// status.
+	// and a status.
 	p = connection.getResponse();
 	if (p.getContainerCommand() == p.PTP_USB_CONTAINER_DATA) {
 	    CHDKScreenImage i = new CHDKScreenImage(p.getData());
+	    // System.out.println(i.toString());
 	    image = i.decodeViewport();
-
 	} else {
 	    System.out.println("Was Expecting A Data Packet!");
 	    throw new CameraConnectionException(
 		    "Camera Did not respond to a Live View request with a data chdk.ptp.java.connection.packet!");
 	}
+
 	p = connection.getResponse();
 	if (p.getContainerCommand() == PTPPacket.PTP_USB_CONTAINER_RESPONSE
 		&& p.getOppcode() == PTPPacket.PTP_OPPCODE_Response_OK)
 	    return image;
-	else
-	    throw new CameraConnectionException(
-		    "Camera Did not end session with an OK response even though a data chdk.ptp.java.connection.packet was sent!");
+	throw new CameraConnectionException(
+		"Camera Did not end session with an OK response even though a data chdk.ptp.java.connection.packet was sent!");
     }
 
     public BufferedImage getPicture() {
@@ -128,6 +127,132 @@ public class Camera {
 	try {
 	    connection.close();
 	} catch (Exception e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+    }
+
+    /**
+     * 
+     * Switches a CHDK camera (eg. SX50HS) into recording mode (image/video)
+     * 
+     * @see <a
+     *      href="http://chdk.wikia.com/wiki/Script_commands#set_record.28state.29">CHDK
+     *      set_record(1)</a>
+     * 
+     */
+    public void setRecordingMode() {
+	this.executeLuaScript("set_record(1)");
+	try {
+	    Thread.sleep(2000);
+	} catch (InterruptedException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+    }
+
+    /**
+     * 
+     * Switches a CHDK camera (eg. SX50HS) into playback mode
+     * 
+     * @see <a
+     *      href="http://chdk.wikia.com/wiki/Script_commands#set_record.28state.29">CHDK
+     *      set_record(0)</a>
+     * 
+     */
+    public void setPlaybackMode() {
+	this.executeLuaScript("set_record(0)");
+	try {
+	    Thread.sleep(2000);
+	} catch (InterruptedException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+    }
+
+    /**
+     * Focuses the camera at selected distance
+     * 
+     * @see <a
+     *      href="http://chdk.wikia.com/wiki/CHDK_Manual_Focus_and_Subject_Distance_Overrides">CHDK
+     *      manual focusing dispute</a>
+     * 
+     * 
+     * @param focusingDistance
+     *            desired focusing distance
+     */
+    public void setFocus(int focusingDistance) {
+	this.executeLuaScript("set_focus(" + focusingDistance + ")");
+	try {
+	    Thread.sleep(1000);
+	} catch (InterruptedException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+    }
+
+    /**
+     * Sets camera zoom to designated position.
+     * 
+     * @see <a
+     *      href="http://chdk.wikia.com/wiki/CHDK_scripting#set_zoom_.2F_set_zoom_rel_.2F_get_zoom_.2F_set_zoom_speed">CHDK
+     *      lua set_zoom()</a>
+     * 
+     * @param zoomPosition
+     *            desired lens zoom position
+     */
+    public void setZoom(int zoomPosition) {
+	this.executeLuaScript("set_zoom(" + zoomPosition + ")");
+	try {
+	    Thread.sleep(3500);
+	} catch (InterruptedException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+    }
+
+    /**
+     * Switches a CHDK camera (eg. SX50HS) from AF to MF mode
+     * 
+     * @see <a
+     *      href="http://chdk.wikia.com/wiki/CHDK_Manual_Focus_and_Subject_Distance_Overrides">CHDK
+     *      toggle MF/AF</a>
+     * 
+     */
+    public void switchToManualFocus() {
+	// TODO: check current camera focus mode!!!
+	try {
+	    this.executeLuaScript("click('left')");
+	    Thread.sleep(1000);
+	    this.executeLuaScript("click('right')");
+	    Thread.sleep(500);
+	    this.executeLuaScript("click('set')");
+	    Thread.sleep(1000);
+	    this.executeLuaScript("click('set')");
+	    Thread.sleep(1000);
+	} catch (InterruptedException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+    }
+
+    /**
+     * Switches a CHDK camera (eg. SX50HS) from MF to AF mode
+     * 
+     * @see <a
+     *      href="http://chdk.wikia.com/wiki/CHDK_Manual_Focus_and_Subject_Distance_Overrides">CHDK
+     *      toggle MF/AF</a>
+     */
+    public void switchToAutoFocus() {
+	// TODO: check current camera focus mode!!!
+	try {
+	    this.executeLuaScript("click('left')");
+	    Thread.sleep(1000);
+	    this.executeLuaScript("click('left')");
+	    Thread.sleep(500);
+	    this.executeLuaScript("click('set')");
+	    Thread.sleep(1000);
+	} catch (InterruptedException e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}
