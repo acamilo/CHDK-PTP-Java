@@ -48,7 +48,7 @@ public class PTPConnection {
 		&& r.getOppcode() == PTPPacket.PTP_OPPCODE_Response_OK)
 	    return;
 	throw new CameraConnectionException(
-		"Camera Did not respond OK to our OpenSession Request");
+		"Camera did not respond OK to our OpenSession Request");
 
     }
 

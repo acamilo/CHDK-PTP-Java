@@ -1,14 +1,15 @@
 package chdk.ptp.java.standalone;
 
-import chdk.ptp.java.Camera;
+import chdk.ptp.java.CameraFactory;
+import chdk.ptp.java.ICamera;
+import chdk.ptp.java.SupportedCamera;
 
 /**
  * Displays a panel with live view from camera.
  */
 public class CaptureDemo {
 
-    private static Camera cam;
-    private static short canonVendor = 0x04a9;
+    private static ICamera cam;
 
     /**
      * Runs the demo.
@@ -20,18 +21,16 @@ public class CaptureDemo {
     public static void main(String[] args) {
 	cam = null;
 	try {
-	    short someCanonCamera = 0x325a;
-	    short canonSX50 = 0x3259;
-	    cam = new Camera(canonVendor, canonSX50);
+	    cam = CameraFactory.getCamera(SupportedCamera.SX50HS);
+	    cam.connect();
 	    // switch to capture mode
 	    cam.setRecordingMode();
 
 	    // show taken image
-	    BufferedImagePanel d = new BufferedImagePanel(cam.getPicture());
-	} catch (Exception e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    new BufferedImagePanel(cam.getPicture());
 	    cam.disconnect();
+	} catch (Exception e) {
+	    e.printStackTrace();
 	}
     }
 }
