@@ -10,6 +10,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import chdk.ptp.java.camera.FailSafeCamera;
+import chdk.ptp.java.camera.SX160ISCamera;
 import chdk.ptp.java.camera.SX50Camera;
 import chdk.ptp.java.connection.UsbUtils;
 import chdk.ptp.java.exception.CameraNotFoundException;
@@ -60,6 +61,7 @@ public class CameraFactory {
 	case SX50HS:
 	    return new SX50Camera(CANON_VENDOR, cameraModel.getPID());
 	case SX160IS:
+		return new SX160ISCamera(CANON_VENDOR, cameraModel.getPID());
 	case FailsafeCamera:
 	default:
 	    return new FailSafeCamera(CANON_VENDOR, cameraModel.getPID());
