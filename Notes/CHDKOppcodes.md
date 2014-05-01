@@ -1,9 +1,9 @@
-== PTP Chdk Commands ==
+## PTP Chdk Commands ##
 
 I'm tired of counting from zero on an enum. 
 
 CHDK Oppcode  					|  Command
------------------------------------------------------------
+------------------------|-----------------------------------
 PTP_CHDK_Version				|	0x00
 PTP_CHDK_GetMemory				|	0x01
 PTP_CHDK_SetMemory				|	0x02
