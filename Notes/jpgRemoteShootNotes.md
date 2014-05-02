@@ -4,7 +4,7 @@
 * << Reply 0x2001 (ok)
 * >> Execute Script
 * >> Script
-'''
+```
 function rs_init(opts)
 	local rec,vid = get_mode()
 	if not rec then
@@ -38,7 +38,7 @@ return rs_init({
  lstart=0,
  fformat=1,
 })
-'''
+```
 
 * >> Check script status
 * << Reply 0x2001 ARG0: 0x0002
@@ -48,7 +48,7 @@ return rs_init({
 * << Reply 0x2001 ARG0:0x00
 * >> execute script
 * >> Script
-'''
+```
 function rlib_shoot_init_exp (opts)
 if opts.tv then
 		set_tv96_direct(opts.tv)
@@ -102,7 +102,7 @@ rs_shoot({
  fformat=1,
 })
 
-'''
+```
 * << ok (0x2001) 0x0d 0x00
 * >> script status
 * << OK 0x01
