@@ -146,4 +146,12 @@ value | format
 2|raw
 4|DNG Header
 
+## what gets sent back ? 33
+its a jpeg according to code.
+last 2 bytes of last data packet is FF d9. end of jpeg.
+first bytes of first packet are not FFD8. IS there extra stuff before the jpeg starts? is it at an offset?
+>  //client needs to seek to this file position before writing the chunk (-1 = ignore)
 
+oh.
+Camera sends a chunk+seek value when you call 0x000e
+beginning of file matches one of the blocks. packet 646 in pcap.
