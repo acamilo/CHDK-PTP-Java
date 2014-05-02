@@ -1,5 +1,7 @@
 # Remote Shoot Notes #
 
+The remote shoot works by hooking functions that write the JPEG to a file and instead dump it into memory (i think, based on looking at source) The first script sets up the hook and sends a timeout when reached will result in the hook removed. The next script takes the photo using the normal shoot() function and then pulls it over the USB.
+
 * >> Script STATUS packet (0x08)
 * << Reply 0x2001 (ok)
 * >> Execute Script
@@ -110,9 +112,7 @@ rs_shoot({
 * << OK 0x00 0x00
 * >> Script Status
 * << 0K 0x01
-
-* Repeat.
-
+* Repeat
 * >> Remote capture is ready?
 * << OK 0x01 0xb01b7
 * >> Get JPEG
