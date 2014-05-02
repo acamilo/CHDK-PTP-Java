@@ -126,5 +126,24 @@ https://github.com/c10ud/CHDK/blob/master/modules/luascript.c line 2504 luaCB_se
 timeout. miliseconds.
 HOOK_WAIT_MAX_DEFAULT https://github.com/c10ud/CHDK/blob/master/core/remotecap.c 3000ms
 
+## init_usb_capture ##
+from https://github.com/c10ud/CHDK/blob/master/modules/luascript.c 2466
+```
+status=init_usb_capture(bitmask[,startline, numlines])
+bitmask = 0 clear usb capture mode
+
+lines only applies to raw
+startline defaults to 0
+numlines defaults to full buffer
+```
+Called (1,0,0)
+c function remotecap_set_target(what,startline,numlines) luascript.c 2473 uaCB_init_usb_capture
+dumped into remote_file_target
+
+value | format
+------|-------
+1|jpeg
+2|raw
+4|DNG Header
 
 
