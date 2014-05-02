@@ -19,7 +19,7 @@ public class PTPConnection {
     UsbPipe camOutpipe = null;
     Boolean isConnected = false;
     UsbIrp read, write;
-    byte[] recbuf = new byte[600000];
+    byte[] recbuf = new byte[43948288];
 
     public PTPConnection(String SerialNumber) {
 
@@ -55,8 +55,7 @@ public class PTPConnection {
     public void sendPTPPacket(PTPPacket p) {
 	try {
 
-	    if (p.getContainerCommand() == p.PTP_USB_CONTAINER_COMMAND)
-		Seq++;// if its a new outgoing command
+	    if (p.getContainerCommand() == p.PTP_USB_CONTAINER_COMMAND) Seq++;// if its a new outgoing command
 		      // chdk.ptp.java.connection.packet, inc seq counter
 	    // Send init command
 	    long startTime = System.nanoTime();

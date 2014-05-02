@@ -6,6 +6,24 @@ public class PTPPacket extends Packet {
     public final static short PTP_USB_CONTAINER_DATA = 2;
     public final static short PTP_USB_CONTAINER_RESPONSE = 3;
     public final static short PTP_USB_CONTAINER_EVENT = 4;
+    
+    // CHDK Oppcodes
+    public final static int CHDK_Version = 0;
+    public final static int CHDK_GetMemory = 1;
+    public final static int CHDK_SetMemory = 2;
+    public final static int CHDK_CallFunction = 3;
+    public final static int CHDK_TempData = 4;
+    public final static int CHDK_UploadFile = 5;
+    public final static int CHDK_DownloadFile = 6;
+    public final static int CHDK_ExecuteScript = 7;
+    public final static int CHDK_ScriptStatus = 8;
+    public final static int CHDK_ScriptSupport = 9;
+    public final static int CHDK_ReadScriptMsg = 10;
+    public final static int CHDK_WriteScriptData = 11;
+    public final static int CHDK_GetDisplayData = 12;
+    public final static int CHDK_RemoteCaptureIsReady = 13;
+    public final static int CHDK_RemoteCaptureGetData = 14;
+    
 
     public final static short PTP_OPPCODE_CHDK = (short) 0x9999;
     public final static short PTP_OPPCODE_OpenSession = (short) 0x1002;
@@ -119,7 +137,7 @@ public class PTPPacket extends Packet {
 	r += "\tData:\t\t(" + (this.getLength() - 12) + ")[";
 	if (this.getLength() > 12 & this.getLength() < 200)
 	    for (int i = 12; i < this.getLength(); i++)
-		r += " " + this.decodeByte(i);
+		r += " " + String.format("%02X",this.decodeByte(i));
 	r += " ]\n";
 	return r;
     }

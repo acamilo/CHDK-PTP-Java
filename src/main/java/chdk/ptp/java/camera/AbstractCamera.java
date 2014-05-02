@@ -41,7 +41,10 @@ public abstract class AbstractCamera implements ICamera {
     private short cameraVendorID = -1;
     private short cameraProductID = -1;
     private String cameraSerialNo = "";
-
+    public PTPConnection getPTPConnection(){
+    	return connection;
+    }
+    
     /**
      * Creates a new instance of
      *
