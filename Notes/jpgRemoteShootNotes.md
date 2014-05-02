@@ -155,3 +155,5 @@ first bytes of first packet are not FFD8. IS there extra stuff before the jpeg s
 oh.
 Camera sends a chunk+seek value when you call 0x000e
 beginning of file matches one of the blocks. packet 646 in pcap.
+
+Assuming no seek == stick it right after the previous one..
