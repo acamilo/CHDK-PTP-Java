@@ -119,3 +119,12 @@ rs_shoot({
 * << crap tons of jpeg
 
 
+## set_usb_capture_timeout ##
+What do you do? you're defaulting to something.
+https://github.com/c10ud/CHDK/blob/master/modules/luascript.c line 2504 luaCB_set_usb_capture_timeout
+
+timeout. miliseconds.
+HOOK_WAIT_MAX_DEFAULT https://github.com/c10ud/CHDK/blob/master/core/remotecap.c 3000ms
+
+
+
