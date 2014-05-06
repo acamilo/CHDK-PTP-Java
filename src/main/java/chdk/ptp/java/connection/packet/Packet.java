@@ -7,8 +7,8 @@ public class Packet {
     private byte[] packet;
 
     public Packet(byte[] packet) {
-	this.packet = packet;
-    }
+	this.packet = packet.clone(); 
+	}
 
     public byte[] getPacket() {
 	return packet;

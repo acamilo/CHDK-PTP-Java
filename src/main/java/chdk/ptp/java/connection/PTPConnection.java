@@ -80,7 +80,7 @@ public class PTPConnection {
 
     public PTPPacket getResponse() {
 	try {
-	    long startTime = System.nanoTime();
+
 	    if (camInpipe == null)
 		throw new CameraConnectionException("My pipe is null.!");
 	    read = camInpipe.createUsbIrp();
@@ -96,18 +96,7 @@ public class PTPConnection {
 	    PTPPacket response;
 	    response = new PTPPacket(recbuf);
 	    read.waitUntilComplete();
-	    long stopTime = System.nanoTime();
 
-	    // System.out.println("RX Delta:\t"+((stopTime -
-	    // startTime)/(float)1000000)+"ms");
-	    startTime = System.nanoTime();
-
-	    byte[] image = response.getData();
-	    stopTime = System.nanoTime();
-	    // System.out.println("Copy:\t\t"+((stopTime -
-	    // startTime)/(float)1000000)+"ms");
-	    startTime = System.nanoTime();
-	    // System.out.print(response);
 	    return response;
 	} catch (Exception e) {
 	    // TODO Auto-generated catch block

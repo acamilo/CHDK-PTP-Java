@@ -106,6 +106,10 @@ public class PTPPacket extends Packet {
     public void setTransaction(int transaction) {
 	this.encodeInt(iPTPtransaction, transaction, ByteOrder.LittleEndian);
     }
+    
+    public int getDataLength(){
+    	return this.getLength()-12;
+    }
 
     @Override
     public String toString() {
@@ -135,8 +139,9 @@ public class PTPPacket extends Packet {
 		+ "\n";
 	r += "\tTransaction:\t" + this.getTransaction() + "\n";
 	r += "\tData:\t\t(" + (this.getLength() - 12) + ")[";
-	if (this.getLength() > 12 & this.getLength() < 200)
-	    for (int i = 12; i < this.getLength(); i++)
+	
+	if (this.getLength() > 12 )// & this.getLength() < 200)
+	    for (int i = 12; i < ((this.getLength()<200)?this.getLength():200); i++)
 		r += " " + String.format("%02X",this.decodeByte(i));
 	r += " ]\n";
 	return r;

@@ -23,7 +23,7 @@ public class LiveViewDemo {
     public static void main(String[] args) {
 	cam = null;
 	try {
-	    cam = CameraFactory.getCamera(SupportedCamera.SX50HS);
+	    cam = CameraFactory.getCamera(SupportedCamera.SX160IS);
 	    cam.connect();
 	    cam.setRecordingMode();
 	    cam.setManualFocusMode();
@@ -33,14 +33,16 @@ public class LiveViewDemo {
 	    while (true) {
 		d.setImage(cam.getView());
 		++i;
+		cam.setZoom(i % 100);
 		if (i % 40 == 0) {
-		    cam.setAutoFocusMode();
-		    cam.setZoom(random.nextInt(100));
-		    cam.setManualFocusMode();
+		   // cam.setAutoFocusMode();
+		    //cam.setZoom(random.nextInt(100));
+		    //cam.setManualFocusMode();
 		}
 
-		if (i % 8 == 0)
-		    cam.setFocus(random.nextInt(1000) + 100);
+		//if (i % 8 == 0)
+			//cam.setZoom(random.nextInt(100));
+		    //cam.setFocus(random.nextInt(1000) + 100);
 	    }
 	} catch (Exception e) {
 	    e.printStackTrace();
