@@ -69,3 +69,6 @@ gsettings set org.gnome.desktop.media-handling automount false
 ```
 
 To un do this change false to true. 
+
+### Other OSes ##
+this uses libusb4java so it probubly works in windows and mac. I've never tried it though.
