@@ -35,6 +35,7 @@ Interface reference https://github.com/c10ud/CHDK/blob/master/core/ptp.h
 ### Instalation ###
 #### Download gradle ####
 ``` 
+cd ~/
 wget https://services.gradle.org/distributions/gradle-1.12-bin.zip
 unzip gradle-1.12-bin.zip
 echo "export PATH=\$PATH:$HOME/gradle-1.12/bin" >> ~/.bashrc
