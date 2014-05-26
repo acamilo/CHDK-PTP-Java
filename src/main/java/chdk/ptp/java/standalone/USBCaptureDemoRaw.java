@@ -40,8 +40,14 @@ public class USBCaptureDemoRaw {
 	try {
 	    cam = CameraFactory.getCamera(SupportedCamera.SX160IS);
 	    cam.connect();
+	    Thread.sleep(1000);
+
 	    // switch to capture mode
 	    cam.setRecordingMode();
+
+	    Thread.sleep(1000);
+	    
+	    Thread.sleep(1000);
 	    AbstractCamera acam = (AbstractCamera) cam;
 	    PTPConnection c = acam.getPTPConnection();
 	    //

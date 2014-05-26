@@ -21,7 +21,7 @@ public class CaptureDemo {
     public static void main(String[] args) {
 	cam = null;
 	try {
-	    cam = CameraFactory.getCamera(SupportedCamera.SX50HS);
+	    cam = CameraFactory.getCamera(SupportedCamera.SX160IS);
 	    cam.connect();
 	    // switch to capture mode
 	    cam.setRecordingMode();
