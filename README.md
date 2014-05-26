@@ -33,9 +33,51 @@ Interface reference https://github.com/c10ud/CHDK/blob/master/core/ptp.h
 ```
 
 ### Instalation ###
-todo
+#### Download gradle ####
+``` 
+cd ~/
+wget https://services.gradle.org/distributions/gradle-1.12-bin.zip
+unzip gradle-1.12-bin.zip
+echo "export PATH=\$PATH:$HOME/gradle-1.12/bin" >> ~/.bashrc
+source ~/.bashrc
+```
 
-* install gradle
-* Check out project
-* Compile
-* Open in eclipse
+#### Check out project ####
+```
+mkdir ~/git
+cd ~/git
+git cone https://github.com/acamilo/CHDK-PTP-Java.git
+```
+#### Compile ####
+```
+cd CHDK-PTP-Java
+gradle build
+gradle eclipse
+```
+
+#### Open in eclipse ####
+import CHDK-PTP-Java as an eclipse project
+
+#### other problems ####
+I.E Afternoon wasters...
+
+on some OSes gvfs will grab the PTP device and you'll get this error.
+```
+javax.usb.UsbPlatformException: USB error 6: Unable to claim interface: Resource busy
+```
+The solutionin ubuntu is this. 
+```
+gsettings set org.gnome.desktop.media-handling automount false
+```
+
+To un do this change false to true. 
+
+Sometimes, cam.setRecordingMode() will fail but the camera will otherise be responsive.
+
+see thread:
+http://chdk.setepontos.com/index.php?topic=10664.10
+
+solition is to either kill gvfs-gphoto2-volume-monitor or to make it perminent, change it's name so it doesn't start.
+
+### Other OSes ##
+this uses libusb4java so it probubly works in windows and mac. I've never tried it though.
