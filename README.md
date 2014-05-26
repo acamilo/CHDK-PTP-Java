@@ -60,9 +60,9 @@ import CHDK-PTP-Java as an eclipse project
 
 #### other problems ####
 on some OSes gvfs will grab the PTP device and you'll get this error.
-'''
+```
 javax.usb.UsbPlatformException: USB error 6: Unable to claim interface: Resource busy
-'''
+```
 The solutionin ubuntu is this. 
 ```
 gsettings set org.gnome.desktop.media-handling automount false
