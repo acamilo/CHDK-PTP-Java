@@ -59,6 +59,7 @@ gradle eclipse
 import CHDK-PTP-Java as an eclipse project
 
 #### other problems ####
+I.E Afternoon wasters...
 on some OSes gvfs will grab the PTP device and you'll get this error.
 ```
 javax.usb.UsbPlatformException: USB error 6: Unable to claim interface: Resource busy
@@ -69,6 +70,13 @@ gsettings set org.gnome.desktop.media-handling automount false
 ```
 
 To un do this change false to true. 
+
+Sometimes, cam.setRecordingMode() will fail but the camera will otherise be responsive.
+
+see thread:
+http://chdk.setepontos.com/index.php?topic=10664.10
+
+solition is to either kill gvfs-gphoto2-volume-monitor or to make it perminent, change it's name so it doesn't start.
 
 ### Other OSes ##
 this uses libusb4java so it probubly works in windows and mac. I've never tried it though.
