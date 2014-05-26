@@ -33,9 +33,26 @@ Interface reference https://github.com/c10ud/CHDK/blob/master/core/ptp.h
 ```
 
 ### Instalation ###
-todo
+#### Download gradle ####
+``` 
+wget https://services.gradle.org/distributions/gradle-1.12-bin.zip
+unzip gradle-1.12-bin.zip
+echo "export PATH=\$PATH:$HOME/gradle-1.12/bin" >> ~/.bashrc
+source ~/.bashrc
+```
 
-* install gradle
-* Check out project
-* Compile
-* Open in eclipse
+#### Check out project ####
+```
+mkdir ~/git
+cd ~/git
+git cone https://github.com/acamilo/CHDK-PTP-Java.git
+```
+#### Compile ####
+```
+cd CHDK-PTP-Java
+gradle build
+gradle eclipse
+```
+
+#### Open in eclipse ####
+import CHDK-PTP-Java as an eclipse project
