@@ -3,6 +3,8 @@ package chdk.ptp.java.camera;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import chdk.ptp.java.exception.CameraConnectionException;
+
 /**
  * SX50Camera implementation.
  */
@@ -52,6 +54,9 @@ public class SX50Camera extends AbstractCamera {
 	} catch (InterruptedException e) {
 	    log.error(e.getLocalizedMessage());
 	    e.printStackTrace();
+	} catch (CameraConnectionException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
 	}
     }
 
@@ -61,7 +66,7 @@ public class SX50Camera extends AbstractCamera {
      * @see chdk.ptp.java.ICamera#setAutoFocusMode()
      */
     @Override
-    public void setAutoFocusMode() {
+    public void setAutoFocusMode() throws CameraConnectionException {
 	// TODO: check current camera focus mode!!!
 	try {
 	    this.executeLuaCommand("click('left')");
@@ -73,6 +78,10 @@ public class SX50Camera extends AbstractCamera {
 	} catch (InterruptedException e) {
 	    log.error(e.getLocalizedMessage());
 	    e.printStackTrace();
+	} catch (Exception e) {
+		// TODO Auto-generated catch block
+		log.error(e.getLocalizedMessage(), e);
+		throw new CameraConnectionException(e.getMessage());
 	}
     }
 

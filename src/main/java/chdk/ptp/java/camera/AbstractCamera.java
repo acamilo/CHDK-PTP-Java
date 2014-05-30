@@ -125,7 +125,7 @@ public abstract class AbstractCamera implements ICamera {
 	}
 
 	@Override
-	public boolean executeLuaCommand(String command) {
+	public boolean executeLuaCommand(String command) throws CameraConnectionException {
 
 		StringBuilder formattedCommand = new StringBuilder(command);
 		log.debug("Executing: \t\"" + formattedCommand.toString() + "\"");
@@ -198,6 +198,12 @@ public abstract class AbstractCamera implements ICamera {
 		throw new CameraConnectionException(message);
 	}
 
+	public BufferedImage getRawView() throws CameraConnectionException {
+		
+		
+		return null;
+	}
+	
 	@Override
 	public BufferedImage getPicture() throws CameraConnectionException {
 		try {
@@ -225,7 +231,7 @@ public abstract class AbstractCamera implements ICamera {
 					if (retries > 9) {
 						log.error("Camera Won't shoot photo.");
 						throw new CameraConnectionException(
-								"Camera Capture Failed");
+								"Camera ignored 9 sucsessive shoot() commands");
 					}
 					log.warn("Camera ignored shoot command. Retrying.");
 					timeout = System.currentTimeMillis();
@@ -296,54 +302,59 @@ public abstract class AbstractCamera implements ICamera {
 			return bImageFromConvert;
 		} catch (InterruptedException e) {
 			throw new CameraConnectionException(e.getMessage());
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
+			log.error(e.getLocalizedMessage(), e);
 			throw new CameraConnectionException(e.getMessage());
 		}
 
 	}
 
 	@Override
-	public void setRecordingMode() {
+	public void setRecordingMode() throws CameraConnectionException {
 		this.executeLuaCommand("set_record(1)");
 		try {
 			Thread.sleep(2000);
-		} catch (InterruptedException e) {
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
 			log.error(e.getLocalizedMessage(), e);
-			e.printStackTrace();
+			throw new CameraConnectionException(e.getMessage());
 		}
 	}
 
 	@Override
-	public void setPlaybackMode() {
+	public void setPlaybackMode() throws CameraConnectionException {
 		this.executeLuaCommand("set_record(0)");
 		try {
 			Thread.sleep(2000);
-		} catch (InterruptedException e) {
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
 			log.error(e.getLocalizedMessage(), e);
-			e.printStackTrace();
+			throw new CameraConnectionException(e.getMessage());
 		}
 	}
 
 	@Override
-	public void setFocus(int focusingDistance) {
+	public void setFocus(int focusingDistance) throws CameraConnectionException {
 		this.executeLuaCommand("set_focus(" + focusingDistance + ")");
 		try {
 			Thread.sleep(1000);
-		} catch (InterruptedException e) {
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
 			log.error(e.getLocalizedMessage(), e);
-			e.printStackTrace();
+			throw new CameraConnectionException(e.getMessage());
 		}
 	}
 
 	@Override
-	public void setZoom(int zoomPosition) {
+	public void setZoom(int zoomPosition) throws CameraConnectionException {
 		this.executeLuaCommand("set_zoom(" + zoomPosition + ")");
 		try {
 			Thread.sleep(3500);
-		} catch (InterruptedException e) {
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
 			log.error(e.getLocalizedMessage(), e);
-			e.printStackTrace();
+			throw new CameraConnectionException(e.getMessage());
 		}
 	}
 
@@ -390,10 +401,10 @@ public abstract class AbstractCamera implements ICamera {
 		if (camIn == null || camOut == null)
 			throw new CameraConnectionException(
 					"Didn't find my endpoints Something verry bad happened..");
-		System.out.println("\tFound my endpoints, Building PTPConnection");
+		log.debug("\tFound my endpoints, Building PTPConnection");
 
 		PTPConnection session = new PTPConnection(camIn, camOut);
-		System.out.println("SX50Camera is ready to recieve commands");
+		log.debug("Camera is ready to recieve commands");
 		return session;
 	}
 }

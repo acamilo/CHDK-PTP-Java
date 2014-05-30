@@ -3,6 +3,8 @@ package chdk.ptp.java.camera;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import chdk.ptp.java.exception.CameraConnectionException;
+
 /**
  * Fail safe camera class which should at least show live view from camera.
  * 
@@ -41,7 +43,7 @@ public class FailSafeCamera extends AbstractCamera {
      * @see chdk.ptp.java.ICamera#setAutoFocusMode()
      */
     @Override
-    public void setAutoFocusMode() {
+    public void setAutoFocusMode() throws CameraConnectionException {
 	log.info("Dummy method here, won't do anything");
     }
 
@@ -51,7 +53,7 @@ public class FailSafeCamera extends AbstractCamera {
      * @see chdk.ptp.java.ICamera#setManualFocusMode()
      */
     @Override
-    public void setManualFocusMode() {
+    public void setManualFocusMode() throws CameraConnectionException {
 	log.info("Dummy method here, won't do anything");
     }
 

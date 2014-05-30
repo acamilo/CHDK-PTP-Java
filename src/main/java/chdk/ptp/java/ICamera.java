@@ -39,8 +39,9 @@ public interface ICamera {
      *            to be issued
      * 
      * @return true if response code was OK
+     * @throws CameraConnectionException 
      */
-    public boolean executeLuaCommand(String command);
+    public boolean executeLuaCommand(String command) throws CameraConnectionException;
 
     /**
      * Submits provided Lua command for execution on camera, expects result to
@@ -74,25 +75,36 @@ public interface ICamera {
      *             on error
      */
     public BufferedImage getView() throws CameraConnectionException;
+    
+    /**
+     * Downloads camera display content, might be interpreted as Live View
+     * 
+     * @return Raw 'live view' image. sutable for openCV mat
+     * @throws CameraConnectionException
+     *             on error
+     */
+    public BufferedImage getRawView() throws CameraConnectionException;
 
     /**
      * Switches a CHDK camera (eg. SX50HS) from MF to AF mode
+     * @throws CameraConnectionException 
      * 
      * @see <a
      *      href="http://chdk.wikia.com/wiki/CHDK_Manual_Focus_and_Subject_Distance_Overrides">CHDK
      *      toggle MF/AF</a>
      */
-    public void setAutoFocusMode();
+    public void setAutoFocusMode() throws CameraConnectionException;
 
     /**
      * Switches a CHDK camera (eg. SX50HS) from AF to MF mode
+     * @throws CameraConnectionException 
      * 
      * @see <a
      *      href="http://chdk.wikia.com/wiki/CHDK_Manual_Focus_and_Subject_Distance_Overrides">CHDK
      *      toggle MF/AF</a>
      * 
      */
-    public void setManualFocusMode();
+    public void setManualFocusMode() throws CameraConnectionException;
 
     /**
      * Focuses the camera at selected distance
@@ -104,8 +116,9 @@ public interface ICamera {
      * 
      * @param focusingDistance
      *            desired focusing distance
+     * @throws CameraConnectionException 
      */
-    public void setFocus(int focusingDistance);
+    public void setFocus(int focusingDistance) throws CameraConnectionException;
 
     /**
      * Sets camera zoom to designated position.
@@ -116,27 +129,30 @@ public interface ICamera {
      * 
      * @param zoomPosition
      *            desired lens zoom position
+     * @throws CameraConnectionException 
      */
-    public void setZoom(int zoomPosition);
+    public void setZoom(int zoomPosition) throws CameraConnectionException;
 
     /**
      * Switches a CHDK camera (eg. SX50HS) into recording mode (image/video)
+     * @throws CameraConnectionException 
      * 
      * @see <a
      *      href="http://chdk.wikia.com/wiki/Script_commands#set_record.28state.29">CHDK
      *      set_record(1)</a>
      * 
      */
-    public void setRecordingMode();
+    public void setRecordingMode() throws CameraConnectionException;
 
     /**
      * Switches a CHDK camera (eg. SX50HS) into Playback mode
+     * @throws CameraConnectionException 
      * 
      * @see <a
      *      href="http://chdk.wikia.com/wiki/Script_commands#set_record.28state.29">CHDK
      *      set_record(0)</a>
      * 
      */
-    public void setPlaybackMode();
+    public void setPlaybackMode() throws CameraConnectionException;
 
 }

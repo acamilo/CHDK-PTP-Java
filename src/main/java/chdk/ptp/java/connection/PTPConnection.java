@@ -1,5 +1,7 @@
 package chdk.ptp.java.connection;
 
+import java.util.Arrays;
+
 import javax.usb.UsbDisconnectedException;
 import javax.usb.UsbEndpoint;
 import javax.usb.UsbException;
@@ -52,7 +54,7 @@ public class PTPConnection {
 
     }
 
-    public void sendPTPPacket(PTPPacket p) {
+    public void sendPTPPacket(PTPPacket p) throws CameraConnectionException {
 	try {
 
 	    if (p.getContainerCommand() == p.PTP_USB_CONTAINER_COMMAND) Seq++;// if its a new outgoing command
@@ -67,19 +69,19 @@ public class PTPConnection {
 	    write.setAcceptShortPacket(true);
 
 	    camOutpipe.syncSubmit(write);
-	    write.waitUntilComplete();
+	    write.waitUntilComplete(4000);
 	    long stopTime = System.nanoTime();
 	    // System.out.println("TX Delta:\t"+((stopTime -
 	    // startTime)/(float)10000000)+"ms");
 	    // System.out.print(p);
 	} catch (Exception e) {
 	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+		throw new CameraConnectionException("Sending Packet to camera Timed Out");
 	}
     }
 
-    public PTPPacket getResponse() {
-	try {
+    public PTPPacket getResponse() throws CameraConnectionException {
+	
 
 	    if (camInpipe == null)
 		throw new CameraConnectionException("My pipe is null.!");
@@ -91,19 +93,19 @@ public class PTPConnection {
 	    if (read == null)
 		throw new CameraConnectionException(
 			"I tried to get a chdk.ptp.java.connection.packet from the in pipe and got null!");
-	    camInpipe.syncSubmit(read);
-
-	    PTPPacket response;
-	    response = new PTPPacket(recbuf);
-	    read.waitUntilComplete();
-
-	    return response;
-	} catch (Exception e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	}
-
-	return null;
+	    try {
+			camInpipe.asyncSubmit(read);
+		    read.waitUntilComplete(4000); // so we don't block forever when the camera poops itself and throw a proper exception
+		    PTPPacket response;
+		    // we don't need to copy the entire fucking buffer >.< silly me.
+		    response = new PTPPacket(Arrays.copyOfRange(recbuf, 0, read.getActualLength()));
+		    read.waitUntilComplete(4000);
+		    return response;
+		}  catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw new CameraConnectionException("Sending Packet to camera Timed Out");
+		}
     }
 
     public void close() throws UsbNotActiveException, UsbNotOpenException,

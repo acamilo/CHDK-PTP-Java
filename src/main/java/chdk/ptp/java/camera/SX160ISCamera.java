@@ -3,6 +3,8 @@ package chdk.ptp.java.camera;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import chdk.ptp.java.exception.CameraConnectionException;
+
 public class SX160ISCamera extends FailSafeCamera {
     private Log log = LogFactory.getLog(SX160ISCamera.class);
 
@@ -34,7 +36,7 @@ public class SX160ISCamera extends FailSafeCamera {
      * @see chdk.ptp.java.ICamera#setManualFocusMode()
      */
     @Override
-    public void setManualFocusMode() {
+    public void setManualFocusMode() throws CameraConnectionException {
 	// TODO: check current camera focus mode!!!
 	try {
 	    this.executeLuaCommand("click('left')");
@@ -48,6 +50,10 @@ public class SX160ISCamera extends FailSafeCamera {
 	} catch (InterruptedException e) {
 	    log.error(e.getLocalizedMessage());
 	    e.printStackTrace();
+	} catch (Exception e) {
+		// TODO Auto-generated catch block
+		log.error(e.getLocalizedMessage(), e);
+		throw new CameraConnectionException(e.getMessage());
 	}
     }
     
@@ -58,7 +64,7 @@ public class SX160ISCamera extends FailSafeCamera {
      * @see chdk.ptp.java.ICamera#setAutoFocusMode()
      */
     @Override
-    public void setAutoFocusMode() {
+    public void setAutoFocusMode() throws CameraConnectionException {
 	// TODO: check current camera focus mode!!!
 	try {
 	    this.executeLuaCommand("click('left')");
@@ -70,6 +76,10 @@ public class SX160ISCamera extends FailSafeCamera {
 	} catch (InterruptedException e) {
 	    log.error(e.getLocalizedMessage());
 	    e.printStackTrace();
+	} catch (Exception e) {
+		// TODO Auto-generated catch block
+		log.error(e.getLocalizedMessage(), e);
+		throw new CameraConnectionException(e.getMessage());
 	}
     }
 }
