@@ -30,6 +30,7 @@ import chdk.ptp.java.connection.packet.CHDKScreenImage;
 import chdk.ptp.java.connection.packet.PTPPacket;
 import chdk.ptp.java.exception.CameraConnectionException;
 import chdk.ptp.java.exception.CameraNotFoundException;
+import chdk.ptp.java.exception.InvalidPacketException;
 
 /**
  * Generic CHDK camera implementation with functions that should work for all
@@ -126,7 +127,9 @@ public abstract class AbstractCamera implements ICamera {
 
 	@Override
 	public boolean executeLuaCommand(String command) throws CameraConnectionException {
-
+		int retry=0;
+		while(true){
+		try {
 		StringBuilder formattedCommand = new StringBuilder(command);
 		log.debug("Executing: \t\"" + formattedCommand.toString() + "\"");
 
@@ -156,7 +159,13 @@ public abstract class AbstractCamera implements ICamera {
 				&& p.getOppcode() == PTPPacket.PTP_OPPCODE_Response_OK)
 			return true;
 		return false;
-
+	} catch (InvalidPacketException e) {
+		if (retry>5) throw new CameraConnectionException("Failed to execute command. Retried 5 times.");
+		else log.error("Camera responded to a luaExecuteCommand packet with a malformed response. Retrying.");
+		
+		retry++;
+	}
+		}
 	}
 
 	@Override
@@ -167,6 +176,7 @@ public abstract class AbstractCamera implements ICamera {
 
 	@Override
 	public BufferedImage getView() throws CameraConnectionException {
+		try {
 		BufferedImage image = null;
 
 		// preparing command packet
@@ -198,6 +208,9 @@ public abstract class AbstractCamera implements ICamera {
 		String message = "SX50Camera did not end session with an OK response even though a data packet was sent!";
 		log.error(message);
 		throw new CameraConnectionException(message);
+		} catch (Exception e) {
+			throw new CameraConnectionException(e.getMessage());
+		}
 	}
 
 	public BufferedImage getRawView() throws CameraConnectionException {

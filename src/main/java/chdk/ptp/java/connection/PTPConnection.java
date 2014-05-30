@@ -13,6 +13,7 @@ import javax.usb.UsbPipe;
 
 import chdk.ptp.java.connection.packet.PTPPacket;
 import chdk.ptp.java.exception.CameraConnectionException;
+import chdk.ptp.java.exception.InvalidPacketException;
 
 public class PTPConnection {
     private static final String PTP_USB_CONTAINER_COMMAND = null;
@@ -45,7 +46,15 @@ public class PTPConnection {
 		PTPPacket.PTP_OPPCODE_OpenSession, 0, new byte[] { 0x01, 0x00,
 			0x00, 0x00 });
 	this.sendPTPPacket(p);
-	PTPPacket r = this.getResponse();
+	PTPPacket r;
+	try {
+		r = this.getResponse();
+	} catch (InvalidPacketException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+		throw new CameraConnectionException(
+				"Camera returned a malformed packet");
+	}
 	if (r.getContainerCommand() == PTPPacket.PTP_USB_CONTAINER_RESPONSE
 		&& r.getOppcode() == PTPPacket.PTP_OPPCODE_Response_OK)
 	    return;
@@ -80,7 +89,7 @@ public class PTPConnection {
 	}
     }
 
-    public PTPPacket getResponse() throws CameraConnectionException {
+    public PTPPacket getResponse() throws CameraConnectionException, InvalidPacketException {
 	
 
 	    if (camInpipe == null)
@@ -93,19 +102,24 @@ public class PTPConnection {
 	    if (read == null)
 		throw new CameraConnectionException(
 			"I tried to get a chdk.ptp.java.connection.packet from the in pipe and got null!");
-	    try {
-			camInpipe.asyncSubmit(read);
+
+			try {
+				camInpipe.asyncSubmit(read);
+			} catch (UsbNotActiveException | UsbNotOpenException
+					| IllegalArgumentException | UsbDisconnectedException
+					| UsbException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				throw new CameraConnectionException(
+						"USB exception!");
+			}
 		    read.waitUntilComplete(4000); // so we don't block forever when the camera poops itself and throw a proper exception
 		    PTPPacket response;
-		    // we don't need to copy the entire fucking buffer >.< silly me.
-		    response = new PTPPacket(Arrays.copyOfRange(recbuf, 0, read.getActualLength()));
+
+		    response = new PTPPacket(Arrays.copyOfRange(recbuf, 0, read.getActualLength()+40)); // +40 this is a hack to get it to kinda work right now. some of the packets come back malformed. if you retry it breaks. if you ignore it then it sometimes works and when it doesn't you can reset the camera. need to look into this.
 		    read.waitUntilComplete(4000);
 		    return response;
-		}  catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			throw new CameraConnectionException("Sending Packet to camera Timed Out");
-		}
+
     }
 
     public void close() throws UsbNotActiveException, UsbNotOpenException,
