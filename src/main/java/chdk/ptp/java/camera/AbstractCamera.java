@@ -150,11 +150,13 @@ public abstract class AbstractCamera implements ICamera {
 		connection.sendPTPPacket(p);
 
 		// check response
+
 		p = connection.getResponse();
 		if (p.getContainerCommand() == PTPPacket.PTP_USB_CONTAINER_RESPONSE
 				&& p.getOppcode() == PTPPacket.PTP_OPPCODE_Response_OK)
 			return true;
 		return false;
+
 	}
 
 	@Override
@@ -304,7 +306,7 @@ public abstract class AbstractCamera implements ICamera {
 			throw new CameraConnectionException(e.getMessage());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			log.error(e.getLocalizedMessage(), e);
+			log.error(e.getMessage(), e);
 			throw new CameraConnectionException(e.getMessage());
 		}
 

@@ -1,5 +1,7 @@
 package chdk.ptp.java.connection.packet;
 
+import chdk.ptp.java.exception.InvalidPacketException;
+
 
 public class PTPPacket extends Packet {
     public final static short PTP_USB_CONTAINER_COMMAND = 1;
@@ -70,9 +72,10 @@ public class PTPPacket extends Packet {
 	this.encodeByteArray(iPTPpayload, data);
     }
 
-    public PTPPacket(byte[] packet) {
+    public PTPPacket(byte[] packet) throws InvalidPacketException{
+    	super(packet);
 	// TODO Auto-generated constructor stub
-	super(packet);
+    	if (packet.length<12) throw new InvalidPacketException("Packet is too short!");
     }
 
     public int getLength() {

@@ -8,11 +8,12 @@ import java.util.Arrays;
 import org.junit.Test;
 
 import chdk.ptp.java.connection.packet.PTPPacket;
+import chdk.ptp.java.exception.InvalidPacketException;
 
 public class testPTPPacket {
 
     @Test
-    public void test() {
+    public void test() throws InvalidPacketException {
 
 	byte[] testPacket = new byte[] { 20, 0, 0, 0, 1, 0, (byte) -103,
 		(byte) -103, 1, 0, 0, 0, 12, 0, 0, 0, 1, 0, 0, 0 };
