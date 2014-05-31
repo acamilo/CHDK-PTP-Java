@@ -9,28 +9,28 @@ import chdk.ptp.java.SupportedCamera;
  */
 public class CaptureDemo {
 
-    private static ICamera cam;
+	private static ICamera cam;
 
-    /**
-     * Runs the demo.
-     * 
-     * @param args
-     *            currently unused
-     * 
-     */
-    public static void main(String[] args) {
-	cam = null;
-	try {
-	    cam = CameraFactory.getCamera(SupportedCamera.SX160IS);
-	    cam.connect();
-	    // switch to capture mode
-	    cam.setRecordingMode();
+	/**
+	 * Runs the demo.
+	 * 
+	 * @param args
+	 *            currently unused
+	 * 
+	 */
+	public static void main(String[] args) {
+		cam = null;
+		try {
+			cam = CameraFactory.getCamera(SupportedCamera.SX160IS);
+			cam.connect();
+			// switch to capture mode
+			cam.setRecordingMode();
 
-	    // show taken image
-	    new BufferedImagePanel(cam.getPicture());
-	    cam.disconnect();
-	} catch (Exception e) {
-	    e.printStackTrace();
+			// show taken image
+			new BufferedImagePanel(cam.getPicture());
+			cam.disconnect();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
-    }
 }

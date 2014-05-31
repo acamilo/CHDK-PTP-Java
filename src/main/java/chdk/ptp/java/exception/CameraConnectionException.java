@@ -5,17 +5,17 @@ package chdk.ptp.java.exception;
  */
 public class CameraConnectionException extends GenericCameraException {
 
-    /** Stores value of serialVersionUID */
-    private static final long serialVersionUID = 1033821630668190615L;
+	/** Stores value of serialVersionUID */
+	private static final long serialVersionUID = 1033821630668190615L;
 
-    /**
-     * Creates a new instance of
-     * 
-     * @param detailedMessage
-     *            message about the error
-     */
-    public CameraConnectionException(String detailedMessage) {
-	super(detailedMessage);
-    }
+	/**
+	 * Creates a new instance of
+	 * 
+	 * @param detailedMessage
+	 *            message about the error
+	 */
+	public CameraConnectionException(String detailedMessage) {
+		super(detailedMessage);
+	}
 
 }

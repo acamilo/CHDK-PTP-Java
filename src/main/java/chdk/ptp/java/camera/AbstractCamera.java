@@ -31,6 +31,7 @@ import chdk.ptp.java.connection.packet.PTPPacket;
 import chdk.ptp.java.exception.CameraConnectionException;
 import chdk.ptp.java.exception.CameraNotFoundException;
 import chdk.ptp.java.exception.InvalidPacketException;
+import chdk.ptp.java.exception.PTPTimeoutException;
 
 /**
  * Generic CHDK camera implementation with functions that should work for all
@@ -126,10 +127,9 @@ public abstract class AbstractCamera implements ICamera {
 	}
 
 	@Override
-	public boolean executeLuaCommand(String command) throws CameraConnectionException {
-		int retry=0;
-		while(true){
-		try {
+	public boolean executeLuaCommand(String command)
+			throws CameraConnectionException, PTPTimeoutException {
+
 		StringBuilder formattedCommand = new StringBuilder(command);
 		log.debug("Executing: \t\"" + formattedCommand.toString() + "\"");
 
@@ -154,18 +154,16 @@ public abstract class AbstractCamera implements ICamera {
 
 		// check response
 
-		p = connection.getResponse();
+		try {
+			p = connection.getResponse();
+		} catch (InvalidPacketException e) {
+			// TODO Auto-generated catch block
+			throw new CameraConnectionException(e.getMessage());
+		}
 		if (p.getContainerCommand() == PTPPacket.PTP_USB_CONTAINER_RESPONSE
 				&& p.getOppcode() == PTPPacket.PTP_OPPCODE_Response_OK)
 			return true;
 		return false;
-	} catch (InvalidPacketException e) {
-		if (retry>5) throw new CameraConnectionException("Failed to execute command. Retried 5 times.");
-		else log.error("Camera responded to a luaExecuteCommand packet with a malformed response. Retrying.");
-		
-		retry++;
-	}
-		}
 	}
 
 	@Override
@@ -177,48 +175,47 @@ public abstract class AbstractCamera implements ICamera {
 	@Override
 	public BufferedImage getView() throws CameraConnectionException {
 		try {
-		BufferedImage image = null;
+			BufferedImage image = null;
 
-		// preparing command packet
-		PTPPacket p = new PTPPacket(PTPPacket.PTP_USB_CONTAINER_COMMAND,
-				PTPPacket.PTP_OPPCODE_CHDK, 0, new byte[8]);
+			// preparing command packet
+			PTPPacket p = new PTPPacket(PTPPacket.PTP_USB_CONTAINER_COMMAND,
+					PTPPacket.PTP_OPPCODE_CHDK, 0, new byte[8]);
 
-		// oppcode 12 is transfer framebuffer
-		p.encodeInt(PTPPacket.iPTPCommandARG0, 12, ByteOrder.LittleEndian);
-		// argument value 1 sends viewport
-		p.encodeInt(PTPPacket.iPTPCommandARG1, 1, ByteOrder.LittleEndian);
+			// oppcode 12 is transfer framebuffer
+			p.encodeInt(PTPPacket.iPTPCommandARG0, 12, ByteOrder.LittleEndian);
+			// argument value 1 sends viewport
+			p.encodeInt(PTPPacket.iPTPCommandARG1, 1, ByteOrder.LittleEndian);
 
-		connection.sendPTPPacket(p);
+			connection.sendPTPPacket(p);
 
-		// We should get 2 packets back. A Data and a status packet.
-		p = connection.getResponse();
-		if (p.getContainerCommand() == PTPPacket.PTP_USB_CONTAINER_DATA) {
-			CHDKScreenImage i = new CHDKScreenImage(p.getData());
-			image = i.decodeViewport();
-		} else {
-			String message = "SX50Camera did not respond to a Live View request with a data packet!";
+			// We should get 2 packets back. A Data and a status packet.
+			p = connection.getResponse();
+			if (p.getContainerCommand() == PTPPacket.PTP_USB_CONTAINER_DATA) {
+				CHDKScreenImage i = new CHDKScreenImage(p.getData());
+				image = i.decodeViewport();
+			} else {
+				String message = "SX50Camera did not respond to a Live View request with a data packet!";
+				log.error(message);
+				throw new CameraConnectionException(message);
+			}
+
+			p = connection.getResponse();
+			if (p.getContainerCommand() == PTPPacket.PTP_USB_CONTAINER_RESPONSE
+					&& p.getOppcode() == PTPPacket.PTP_OPPCODE_Response_OK)
+				return image;
+			String message = "SX50Camera did not end session with an OK response even though a data packet was sent!";
 			log.error(message);
 			throw new CameraConnectionException(message);
-		}
-
-		p = connection.getResponse();
-		if (p.getContainerCommand() == PTPPacket.PTP_USB_CONTAINER_RESPONSE
-				&& p.getOppcode() == PTPPacket.PTP_OPPCODE_Response_OK)
-			return image;
-		String message = "SX50Camera did not end session with an OK response even though a data packet was sent!";
-		log.error(message);
-		throw new CameraConnectionException(message);
-		} catch (Exception e) {
+		} catch (InvalidPacketException | PTPTimeoutException e) {
 			throw new CameraConnectionException(e.getMessage());
 		}
 	}
 
 	public BufferedImage getRawView() throws CameraConnectionException {
-		
-		
+
 		return null;
 	}
-	
+
 	@Override
 	public BufferedImage getPicture() throws CameraConnectionException {
 		try {
@@ -227,9 +224,10 @@ public abstract class AbstractCamera implements ICamera {
 																// seconds to
 																// take a
 																// picture
-			this.executeLuaCommand("shoot()"); // take picture
 			Thread.sleep(100); // there needs to be a delay between this and
-								// the one below or camera will shut down.
+			// the one below or camera will freak out
+			this.executeLuaCommand("shoot()"); // take picture
+
 			// Loop until camera takes picture.
 			PTPPacket ready = new PTPPacket(
 					PTPPacket.PTP_USB_CONTAINER_COMMAND,
@@ -241,6 +239,8 @@ public abstract class AbstractCamera implements ICamera {
 			PTPPacket response;
 			long timeout = System.currentTimeMillis();
 			int retries = 0;
+
+			// wait for camera
 			while (true) {
 				if (System.currentTimeMillis() > timeout + 3000) {
 					if (retries > 9) {
@@ -273,60 +273,61 @@ public abstract class AbstractCamera implements ICamera {
 						ByteOrder.LittleEndian) != 0)
 					break;
 			}
-			log.debug("Camera is ready to send image!");	
-		    
+			log.debug("Camera is ready to send image!");
 
-		    PTPPacket getChunk = new PTPPacket(
-		    		PTPPacket.PTP_USB_CONTAINER_COMMAND,
-		    		PTPPacket.PTP_OPPCODE_CHDK,
-		    		0,
-		    		new byte[8]);
-		    
-		    getChunk.encodeInt(PTPPacket.iPTPCommandARG0,
-		    		PTPPacket.CHDK_RemoteCaptureGetData,
-		    		ByteOrder.LittleEndian);
-		    
-		    getChunk.encodeInt(PTPPacket.iPTPCommandARG1,
-		    		1, // image type
-		    		ByteOrder.LittleEndian);
-		    
-		    PTPPacket chunk;
-		    byte[] image = new byte[10000000];  // this will need to get bigger if the images are more than 10mb
-		    int position = 0; // position in the buffer.
-		    while(true) {
-		    	connection.sendPTPPacket(getChunk);
-		    	//log.debug(getChunk);
-		    	chunk = connection.getResponse();
-		    	//log.debug(chunk);
-		    	response = connection.getResponse();
-		    	int offset = response.decodeInt(PTPPacket.iPTPCommandARG2, ByteOrder.LittleEndian);
-		    	log.debug("Got Image Chunk! Offset: "+ offset );
-		    	if (offset!=-1){
-		    		position = offset;
-		    		//log.debug("Seeking");
-		    	}
-		    	System.arraycopy(chunk.getData(), 0, image, position, chunk.getDataLength());
-		    	position+=chunk.getDataLength();
+			PTPPacket getChunk = new PTPPacket(
+					PTPPacket.PTP_USB_CONTAINER_COMMAND,
+					PTPPacket.PTP_OPPCODE_CHDK, 0, new byte[8]);
 
-		    	//log.debug(response);
-		    	if (response.decodeInt(PTPPacket.iPTPCommandARG1, ByteOrder.LittleEndian)==0 && response.decodeInt(PTPPacket.iPTPCommandARG0, ByteOrder.LittleEndian)==0) break;
-		    }
-		    log.debug("Done!");
-		    InputStream in = new ByteArrayInputStream(image);
+			getChunk.encodeInt(PTPPacket.iPTPCommandARG0,
+					PTPPacket.CHDK_RemoteCaptureGetData, ByteOrder.LittleEndian);
+
+			getChunk.encodeInt(PTPPacket.iPTPCommandARG1, 1, // image type
+					ByteOrder.LittleEndian);
+
+			PTPPacket chunk;
+			byte[] image = new byte[10000000]; // this will need to get bigger
+												// if the images are more than
+												// 10mb
+			int position = 0; // position in the buffer.
+			while (true) {
+				connection.sendPTPPacket(getChunk);
+				// log.debug(getChunk);
+				chunk = connection.getResponse();
+				// log.debug(chunk);
+				response = connection.getResponse();
+				int offset = response.decodeInt(PTPPacket.iPTPCommandARG2,
+						ByteOrder.LittleEndian);
+				log.debug("Got Image Chunk! Offset: " + offset);
+				if (offset != -1) {
+					position = offset;
+					// log.debug("Seeking");
+				}
+				System.arraycopy(chunk.getData(), 0, image, position,
+						chunk.getDataLength());
+				position += chunk.getDataLength();
+
+				// log.debug(response);
+				if (response.decodeInt(PTPPacket.iPTPCommandARG1,
+						ByteOrder.LittleEndian) == 0
+						&& response.decodeInt(PTPPacket.iPTPCommandARG0,
+								ByteOrder.LittleEndian) == 0)
+					break;
+			}
+			log.debug("Done!");
+			InputStream in = new ByteArrayInputStream(image);
 			BufferedImage bImageFromConvert = ImageIO.read(in);
 			return bImageFromConvert;
-		} catch (InterruptedException e) {
-			throw new CameraConnectionException(e.getMessage());
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			log.error(e.getMessage(), e);
+		} catch (InterruptedException | InvalidPacketException | IOException
+				| PTPTimeoutException e) {
 			throw new CameraConnectionException(e.getMessage());
 		}
 
 	}
 
 	@Override
-	public void setRecordingMode() throws CameraConnectionException {
+	public void setRecordingMode() throws CameraConnectionException,
+			PTPTimeoutException {
 		this.executeLuaCommand("set_record(1)");
 		try {
 			Thread.sleep(2000);
@@ -338,7 +339,8 @@ public abstract class AbstractCamera implements ICamera {
 	}
 
 	@Override
-	public void setPlaybackMode() throws CameraConnectionException {
+	public void setPlaybackMode() throws CameraConnectionException,
+			PTPTimeoutException {
 		this.executeLuaCommand("set_record(0)");
 		try {
 			Thread.sleep(2000);
@@ -350,7 +352,8 @@ public abstract class AbstractCamera implements ICamera {
 	}
 
 	@Override
-	public void setFocus(int focusingDistance) throws CameraConnectionException {
+	public void setFocus(int focusingDistance)
+			throws CameraConnectionException, PTPTimeoutException {
 		this.executeLuaCommand("set_focus(" + focusingDistance + ")");
 		try {
 			Thread.sleep(1000);
@@ -362,7 +365,8 @@ public abstract class AbstractCamera implements ICamera {
 	}
 
 	@Override
-	public void setZoom(int zoomPosition) throws CameraConnectionException {
+	public void setZoom(int zoomPosition) throws CameraConnectionException,
+			PTPTimeoutException {
 		this.executeLuaCommand("set_zoom(" + zoomPosition + ")");
 		try {
 			Thread.sleep(3500);

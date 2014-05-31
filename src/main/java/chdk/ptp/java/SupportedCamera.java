@@ -5,28 +5,28 @@ package chdk.ptp.java;
  * connected USB device.
  * 
  * @author <a href="mailto:ankhazam@gmail.com">Mikolaj Dobski</a>
- *
+ * 
  */
 public enum SupportedCamera {
-    /** Stores value of SX160IS */
-    SX160IS(0x325a),
-    /** Stores value of SX50HS */
-    SX50HS(0x3259),
-    /** Stores value of FailsafeCamera */
-    FailsafeCamera(-1);
+	/** Stores value of SX160IS */
+	SX160IS(0x325a),
+	/** Stores value of SX50HS */
+	SX50HS(0x3259),
+	/** Stores value of FailsafeCamera */
+	FailsafeCamera(-1);
 
-    private int value;
+	private int value;
 
-    private SupportedCamera(int value) {
-	this.value = value;
-    }
+	private SupportedCamera(int value) {
+		this.value = value;
+	}
 
-    /**
-     * Returns Canon camera USB PID
-     * 
-     * @return PID value
-     */
-    public short getPID() {
-	return (short) value;
-    }
+	/**
+	 * Returns Canon camera USB PID
+	 * 
+	 * @return PID value
+	 */
+	public short getPID() {
+		return (short) value;
+	}
 }
