@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 import javax.usb.UsbConfiguration;
@@ -18,9 +20,6 @@ import javax.usb.UsbHostManager;
 import javax.usb.UsbHub;
 import javax.usb.UsbInterface;
 import javax.usb.UsbServices;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import chdk.ptp.java.ICamera;
 import chdk.ptp.java.connection.PTPConnection;
@@ -42,30 +41,20 @@ import chdk.ptp.java.exception.PTPTimeoutException;
  */
 public abstract class AbstractCamera implements ICamera {
 
-	private static Log log = LogFactory.getLog(AbstractCamera.class);
+	private static Logger log = Logger.getLogger(AbstractCamera.class.getName());
 
 	private PTPConnection connection = null;
-	private short cameraVendorID = -1;
-	private short cameraProductID = -1;
 	private String cameraSerialNo = "";
+	private UsbDevice device = null;
 
 	public PTPConnection getPTPConnection() {
 		return connection;
 	}
 
-	/**
-	 * Creates a new instance of
-	 * 
-	 * @param cameraVendorID
-	 *            Canon camera Vendor ID
-	 * @param cameraProductID
-	 *            Canon camera product ID
-	 */
-	public AbstractCamera(short cameraVendorID, short cameraProductID) {
-		this.cameraVendorID = cameraVendorID;
-		this.cameraProductID = cameraProductID;
+	public AbstractCamera(UsbDevice device){
+		this.device = device;
 	}
-
+	
 	/**
 	 * Creates a new instance of
 	 * 
@@ -84,43 +73,50 @@ public abstract class AbstractCamera implements ICamera {
 	@Override
 	public void connect() throws CameraConnectionException {
 		try {
-			UsbDevice cameraDevice = null;
-			UsbServices services = UsbHostManager.getUsbServices();
-			UsbHub rootHub = services.getRootUsbHub();
-
-			if (!cameraSerialNo.isEmpty())
-				cameraDevice = UsbUtils.findDeviceBySerialNumber(rootHub,
-						cameraSerialNo);
-
-			if (cameraProductID != -1 && cameraVendorID != -1)
-				cameraDevice = UsbUtils.findDevice(rootHub, cameraVendorID,
-						cameraProductID);
-
-			if (cameraDevice == null)
-				throw new CameraNotFoundException();
-
-			connection = getConenctionFromUSBDevice(cameraDevice);
-			log.debug("Connected to camera");
+			if (device == null){
+				findCameraDevice();
+			}
+			
+			connection = getConenctionFromUSBDevice(device);
+			log.info("Connected to camera");
 		} catch (SecurityException | UsbException
 				| UnsupportedEncodingException | UsbDisconnectedException
 				| CameraNotFoundException e) {
 			String message = "Could not connect to camera device: "
 					+ e.getLocalizedMessage();
-			log.error(message, e);
+			log.log(Level.SEVERE, message, e);
 			e.printStackTrace();
 			throw new CameraConnectionException(message);
 		}
+	}
+	
+	private void findCameraDevice() throws SecurityException, UsbException, CameraNotFoundException{
+		UsbDevice cameraDevice = null;
+		UsbServices services = UsbHostManager.getUsbServices();
+		UsbHub rootHub = services.getRootUsbHub();
+
+		if (!cameraSerialNo.isEmpty())
+			cameraDevice = UsbUtils.findDeviceBySerialNumber(rootHub,
+					cameraSerialNo);
+
+		if (getCameraInfo().getPID() != -1 && getCameraInfo().getVendorID() != -1)
+			cameraDevice = UsbUtils.findDevice(rootHub, getCameraInfo().getVendorID(),
+					getCameraInfo().getPID());
+
+		if (cameraDevice == null)
+			throw new CameraNotFoundException();
+		this.device = cameraDevice;
 	}
 
 	@Override
 	public void disconnect() throws CameraConnectionException {
 		try {
 			connection.close();
-			log.debug("Disconnected from camera");
+			log.info("Disconnected from camera");
 		} catch (Exception e) {
 			String message = "Failed to disconnect from camera: "
 					+ e.getLocalizedMessage();
-			log.error(message, e);
+			log.log(Level.SEVERE, message, e);
 			e.printStackTrace();
 			throw new CameraConnectionException(message);
 		}
@@ -131,7 +127,7 @@ public abstract class AbstractCamera implements ICamera {
 			throws CameraConnectionException, PTPTimeoutException {
 
 		StringBuilder formattedCommand = new StringBuilder(command);
-		log.debug("Executing: \t\"" + formattedCommand.toString() + "\"");
+		log.info("Executing: \t\"" + formattedCommand.toString() + "\"");
 
 		// preparing command packet
 		PTPPacket p = new PTPPacket(PTPPacket.PTP_USB_CONTAINER_COMMAND,
@@ -195,7 +191,7 @@ public abstract class AbstractCamera implements ICamera {
 				image = i.decodeViewport();
 			} else {
 				String message = "SX50Camera did not respond to a Live View request with a data packet!";
-				log.error(message);
+				log.log(Level.SEVERE, message);
 				throw new CameraConnectionException(message);
 			}
 
@@ -204,7 +200,7 @@ public abstract class AbstractCamera implements ICamera {
 					&& p.getOppcode() == PTPPacket.PTP_OPPCODE_Response_OK)
 				return image;
 			String message = "SX50Camera did not end session with an OK response even though a data packet was sent!";
-			log.error(message);
+			log.log(Level.SEVERE, message);
 			throw new CameraConnectionException(message);
 		} catch (InvalidPacketException | PTPTimeoutException e) {
 			throw new CameraConnectionException(e.getMessage());
@@ -244,11 +240,11 @@ public abstract class AbstractCamera implements ICamera {
 			while (true) {
 				if (System.currentTimeMillis() > timeout + 3000) {
 					if (retries > 9) {
-						log.error("Camera Won't shoot photo.");
+						log.severe("Camera Won't shoot photo.");
 						throw new CameraConnectionException(
 								"Camera ignored 9 sucsessive shoot() commands");
 					}
-					log.warn("Camera ignored shoot command. Retrying.");
+					log.warning("Camera ignored shoot command. Retrying.");
 					timeout = System.currentTimeMillis();
 					this.executeLuaCommand("shoot()"); // take picture
 					Thread.sleep(1000); // there needs to be a delay between
@@ -273,7 +269,7 @@ public abstract class AbstractCamera implements ICamera {
 						ByteOrder.LittleEndian) != 0)
 					break;
 			}
-			log.debug("Camera is ready to send image!");
+			log.info("Camera is ready to send image!");
 
 			PTPPacket getChunk = new PTPPacket(
 					PTPPacket.PTP_USB_CONTAINER_COMMAND,
@@ -298,7 +294,7 @@ public abstract class AbstractCamera implements ICamera {
 				response = connection.getResponse();
 				int offset = response.decodeInt(PTPPacket.iPTPCommandARG2,
 						ByteOrder.LittleEndian);
-				log.debug("Got Image Chunk! Offset: " + offset);
+				log.info("Got Image Chunk! Offset: " + offset);
 				if (offset != -1) {
 					position = offset;
 					// log.debug("Seeking");
@@ -314,7 +310,7 @@ public abstract class AbstractCamera implements ICamera {
 								ByteOrder.LittleEndian) == 0)
 					break;
 			}
-			log.debug("Done!");
+			log.info("Done!");
 			InputStream in = new ByteArrayInputStream(image);
 			BufferedImage bImageFromConvert = ImageIO.read(in);
 			return bImageFromConvert;
@@ -333,7 +329,7 @@ public abstract class AbstractCamera implements ICamera {
 			Thread.sleep(2000);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			log.error(e.getLocalizedMessage(), e);
+			log.log(Level.SEVERE, e.getLocalizedMessage(), e);
 			throw new CameraConnectionException(e.getMessage());
 		}
 	}
@@ -346,7 +342,7 @@ public abstract class AbstractCamera implements ICamera {
 			Thread.sleep(2000);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			log.error(e.getLocalizedMessage(), e);
+			log.log(Level.SEVERE, e.getLocalizedMessage(), e);
 			throw new CameraConnectionException(e.getMessage());
 		}
 	}
@@ -359,7 +355,7 @@ public abstract class AbstractCamera implements ICamera {
 			Thread.sleep(1000);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			log.error(e.getLocalizedMessage(), e);
+			log.log(Level.SEVERE, e.getLocalizedMessage(), e);
 			throw new CameraConnectionException(e.getMessage());
 		}
 	}
@@ -372,7 +368,7 @@ public abstract class AbstractCamera implements ICamera {
 			Thread.sleep(3500);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			log.error(e.getLocalizedMessage(), e);
+			log.log(Level.SEVERE, e.getLocalizedMessage(), e);
 			throw new CameraConnectionException(e.getMessage());
 		}
 	}
@@ -382,13 +378,13 @@ public abstract class AbstractCamera implements ICamera {
 			UsbException, CameraConnectionException {
 
 		// device info
-		log.debug("Attepting to Connect to device");
-		log.debug("\tManufacturer:\t" + dev.getManufacturerString());
-		log.debug("\tSerial Number:\t" + dev.getSerialNumberString());
+		log.info("Attepting to Connect to device");
+		log.info("\tManufacturer:\t" + dev.getManufacturerString());
+		log.info("\tSerial Number:\t" + dev.getSerialNumberString());
 
 		// Get dev config
 		UsbConfiguration config = dev.getActiveUsbConfiguration();
-		log.debug("\tGot Device Configuration:\t" + config);
+		log.info("\tGot Device Configuration:\t" + config);
 
 		// Get interfaces
 		List<?> totalInterfaces = config.getUsbInterfaces();
@@ -396,7 +392,7 @@ public abstract class AbstractCamera implements ICamera {
 		UsbEndpoint camOut = null;
 		for (int i = 0; i < totalInterfaces.size(); i++) {
 			UsbInterface interf = (UsbInterface) totalInterfaces.get(i);
-			log.debug("\t\tFound Interface:\t" + interf);
+			log.info("\t\tFound Interface:\t" + interf);
 			interf.claim();
 			List<?> totalEndpoints = interf.getUsbEndpoints();
 
@@ -404,12 +400,12 @@ public abstract class AbstractCamera implements ICamera {
 				UsbEndpoint ep = (UsbEndpoint) totalEndpoints.get(j);
 				// We're looking for a bulk In and bulk out
 				if (ep.getDirection() == -128 && ep.getType() == 2) {
-					log.debug("\t\t\tAssigning Bulk In endpoint #" + j
+					log.info("\t\t\tAssigning Bulk In endpoint #" + j
 							+ " to camIn");
 					camIn = ep; // Bulk IN endpoint
 				}
 				if (ep.getDirection() == 0 && ep.getType() == 2) {
-					log.debug("\t\t\tAssigning Bulk OUT endpoint #" + j
+					log.info("\t\t\tAssigning Bulk OUT endpoint #" + j
 							+ " to camOut");
 					camOut = ep; // Bulk Out endpoint
 				}
@@ -420,10 +416,10 @@ public abstract class AbstractCamera implements ICamera {
 		if (camIn == null || camOut == null)
 			throw new CameraConnectionException(
 					"Didn't find my endpoints Something verry bad happened..");
-		log.debug("\tFound my endpoints, Building PTPConnection");
+		log.info("\tFound my endpoints, Building PTPConnection");
 
 		PTPConnection session = new PTPConnection(camIn, camOut);
-		log.debug("Camera is ready to recieve commands");
+		log.info("Camera is ready to recieve commands");
 		return session;
 	}
 }

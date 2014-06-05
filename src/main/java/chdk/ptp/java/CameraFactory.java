@@ -1,13 +1,16 @@
 package chdk.ptp.java;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.usb.UsbDevice;
 import javax.usb.UsbException;
 import javax.usb.UsbHostManager;
 import javax.usb.UsbHub;
 import javax.usb.UsbServices;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import chdk.ptp.java.camera.FailSafeCamera;
 import chdk.ptp.java.camera.SX160ISCamera;
@@ -20,14 +23,26 @@ import chdk.ptp.java.exception.CameraNotFoundException;
  * @author <a href="mailto:ankhazam@gmail.com">Mikolaj Dobski</a>
  * 
  */
-public class CameraFactory {
+public class CameraFactory  {
 
-	private static Log log = LogFactory.getLog(CameraFactory.class);
+	private static Logger log = Logger.getLogger(CameraFactory.class.getName());
 
-	/**
-	 * Canon camera vendor identifier.
-	 */
-	public static final short CANON_VENDOR = 0x04a9;
+	
+	public static ICamera getCamera() throws CameraNotFoundException {
+		ICamera camera = null;
+		try{
+			camera =  UsbUtils.findCamera();
+		} catch (SecurityException | UsbException e) {
+			log.log(Level.SEVERE, e.getMessage(), e);
+			e.printStackTrace();
+			throw new CameraNotFoundException();
+		}
+		if (camera == null){
+			throw new CameraNotFoundException();
+		}
+		
+		return camera;
+	}
 
 	/**
 	 * Attempts to get known camera implementation or backs up to failsafe
@@ -46,11 +61,11 @@ public class CameraFactory {
 
 			UsbServices services = UsbHostManager.getUsbServices();
 			UsbHub rootHub = services.getRootUsbHub();
-			cameraDevice = UsbUtils.findDevice(rootHub, CANON_VENDOR,
+			cameraDevice = UsbUtils.findDevice(rootHub, cameraModel.getVendorID(),
 					cameraModel.getPID());
 
 		} catch (SecurityException | UsbException e) {
-			log.error(e.getMessage(), e);
+			log.log(Level.SEVERE, e.getMessage(), e);
 			e.printStackTrace();
 			throw new CameraNotFoundException();
 		}
@@ -59,12 +74,12 @@ public class CameraFactory {
 
 		switch (cameraModel) {
 		case SX50HS:
-			return new SX50Camera(CANON_VENDOR, cameraModel.getPID());
+			return new SX50Camera(cameraDevice);
 		case SX160IS:
-			return new SX160ISCamera(CANON_VENDOR, cameraModel.getPID());
+			return new SX160ISCamera(cameraDevice);
 		case FailsafeCamera:
 		default:
-			return new FailSafeCamera(CANON_VENDOR, cameraModel.getPID());
+			return new FailSafeCamera(cameraDevice);
 		}
 	}
 
@@ -87,8 +102,7 @@ public class CameraFactory {
 			cameraDevice = UsbUtils.findDeviceBySerialNumber(rootHub,
 					serialNumber);
 		} catch (SecurityException | UsbException e) {
-			log.error(e.getMessage(), e);
-			e.printStackTrace();
+			log.log(Level.SEVERE, e.getMessage(), e);
 			throw new CameraNotFoundException(e.getMessage());
 		}
 		if (cameraDevice == null)

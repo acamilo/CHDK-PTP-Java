@@ -1,28 +1,23 @@
 package chdk.ptp.java.camera;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import javax.usb.UsbDevice;
+
+import chdk.ptp.java.SupportedCamera;
 import chdk.ptp.java.exception.CameraConnectionException;
 import chdk.ptp.java.exception.PTPTimeoutException;
 
 /**
  * SX50Camera implementation.
  */
-public class SX50Camera extends AbstractCamera {
+public class SX50Camera extends FailSafeCamera {
 
-	private Log log = LogFactory.getLog(SX50Camera.class);
-
-	/**
-	 * Creates a new instance of
-	 * 
-	 * @param cameraVendorID
-	 *            Canon camera Vendor ID
-	 * @param cameraProductID
-	 *            Canon camera product ID
-	 */
-	public SX50Camera(short cameraVendorID, short cameraProductID) {
-		super(cameraVendorID, cameraProductID);
+	private Logger log = Logger.getLogger(SX50Camera.class.getName());
+	
+	public SX50Camera(UsbDevice device) {
+		super(device);
 	}
 
 	/**
@@ -53,13 +48,13 @@ public class SX50Camera extends AbstractCamera {
 			this.executeLuaCommand("click('set')");
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			log.error(e.getLocalizedMessage());
+			log.log(Level.SEVERE, e.getLocalizedMessage(), e);
 			e.printStackTrace();
 		} catch (CameraConnectionException e) {
-			log.error(e.getLocalizedMessage());
+			log.log(Level.SEVERE, e.getLocalizedMessage(), e);
 			e.printStackTrace();
 		} catch (PTPTimeoutException e) {
-			log.error(e.getLocalizedMessage());
+			log.log(Level.SEVERE, e.getLocalizedMessage(), e);
 			e.printStackTrace();
 		}
 	}
@@ -80,13 +75,18 @@ public class SX50Camera extends AbstractCamera {
 			this.executeLuaCommand("click('set')");
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			log.error(e.getLocalizedMessage());
+			log.log(Level.SEVERE, e.getLocalizedMessage(), e);
 			e.printStackTrace();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			log.error(e.getLocalizedMessage(), e);
+			log.log(Level.SEVERE, e.getLocalizedMessage(), e);
 			throw new CameraConnectionException(e.getMessage());
 		}
 	}
 
+	@Override
+	public SupportedCamera getCameraInfo() {
+		return SupportedCamera.SX50HS;
+	}
+	
 }

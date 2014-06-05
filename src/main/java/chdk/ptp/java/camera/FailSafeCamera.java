@@ -1,8 +1,10 @@
 package chdk.ptp.java.camera;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.logging.Logger;
 
+import javax.usb.UsbDevice;
+
+import chdk.ptp.java.SupportedCamera;
 import chdk.ptp.java.exception.CameraConnectionException;
 
 /**
@@ -13,18 +15,11 @@ import chdk.ptp.java.exception.CameraConnectionException;
  */
 public class FailSafeCamera extends AbstractCamera {
 
-	private Log log = LogFactory.getLog(FailSafeCamera.class);
+	private Logger log = Logger.getLogger(FailSafeCamera.class.getName());
 
-	/**
-	 * Creates a new instance of
-	 * 
-	 * @param cameraVendorID
-	 *            Canon camera Vendor ID
-	 * @param cameraProductID
-	 *            Canon camera product ID
-	 */
-	public FailSafeCamera(short cameraVendorID, short cameraProductID) {
-		super(cameraVendorID, cameraProductID);
+	
+	public FailSafeCamera(UsbDevice device) {
+		super(device);
 	}
 
 	/**
@@ -56,5 +51,11 @@ public class FailSafeCamera extends AbstractCamera {
 	public void setManualFocusMode() throws CameraConnectionException {
 		log.info("Dummy method here, won't do anything");
 	}
+
+	@Override
+	public SupportedCamera getCameraInfo() {
+		return SupportedCamera.FailsafeCamera;
+	}
+
 
 }

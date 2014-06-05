@@ -1,25 +1,20 @@
 package chdk.ptp.java.camera;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import javax.usb.UsbDevice;
+
+import chdk.ptp.java.SupportedCamera;
 import chdk.ptp.java.exception.CameraConnectionException;
 
 public class SX160ISCamera extends FailSafeCamera {
-	private Log log = LogFactory.getLog(SX160ISCamera.class);
+	private Logger log = Logger.getLogger(SX160ISCamera.class.getName());
 
-	/**
-	 * Creates a new instance of
-	 * 
-	 * @param cameraVendorID
-	 *            Canon camera Vendor ID
-	 * @param cameraProductID
-	 *            Canon camera product ID
-	 */
-	public SX160ISCamera(short cameraVendorID, short cameraProductID) {
-		super(cameraVendorID, cameraProductID);
+	public SX160ISCamera(UsbDevice device) {
+		super(device);
 	}
-
+	
 	/**
 	 * Creates a new instance of
 	 * 
@@ -48,11 +43,10 @@ public class SX160ISCamera extends FailSafeCamera {
 			this.executeLuaCommand("click('set')");
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			log.error(e.getLocalizedMessage());
+			log.log(Level.SEVERE, e.getLocalizedMessage(), e);
 			e.printStackTrace();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			log.error(e.getLocalizedMessage(), e);
+			log.log(Level.SEVERE, e.getLocalizedMessage(), e);
 			throw new CameraConnectionException(e.getMessage());
 		}
 	}
@@ -73,12 +67,17 @@ public class SX160ISCamera extends FailSafeCamera {
 			this.executeLuaCommand("click('set')");
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			log.error(e.getLocalizedMessage());
+			log.log(Level.SEVERE, e.getLocalizedMessage(), e);
 			e.printStackTrace();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			log.error(e.getLocalizedMessage(), e);
+			log.log(Level.SEVERE, e.getLocalizedMessage(), e);
 			throw new CameraConnectionException(e.getMessage());
 		}
+	}
+	
+	@Override
+	public SupportedCamera getCameraInfo() {
+		return SupportedCamera.SX160IS;
 	}
 }

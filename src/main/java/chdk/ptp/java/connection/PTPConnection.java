@@ -137,9 +137,10 @@ public class PTPConnection {
 
 	public void close() throws UsbNotActiveException, UsbNotOpenException,
 			UsbDisconnectedException, UsbException {
-		// TODO Auto-generated method stub
 		this.camInpipe.close();
 		this.camOutpipe.close();
+		camInpipe.getUsbEndpoint().getUsbInterface().release();
+		
 	}
 
 }

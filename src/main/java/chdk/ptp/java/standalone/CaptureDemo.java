@@ -2,7 +2,6 @@ package chdk.ptp.java.standalone;
 
 import chdk.ptp.java.CameraFactory;
 import chdk.ptp.java.ICamera;
-import chdk.ptp.java.SupportedCamera;
 
 /**
  * Displays a panel with live view from camera.
@@ -21,7 +20,7 @@ public class CaptureDemo {
 	public static void main(String[] args) {
 		cam = null;
 		try {
-			cam = CameraFactory.getCamera(SupportedCamera.SX160IS);
+			cam = CameraFactory.getCamera();
 			cam.connect();
 			// switch to capture mode
 			cam.setRecordingMode();

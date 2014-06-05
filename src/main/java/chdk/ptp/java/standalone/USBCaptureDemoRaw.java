@@ -2,20 +2,11 @@ package chdk.ptp.java.standalone;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
+import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import chdk.ptp.java.CameraFactory;
 import chdk.ptp.java.ICamera;
@@ -26,6 +17,7 @@ import chdk.ptp.java.connection.packet.ByteOrder;
 import chdk.ptp.java.connection.packet.PTPPacket;
 
 public class USBCaptureDemoRaw {
+	static Logger  log = Logger.getLogger(AbstractCamera.class.getName());
 	private static ICamera cam;
 
 	/**
@@ -37,7 +29,6 @@ public class USBCaptureDemoRaw {
 	 */
 	public static void main(String[] args) {
 		cam = null;
-		Log log = LogFactory.getLog(AbstractCamera.class);
 		try {
 			cam = CameraFactory.getCamera(SupportedCamera.SX160IS);
 			cam.connect();
@@ -81,11 +72,11 @@ public class USBCaptureDemoRaw {
 				while (true) {
 					if (System.currentTimeMillis() > timeout + 2000) {
 						if (retries > 9) {
-							log.error("Camera Won't shoot photo. Resetting Camera.");
+							log.severe("Camera Won't shoot photo. Resetting Camera.");
 							acam.executeLuaCommand("reboot()");
 							throw new Exception("Camera Capture Failed");
 						}
-						log.warn("Camera ignored shoot command. Retrying.");
+						log.warning("Camera ignored shoot command. Retrying.");
 						timeout = System.currentTimeMillis();
 						acam.executeLuaCommand("shoot()"); // take picture
 						Thread.sleep(1000); // there needs to be a delay between
@@ -112,7 +103,7 @@ public class USBCaptureDemoRaw {
 				}
 				;
 
-				log.debug("Camera is ready to send image!");
+				log.info("Camera is ready to send image!");
 
 				PTPPacket getChunk = new PTPPacket(
 						PTPPacket.PTP_USB_CONTAINER_COMMAND,
@@ -138,7 +129,7 @@ public class USBCaptureDemoRaw {
 					response = c.getResponse();
 					int offset = response.decodeInt(PTPPacket.iPTPCommandARG2,
 							ByteOrder.LittleEndian);
-					log.debug("Got Image Chunk! Offset: " + offset);
+					log.info("Got Image Chunk! Offset: " + offset);
 					if (offset != -1) {
 						position = offset;
 						// log.debug("Seeking");
@@ -154,7 +145,7 @@ public class USBCaptureDemoRaw {
 									ByteOrder.LittleEndian) == 0)
 						break;
 				}
-				log.debug("Done!");
+				log.info("Done!");
 				// log.debug(ReturnedImage.toByteArray().length);
 				// c.getResponse();
 				// BufferedOutputStream bos = new BufferedOutputStream(new
@@ -171,7 +162,7 @@ public class USBCaptureDemoRaw {
 					g.drawImage(bImageFromConvert, 0, 0, 1024, 768, null);
 					g.dispose();
 
-					log.debug("Image Type: " + bImageFromConvert);
+					log.info("Image Type: " + bImageFromConvert);
 					if (impannel == null) {
 						impannel = new BufferedImagePanel(resizedImage);
 						// log.debug("null");
@@ -184,7 +175,7 @@ public class USBCaptureDemoRaw {
 				}
 
 				// impannel.setImage(resizedImage);
-				log.debug("Count is: " + count++);
+				log.info("Count is: " + count++);
 				Thread.sleep(4000);
 			}
 

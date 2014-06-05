@@ -13,6 +13,7 @@ import chdk.ptp.java.exception.PTPTimeoutException;
  */
 public interface ICamera {
 
+	SupportedCamera getCameraInfo(); 
 	/**
 	 * Connect via PTP to camera.
 	 * 
