@@ -50,8 +50,7 @@ public class CameraUsbDevice {
 
 	@Override
 	public String toString() {
-		return "CameraUsbDevice [idVendor=" + idVendor + ", idProduct="
-				+ idProduct + ", productString=" + productString + "]";
+		return productString  + " - VID: "+idVendor + " - PID: "+idProduct;
 	}
 
 }
