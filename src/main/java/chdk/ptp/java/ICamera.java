@@ -40,11 +40,11 @@ public interface ICamera {
 	 * @param command
 	 *            to be issued
 	 * 
-	 * @return true if response code was OK
+	 * @return script id. -1 if script fail
 	 * @throws CameraConnectionException
 	 * @throws PTPTimeoutException
 	 */
-	public boolean executeLuaCommand(String command)
+	public int executeLuaCommand(String command)
 			throws CameraConnectionException, PTPTimeoutException;
 
 	/**
@@ -60,7 +60,7 @@ public interface ICamera {
 	 * 
 	 * @return returned value
 	 */
-	public String executeLuaQuery(String command);
+	public Object executeLuaQuery(String command) throws CameraConnectionException, PTPTimeoutException;
 
 	/**
 	 * Takes picture with current camera settings and downloads the image.
@@ -141,6 +141,21 @@ public interface ICamera {
 	 * @throws PTPTimeoutException
 	 */
 	public void setZoom(int zoomPosition) throws CameraConnectionException,
+			PTPTimeoutException;
+	
+	
+	/**
+	 * Returns number of maximum zoom steps, irrespective of the processor..
+	 * 
+	 * @see <a
+	 *      href="http://chdk.wikia.com/wiki/Script_commands#get_zoom_steps">CHDK
+	 *      lua set_zoom()</a>
+	 * 
+	 * @return number of maximum zoom steps
+	 * @throws CameraConnectionException
+	 * @throws PTPTimeoutException
+	 */
+	public int getZoomSteps() throws CameraConnectionException,
 			PTPTimeoutException;
 
 	/**

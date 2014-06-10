@@ -1,11 +1,11 @@
 package chdk.ptp.java.camera;
 
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,20 +41,22 @@ import chdk.ptp.java.exception.PTPTimeoutException;
  */
 public abstract class AbstractCamera implements ICamera {
 
-	private static Logger log = Logger.getLogger(AbstractCamera.class.getName());
+	private static Logger log = Logger
+			.getLogger(AbstractCamera.class.getName());
 
 	private PTPConnection connection = null;
 	private String cameraSerialNo = "";
 	private UsbDevice device = null;
+	private int zoomStepsCache = -1;
 
 	public PTPConnection getPTPConnection() {
 		return connection;
 	}
 
-	public AbstractCamera(UsbDevice device){
+	public AbstractCamera(UsbDevice device) {
 		this.device = device;
 	}
-	
+
 	/**
 	 * Creates a new instance of
 	 * 
@@ -73,10 +75,10 @@ public abstract class AbstractCamera implements ICamera {
 	@Override
 	public void connect() throws CameraConnectionException {
 		try {
-			if (device == null){
+			if (device == null) {
 				findCameraDevice();
 			}
-			
+
 			connection = getConenctionFromUSBDevice(device);
 			log.info("Connected to camera");
 		} catch (SecurityException | UsbException
@@ -89,8 +91,9 @@ public abstract class AbstractCamera implements ICamera {
 			throw new CameraConnectionException(message);
 		}
 	}
-	
-	private void findCameraDevice() throws SecurityException, UsbException, CameraNotFoundException{
+
+	private void findCameraDevice() throws SecurityException, UsbException,
+			CameraNotFoundException {
 		UsbDevice cameraDevice = null;
 		UsbServices services = UsbHostManager.getUsbServices();
 		UsbHub rootHub = services.getRootUsbHub();
@@ -99,9 +102,10 @@ public abstract class AbstractCamera implements ICamera {
 			cameraDevice = UsbUtils.findDeviceBySerialNumber(rootHub,
 					cameraSerialNo);
 
-		if (getCameraInfo().getPID() != -1 && getCameraInfo().getVendorID() != -1)
-			cameraDevice = UsbUtils.findDevice(rootHub, getCameraInfo().getVendorID(),
-					getCameraInfo().getPID());
+		if (getCameraInfo().getPID() != -1
+				&& getCameraInfo().getVendorID() != -1)
+			cameraDevice = UsbUtils.findDevice(rootHub, getCameraInfo()
+					.getVendorID(), getCameraInfo().getPID());
 
 		if (cameraDevice == null)
 			throw new CameraNotFoundException();
@@ -123,7 +127,7 @@ public abstract class AbstractCamera implements ICamera {
 	}
 
 	@Override
-	public boolean executeLuaCommand(String command)
+	public int executeLuaCommand(String command)
 			throws CameraConnectionException, PTPTimeoutException {
 
 		StringBuilder formattedCommand = new StringBuilder(command);
@@ -133,7 +137,8 @@ public abstract class AbstractCamera implements ICamera {
 		PTPPacket p = new PTPPacket(PTPPacket.PTP_USB_CONTAINER_COMMAND,
 				PTPPacket.PTP_OPPCODE_CHDK, 0, new byte[8]);
 		// oppcode 7 is execute script
-		p.encodeInt(PTPPacket.iPTPCommandARG0, 7, ByteOrder.LittleEndian);
+		p.encodeInt(PTPPacket.iPTPCommandARG0, PTPPacket.CHDK_ExecuteScript,
+				ByteOrder.LittleEndian);
 		// XXX: acamilo "is going to hell for this"
 		p.encodeInt(PTPPacket.iPTPCommandARG1, 0, ByteOrder.LittleEndian);
 		connection.sendPTPPacket(p);
@@ -156,16 +161,147 @@ public abstract class AbstractCamera implements ICamera {
 			// TODO Auto-generated catch block
 			throw new CameraConnectionException(e.getMessage());
 		}
-		if (p.getContainerCommand() == PTPPacket.PTP_USB_CONTAINER_RESPONSE
-				&& p.getOppcode() == PTPPacket.PTP_OPPCODE_Response_OK)
-			return true;
-		return false;
+		if (isResponseOK(p)) {
+			int scriptId = p.decodeInt(PTPPacket.iPTPCommandARG0,
+					ByteOrder.LittleEndian);
+			return scriptId;
+		}
+		return -1;
+	}
+
+	private boolean isResponseOK(PTPPacket p) {
+		return p.getContainerCommand() == PTPPacket.PTP_USB_CONTAINER_RESPONSE
+				&& p.getOppcode() == PTPPacket.PTP_OPPCODE_Response_OK;
 	}
 
 	@Override
-	public String executeLuaQuery(String command) {
-		// TODO Auto-generated method stub
-		return null;
+	public Object executeLuaQuery(String command) throws CameraConnectionException, PTPTimeoutException {
+		int scriptId = executeLuaCommand(command);
+		
+		waitScriptReady();
+		
+		return readScriptMsg(scriptId);
+	}
+
+	private void waitScriptReady() throws CameraConnectionException {
+		boolean sctriptRunning = true;
+		try {
+			do {
+				// get status
+				PTPPacket p = new PTPPacket(
+						PTPPacket.PTP_USB_CONTAINER_COMMAND,
+						PTPPacket.PTP_OPPCODE_CHDK, 0, new byte[8]);
+
+				// oppcode 12 is transfer framebuffer
+				p.encodeInt(PTPPacket.iPTPCommandARG0,
+						PTPPacket.CHDK_ScriptStatus, ByteOrder.LittleEndian);
+
+				connection.sendPTPPacket(p);
+
+				p = connection.getResponse();
+
+				int scriptStatus = p.decodeByte(PTPPacket.iPTPCommandARG0);
+				if (scriptStatus != PTPPacket.PTP_CHDK_SCRIPT_STATUS_RUN) {
+					sctriptRunning = false;
+				} else {
+					Thread.sleep(100);
+				}
+
+			} while (sctriptRunning);
+		} catch (Exception e) {
+			log.log(Level.SEVERE, e.getLocalizedMessage(), e);
+			throw new CameraConnectionException(e.getMessage());
+		}
+	}
+
+	private Object readScriptMsg(int scriptId) throws CameraConnectionException,
+			 PTPTimeoutException {
+		
+		Object msg = null;
+
+		// get status
+		PTPPacket p = new PTPPacket(PTPPacket.PTP_USB_CONTAINER_COMMAND,
+				PTPPacket.PTP_OPPCODE_CHDK, 0, new byte[8]);
+
+		// oppcode 12 is transfer framebuffer
+		p.encodeInt(PTPPacket.iPTPCommandARG0, PTPPacket.CHDK_ReadScriptMsg,
+				ByteOrder.LittleEndian);
+
+		connection.sendPTPPacket(p);
+
+		byte[] scriptbvalue = null;
+		try{
+			// recive script value
+			p = connection.getResponse();
+			scriptbvalue = p.getData();
+			// recive script metadata
+			p = connection.getResponse();
+		} catch (InvalidPacketException e) {
+			// TODO Auto-generated catch block
+			throw new CameraConnectionException(e.getMessage());
+		}
+
+		if (isResponseOK(p)) {
+			int type = p.decodeInt(PTPPacket.iPTPCommandARG0,
+					ByteOrder.LittleEndian);
+			int subType = p.decodeInt(PTPPacket.iPTPCommandARG1,
+					ByteOrder.LittleEndian);
+			int scriptIdMsg = p.decodeInt(PTPPacket.iPTPCommandARG2,
+					ByteOrder.LittleEndian);
+			int size = p.decodeInt(PTPPacket.iPTPCommandARG3,
+					ByteOrder.LittleEndian);
+			
+			if(scriptId != scriptIdMsg){
+				// oops!!
+				throw new CameraConnectionException("could not read script response. Is camera operations thread-safe?");
+			}
+
+			switch (type) {
+			case PTPPacket.PTP_CHDK_S_MSGTYPE_RET:
+			case PTPPacket.PTP_CHDK_S_MSGTYPE_USER:
+
+				switch (subType) {
+				case PTPPacket.PTP_CHDK_TYPE_UNSUPPORTED: // type name will be
+															// returned in data
+				case PTPPacket.PTP_CHDK_TYPE_STRING:
+				case PTPPacket.PTP_CHDK_TYPE_TABLE: // tables are returned as a
+													// serialized string.
+					// The user is responsible for unserializing, to allow
+					// different serialization methods
+					msg = new String(scriptbvalue);
+					break;
+				case PTPPacket.PTP_CHDK_TYPE_BOOLEAN:
+					msg = scriptbvalue[0] == 1;
+					break;
+				case PTPPacket.PTP_CHDK_TYPE_INTEGER:
+					ByteBuffer buffer = ByteBuffer.wrap(scriptbvalue);
+					buffer.order(java.nio.ByteOrder.LITTLE_ENDIAN);
+					msg = buffer.getInt();
+					break;
+				}
+				break;
+			case PTPPacket.PTP_CHDK_S_MSGTYPE_ERR:
+			default:
+				msg = "ERROR: " + scriptMsgErrorTypeToName(subType)+ " " + new String(scriptbvalue);
+				break;
+			}
+
+		}
+
+		// (*msg)->type = ptp.Param1;
+		// (*msg)->subtype = ptp.Param2;
+		// (*msg)->script_id = ptp.Param3;
+		// (*msg)->size = ptp.Param4;
+
+		return msg;
+	}
+	
+	private String scriptMsgErrorTypeToName(int typeId) {
+		String[] names={"none","compile","runtime"};
+		if(typeId >= names.length){
+			return "unknown_error_subtype";
+		}
+		return names[typeId];
 	}
 
 	@Override
@@ -178,9 +314,11 @@ public abstract class AbstractCamera implements ICamera {
 					PTPPacket.PTP_OPPCODE_CHDK, 0, new byte[8]);
 
 			// oppcode 12 is transfer framebuffer
-			p.encodeInt(PTPPacket.iPTPCommandARG0, 12, ByteOrder.LittleEndian);
+			p.encodeInt(PTPPacket.iPTPCommandARG0,
+					PTPPacket.CHDK_GetDisplayData, ByteOrder.LittleEndian);
 			// argument value 1 sends viewport
-			p.encodeInt(PTPPacket.iPTPCommandARG1, 1, ByteOrder.LittleEndian);
+			p.encodeInt(PTPPacket.iPTPCommandARG1, PTPPacket.CHDK_GetMemory,
+					ByteOrder.LittleEndian);
 
 			connection.sendPTPPacket(p);
 
@@ -196,8 +334,7 @@ public abstract class AbstractCamera implements ICamera {
 			}
 
 			p = connection.getResponse();
-			if (p.getContainerCommand() == PTPPacket.PTP_USB_CONTAINER_RESPONSE
-					&& p.getOppcode() == PTPPacket.PTP_OPPCODE_Response_OK)
+			if (isResponseOK(p))
 				return image;
 			String message = "SX50Camera did not end session with an OK response even though a data packet was sent!";
 			log.log(Level.SEVERE, message);
@@ -371,6 +508,15 @@ public abstract class AbstractCamera implements ICamera {
 			log.log(Level.SEVERE, e.getLocalizedMessage(), e);
 			throw new CameraConnectionException(e.getMessage());
 		}
+	}
+	
+	@Override
+	public int getZoomSteps() throws CameraConnectionException,
+			PTPTimeoutException {
+		if(zoomStepsCache == -1){
+			zoomStepsCache = (Integer) executeLuaQuery("return get_zoom_steps()");
+		}
+		return zoomStepsCache;
 	}
 
 	private PTPConnection getConenctionFromUSBDevice(UsbDevice dev)

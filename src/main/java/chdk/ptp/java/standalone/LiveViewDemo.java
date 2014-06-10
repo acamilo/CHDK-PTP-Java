@@ -1,17 +1,12 @@
 package chdk.ptp.java.standalone;
 
-import java.awt.BorderLayout;
-import java.awt.Frame;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
-import java.util.Random;
 
-import javax.swing.JApplet;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -26,7 +21,6 @@ import javax.usb.UsbException;
 
 import chdk.ptp.java.CameraFactory;
 import chdk.ptp.java.ICamera;
-import chdk.ptp.java.SupportedCamera;
 import chdk.ptp.java.connection.CameraUsbDevice;
 import chdk.ptp.java.connection.UsbUtils;
 import chdk.ptp.java.exception.CameraConnectionException;
@@ -61,6 +55,7 @@ public class LiveViewDemo extends JFrame {
 	private static int OP_VIEW = 2;
 	private static int OP_ZOOM = 3;
 	private static int OP_SHOOT = 4;
+	private static int OP_CMD = 5;
 	private static boolean isConnected = false;
 
 	JComboBox<CameraUsbDevice> jcboCameras = null;
@@ -69,7 +64,10 @@ public class LiveViewDemo extends JFrame {
 	JButton jBtnCmd = null;
 	JButton jBtnShoot = null;
 	JSlider jSliderZoom = null;
-
+	JTextField jTxtCmd = null;
+	JTextArea jTextAreaLog = null;
+	JScrollPane jScrollPaneLog = null;
+	
 	private void intGui() {
 
 		JPanel jPanTop = new javax.swing.JPanel();
@@ -80,11 +78,13 @@ public class LiveViewDemo extends JFrame {
 		jBtnShoot = new JButton();
 		jSliderZoom = new JSlider(0, 100, 0);
 		JPanel jPanFooter = new JPanel();
-		JTextField jTxtCmd = new JTextField();
-		JScrollPane jScrollPaneLog = new JScrollPane();
-		JTextArea jTextAreaLog = new JTextArea();
+		jTxtCmd = new JTextField();
+		jScrollPaneLog = new JScrollPane();
+		jTextAreaLog = new JTextArea();
 		JPanel jPanLiveArea = new JPanel();
 
+		jTextAreaLog.setEditable(false);
+		
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
 		jBtnConnect.setText("Connect");
@@ -340,6 +340,8 @@ public class LiveViewDemo extends JFrame {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					commandCamera(OP_CONNECT);
+					threadView = new Thread(new LiveCapture());
+					threadView.start();
 				}
 			});
 
@@ -376,9 +378,48 @@ public class LiveViewDemo extends JFrame {
 		} catch (SecurityException | UsbException e) {
 			e.printStackTrace();
 		}
+		
+		
+		jBtnCmd.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				executeCmd();
+			}
+		});
+		
+		
+		jTxtCmd.addKeyListener(new KeyListener() {
+			
+			@Override
+			public void keyTyped(KeyEvent e) {
+			}
+			
+			@Override
+			public void keyReleased(KeyEvent e) {
+				 int key=e.getKeyCode();
+				 if(key==KeyEvent.VK_ENTER){
+					 executeCmd();
+				 }
+				
+			}
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+		});
 
 	}
 
+	private void executeCmd(){
+		String cmd = jTxtCmd.getText();
+		jTextAreaLog.append("# "+cmd+"\n");
+		jTextAreaLog.append(">> " + commandCamera(OP_CMD, cmd) +"\n");
+		jTextAreaLog.setCaretPosition(jTextAreaLog.getDocument().getLength());
+		
+		jTxtCmd.setText("");
+		jTxtCmd.requestFocus();
+	}
+	
 	public static void main(String[] args) {
 
 		java.awt.EventQueue.invokeLater(new Runnable() {
@@ -389,38 +430,25 @@ public class LiveViewDemo extends JFrame {
 
 	}
 
-	private synchronized Object commandCamera(int op, int... param) {
+	private synchronized Object commandCamera(int op, Object... param) {
 		try {
 			if (op == OP_CONNECT) {
 				cam = CameraFactory.getCamera();
 				cam.connect();
 				cam.setRecordingMode();
 				isConnected = true;
-
-				threadView = new Thread(new Runnable() {
-
-					@Override
-					public void run() {
-						while (isConnected) {
-							imageLive
-									.setImage((BufferedImage) commandCamera(OP_VIEW));
-							repaint();
-						}
-					}
-				});
-
-				threadView.start();
-
 			} else if (op == OP_DISCONNECT) {
+				isConnected = false;
 				cam.setPlaybackMode();
 				cam.disconnect();
-				isConnected = false;
 			} else if (op == OP_ZOOM) {
-				cam.setZoom(param[0]);
+				cam.setZoom( (Integer) param[0]);
 			} else if (op == OP_VIEW) {
 				return cam.getView();
 			} else if (op == OP_SHOOT) {
 				return cam.getPicture();
+			} else if (op == OP_CMD){
+				return cam.executeLuaQuery(param[0].toString());
 			}
 		} catch (CameraConnectionException | PTPTimeoutException
 				| CameraNotFoundException e1) {
@@ -431,4 +459,21 @@ public class LiveViewDemo extends JFrame {
 
 	}
 
+	
+	private class LiveCapture implements Runnable{
+
+		@Override
+		public void run() {
+			while (isConnected) {
+				imageLive
+						.setImage((BufferedImage) commandCamera(OP_VIEW));
+				repaint();
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 }
