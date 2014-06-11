@@ -46,6 +46,10 @@ public class PTPPacket extends Packet {
 	public final static int PTP_CHDK_TYPE_TABLE = 5;
 			  
 	
+	public final static int PTP_CHDK_SL_LUA    =0;
+	public final static int PTP_CHDK_SL_UBASIC =1;
+	public final static int PTP_CHDK_SL_MASK =0xFF;
+	
 	// Locations of the fields in the PTP Packet
 	// chdk.ptp.java.connection.packet length including header. It is 12 bytes +
 	// data.length

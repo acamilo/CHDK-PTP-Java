@@ -56,6 +56,8 @@ public class LiveViewDemo extends JFrame {
 	private static int OP_ZOOM = 3;
 	private static int OP_SHOOT = 4;
 	private static int OP_CMD = 5;
+	private static int OP_PLAY = 6;
+	private static int OP_REC = 7;
 	private static boolean isConnected = false;
 
 	JComboBox<CameraUsbDevice> jcboCameras = null;
@@ -67,6 +69,9 @@ public class LiveViewDemo extends JFrame {
 	JTextField jTxtCmd = null;
 	JTextArea jTextAreaLog = null;
 	JScrollPane jScrollPaneLog = null;
+	JButton jBtnRec = null;
+	JButton jBtnPlay = null;
+	JButton jBtnLive = null;
 	
 	private void intGui() {
 
@@ -82,6 +87,10 @@ public class LiveViewDemo extends JFrame {
 		jScrollPaneLog = new JScrollPane();
 		jTextAreaLog = new JTextArea();
 		JPanel jPanLiveArea = new JPanel();
+		
+		jBtnRec = new JButton("Rec");
+		jBtnPlay = new JButton("Play");
+		jBtnLive = new JButton("Live");
 
 		jTextAreaLog.setEditable(false);
 		
@@ -109,10 +118,16 @@ public class LiveViewDemo extends JFrame {
 												javax.swing.GroupLayout.PREFERRED_SIZE)
 										.addGap(18, 18, 18)
 										.addComponent(jBtnConnect)
-										.addPreferredGap(
-												javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+										.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
 										.addComponent(jBtnDisconnect)
-										.addContainerGap(455, Short.MAX_VALUE)));
+											.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+										.addComponent(jBtnRec)
+											.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+										.addComponent(jBtnPlay)
+											.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+										.addComponent(jBtnLive)
+											.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+										.addContainerGap(251, Short.MAX_VALUE)));
 		jPanTopLayout
 				.setVerticalGroup(jPanTopLayout
 						.createParallelGroup(
@@ -130,10 +145,12 @@ public class LiveViewDemo extends JFrame {
 																javax.swing.GroupLayout.PREFERRED_SIZE,
 																javax.swing.GroupLayout.DEFAULT_SIZE,
 																javax.swing.GroupLayout.PREFERRED_SIZE)
-														.addComponent(
-																jBtnConnect)
-														.addComponent(
-																jBtnDisconnect))
+														.addComponent(jBtnConnect)
+														.addComponent(jBtnDisconnect)
+														.addComponent(jBtnRec)
+														.addComponent(jBtnPlay)
+														.addComponent(jBtnLive))
+														
 										.addContainerGap(
 												javax.swing.GroupLayout.DEFAULT_SIZE,
 												Short.MAX_VALUE)));
@@ -340,8 +357,6 @@ public class LiveViewDemo extends JFrame {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					commandCamera(OP_CONNECT);
-					threadView = new Thread(new LiveCapture());
-					threadView.start();
 				}
 			});
 
@@ -407,6 +422,36 @@ public class LiveViewDemo extends JFrame {
 			public void keyPressed(KeyEvent e) {
 			}
 		});
+		
+		
+		
+		jBtnRec.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				commandCamera(OP_REC);
+			}
+			
+		});
+		
+		jBtnPlay.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				commandCamera(OP_PLAY);
+			}
+			
+		});	
+		
+		jBtnLive.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				threadView = new Thread(new LiveCapture());
+				threadView.start();
+			}
+			
+		});
 
 	}
 
@@ -435,12 +480,15 @@ public class LiveViewDemo extends JFrame {
 			if (op == OP_CONNECT) {
 				cam = CameraFactory.getCamera();
 				cam.connect();
-				cam.setRecordingMode();
+				jSliderZoom.setMaximum(cam.getZoomSteps());
+//				cam.setRecordingMode();
 				isConnected = true;
 			} else if (op == OP_DISCONNECT) {
 				isConnected = false;
-				cam.setPlaybackMode();
+//				cam.setPlaybackMode();
+				System.out.println("Desconectando da camera");
 				cam.disconnect();
+				System.out.println("Desconectando desconectado");
 			} else if (op == OP_ZOOM) {
 				cam.setZoom( (Integer) param[0]);
 			} else if (op == OP_VIEW) {
@@ -449,10 +497,15 @@ public class LiveViewDemo extends JFrame {
 				return cam.getPicture();
 			} else if (op == OP_CMD){
 				return cam.executeLuaQuery(param[0].toString());
+			} else if (op == OP_PLAY){
+				cam.setPlaybackMode();
+			} else if (op == OP_REC){
+				cam.setRecordingMode();
 			}
 		} catch (CameraConnectionException | PTPTimeoutException
 				| CameraNotFoundException e1) {
 			e1.printStackTrace();
+			jTextAreaLog.append(">>>"+e1.getLocalizedMessage()+"\n");
 		}
 
 		return null;

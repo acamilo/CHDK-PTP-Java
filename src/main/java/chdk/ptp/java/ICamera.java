@@ -185,5 +185,19 @@ public interface ICamera {
 	 */
 	public void setPlaybackMode() throws CameraConnectionException,
 			PTPTimeoutException;
+	/**
+	 * Get camera mode
+	 * @return camera mode
+	 * @see ICamera#MODE_PLAYBACK
+	 * @see ICamera#MODE_RECORDING
+	 * @throws CameraConnectionException
+	 * @throws PTPTimeoutException
+	 */
+	public int getMode() throws CameraConnectionException,
+		PTPTimeoutException;
+	
+	public static final int MODE_PLAYBACK = 0;
+	public static final int MODE_RECORDING = 1;
+	
 
 }

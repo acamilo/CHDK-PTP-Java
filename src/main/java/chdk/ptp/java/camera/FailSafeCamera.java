@@ -6,6 +6,7 @@ import javax.usb.UsbDevice;
 
 import chdk.ptp.java.SupportedCamera;
 import chdk.ptp.java.exception.CameraConnectionException;
+import chdk.ptp.java.exception.PTPTimeoutException;
 
 /**
  * Fail safe camera class which should at least show live view from camera.
@@ -56,6 +57,5 @@ public class FailSafeCamera extends AbstractCamera {
 	public SupportedCamera getCameraInfo() {
 		return SupportedCamera.FailsafeCamera;
 	}
-
 
 }
