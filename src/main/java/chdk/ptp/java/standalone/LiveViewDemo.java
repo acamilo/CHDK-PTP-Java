@@ -1,5 +1,9 @@
 package chdk.ptp.java.standalone;
 
+import java.awt.AlphaComposite;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -430,6 +434,7 @@ public class LiveViewDemo extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				commandCamera(OP_REC);
+				keepAlive();
 			}
 			
 		});
@@ -478,19 +483,24 @@ public class LiveViewDemo extends JFrame {
 	private synchronized Object commandCamera(int op, Object... param) {
 		try {
 			if (op == OP_CONNECT) {
+				jTextAreaLog.append("_Connecting..._\n");
+				jTextAreaLog.updateUI();
 				cam = CameraFactory.getCamera();
 				cam.connect();
 				jSliderZoom.setMaximum(cam.getZoomSteps());
 //				cam.setRecordingMode();
 				isConnected = true;
+				jTextAreaLog.append("_Camera Connected_\n");
 			} else if (op == OP_DISCONNECT) {
 				isConnected = false;
 //				cam.setPlaybackMode();
-				System.out.println("Desconectando da camera");
+				jTextAreaLog.append("_Disconnecting_\n");
 				cam.disconnect();
-				System.out.println("Desconectando desconectado");
+				jTextAreaLog.append("_Camera Disonnected_\n");
 			} else if (op == OP_ZOOM) {
+				jTextAreaLog.append("_set zoom "+param[0]+"_\n");
 				cam.setZoom( (Integer) param[0]);
+				jTextAreaLog.append("_zoom complete_\n");
 			} else if (op == OP_VIEW) {
 				return cam.getView();
 			} else if (op == OP_SHOOT) {
@@ -512,14 +522,24 @@ public class LiveViewDemo extends JFrame {
 
 	}
 
+	Thread threadKeepAlive = new Thread(new KeepAliveRunnable());
+	private void keepAlive(){
+//		 
+		if(!threadKeepAlive.isAlive()){
+			threadKeepAlive.start();
+		}
+		
+	}
 	
 	private class LiveCapture implements Runnable{
 
 		@Override
 		public void run() {
 			while (isConnected) {
+				BufferedImage visorImage = (BufferedImage) commandCamera(OP_VIEW);
+				visorImage = resizeImage(visorImage, (int) (visorImage.getHeight()*1.5), visorImage.getHeight());
 				imageLive
-						.setImage((BufferedImage) commandCamera(OP_VIEW));
+						.setImage(visorImage);
 				repaint();
 				try {
 					Thread.sleep(100);
@@ -529,4 +549,41 @@ public class LiveViewDemo extends JFrame {
 			}
 		}
 	}
+	
+	
+	private class KeepAliveRunnable implements Runnable{
+		@Override
+		public void run() {
+			while (isConnected){
+				int zoomOriginal = (int) jSliderZoom.getValue();
+				int zoom = 0;
+				if (zoomOriginal == 0){
+					zoom = 1; 
+				} else {
+					zoom = zoomOriginal - 1;
+				}
+				commandCamera(OP_ZOOM, zoom);
+				commandCamera(OP_ZOOM, zoomOriginal);
+				try {
+					Thread.sleep(45000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				
+			}
+		}
+	}
+	
+    public static BufferedImage resizeImage(final Image image, int width, int height) {
+        final BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        final Graphics2D graphics2D = bufferedImage.createGraphics();
+        graphics2D.setComposite(AlphaComposite.Src);
+        //below three lines are for RenderingHints for better image quality at cost of higher processing time
+        graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        graphics2D.setRenderingHint(RenderingHints.KEY_RENDERING,RenderingHints.VALUE_RENDER_QUALITY);
+        graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+        graphics2D.drawImage(image, 0, 0, width, height, null);
+        graphics2D.dispose();
+        return bufferedImage;
+    }
 }
