@@ -135,11 +135,14 @@ public abstract class AbstractCamera implements ICamera {
 		log.info("Executing: \t\"" + formattedCommand.toString() + "\"");
 
 		// preparing command packet
-		PTPPacket p = new PTPPacket(PTPPacket.PTP_USB_CONTAINER_COMMAND, PTPPacket.PTP_OPPCODE_CHDK, 0, new byte[8]);
-		
-		p.encodeInt(PTPPacket.iPTPCommandARG0, PTPPacket.CHDK_ExecuteScript, ByteOrder.LittleEndian);
-		p.encodeInt(PTPPacket.iPTPCommandARG1, PTPPacket.PTP_CHDK_SL_LUA, ByteOrder.LittleEndian);
-		
+		PTPPacket p = new PTPPacket(PTPPacket.PTP_USB_CONTAINER_COMMAND,
+				PTPPacket.PTP_OPPCODE_CHDK, 0, new byte[8]);
+
+		p.encodeInt(PTPPacket.iPTPCommandARG0, PTPPacket.CHDK_ExecuteScript,
+				ByteOrder.LittleEndian);
+		p.encodeInt(PTPPacket.iPTPCommandARG1, PTPPacket.PTP_CHDK_SL_LUA,
+				ByteOrder.LittleEndian);
+
 		connection.sendPTPPacket(p);
 
 		// embedding command into data packet
@@ -174,22 +177,23 @@ public abstract class AbstractCamera implements ICamera {
 	}
 
 	@Override
-	public Object executeLuaQuery(String command) throws CameraConnectionException, PTPTimeoutException {
+	public Object executeLuaQuery(String command)
+			throws CameraConnectionException, PTPTimeoutException {
 		int scriptId = executeLuaCommand(command);
-		
+
 		waitScriptReady();
-		
+
 		List<Object> listReturn = new ArrayList<>();
 		Object ro;
-		while((ro = readScriptMsg(scriptId)) != null){
+		while ((ro = readScriptMsg(scriptId)) != null) {
 			listReturn.add(ro);
 		}
-		
-		if(listReturn.size() == 0){
+
+		if (listReturn.size() == 0) {
 			return null;
-		} else if (listReturn.size() == 1){
+		} else if (listReturn.size() == 1) {
 			return listReturn.get(0);
-		} else{
+		} else {
 			return listReturn;
 		}
 	}
@@ -225,9 +229,9 @@ public abstract class AbstractCamera implements ICamera {
 		}
 	}
 
-	private Object readScriptMsg(int scriptId) throws CameraConnectionException,
-			 PTPTimeoutException {
-		
+	private Object readScriptMsg(int scriptId)
+			throws CameraConnectionException, PTPTimeoutException {
+
 		Object msg = null;
 
 		// get status
@@ -241,7 +245,7 @@ public abstract class AbstractCamera implements ICamera {
 		connection.sendPTPPacket(p);
 
 		byte[] scriptbvalue = null;
-		try{
+		try {
 			// recive script value
 			p = connection.getResponse();
 			scriptbvalue = p.getData();
@@ -261,14 +265,16 @@ public abstract class AbstractCamera implements ICamera {
 					ByteOrder.LittleEndian);
 			int size = p.decodeInt(PTPPacket.iPTPCommandARG3,
 					ByteOrder.LittleEndian);
-			
-			if(scriptIdMsg == 0){
+
+			if (scriptIdMsg == 0) {
 				return null;
 			}
-			
-			if(scriptId != scriptIdMsg){
+
+			if (scriptId != scriptIdMsg) {
 				// oops!!
-				throw new CameraConnectionException("could not read script response. Is camera operations thread-safe?Script Run: "+scriptId + ", Script Msg: "+scriptIdMsg);
+				throw new CameraConnectionException(
+						"could not read script response. Is camera operations thread-safe?Script Run: "
+								+ scriptId + ", Script Msg: " + scriptIdMsg);
 			}
 
 			switch (type) {
@@ -297,7 +303,8 @@ public abstract class AbstractCamera implements ICamera {
 				break;
 			case PTPPacket.PTP_CHDK_S_MSGTYPE_ERR:
 			default:
-				msg = "ERROR: " + scriptMsgErrorTypeToName(subType)+ " " + new String(scriptbvalue);
+				msg = "ERROR: " + scriptMsgErrorTypeToName(subType) + " "
+						+ new String(scriptbvalue);
 				break;
 			}
 
@@ -310,10 +317,10 @@ public abstract class AbstractCamera implements ICamera {
 
 		return msg;
 	}
-	
+
 	private String scriptMsgErrorTypeToName(int typeId) {
-		String[] names={"none","compile","runtime"};
-		if(typeId >= names.length){
+		String[] names = { "none", "compile", "runtime" };
+		if (typeId >= names.length) {
 			return "unknown_error_subtype";
 		}
 		return names[typeId];
@@ -359,6 +366,7 @@ public abstract class AbstractCamera implements ICamera {
 		}
 	}
 
+	@Override
 	public BufferedImage getRawView() throws CameraConnectionException {
 
 		return null;
@@ -367,22 +375,24 @@ public abstract class AbstractCamera implements ICamera {
 	@Override
 	public BufferedImage getPicture() throws CameraConnectionException {
 		try {
-			if(getUsbCaptureSupport() != 1){
+			if (getUsbCaptureSupport() != 1) {
 				throw new CameraConnectionException("usb capture not supported");
 			}
-			if ( getUsbCaptureSuport() % 2 == 0  ){
+			if (getUsbCaptureSuport() % 2 == 0) {
 				// if odd the camera don't hava jpg suport
 				// TODO init_usb_capture in raw
 				throw new CameraConnectionException("unsupported format");
-				
+
 			}
-			if( !((Boolean) this.executeLuaQuery("return init_usb_capture(1,0,0)"))){// init capture, we have 3 seconds to take a picture
+			if (!((Boolean) this
+					.executeLuaQuery("return init_usb_capture(1,0,0)"))) {
+				// init capture, we have 3 seconds to take a picture
 				throw new CameraConnectionException("init failed");
 			}
-			
-//			Thread.sleep(100); // there needs to be a delay between this and
+
+			// Thread.sleep(100); // there needs to be a delay between this and
 			// the one below or camera will freak out
-			this.executeLuaCommand("return shoot()"); // take picture - should return 0 ???
+			this.executeLuaCommand("shoot()"); // take picture
 
 			// Loop until camera takes picture.
 			PTPPacket ready = new PTPPacket(
@@ -393,28 +403,32 @@ public abstract class AbstractCamera implements ICamera {
 					PTPPacket.CHDK_RemoteCaptureIsReady, ByteOrder.LittleEndian);
 
 			int nTry = 0;
-			while(true) {
+			while (true) {
 				connection.sendPTPPacket(ready);
-				
+
 				PTPPacket response = connection.getResponse();
-				
+
 				if (response.decodeInt(PTPPacket.iPTPCommandARG0,
 						ByteOrder.LittleEndian) == 0x10000000)
 					throw new CameraConnectionException(
-							"balls. camera doesn't think it's capturing an image");// Camera says it's not capturing
+							"balls. camera doesn't think it's capturing an image");// Camera
+																					// says
+																					// it's
+																					// not
+																					// capturing
 				else if (response.decodeInt(PTPPacket.iPTPCommandARG0,
 						ByteOrder.LittleEndian) != 0)
 					break;
-				else{
+				else {
 					nTry++;
 					Thread.sleep(200);
 				}
-				
-				if(nTry > 20){
+
+				if (nTry > 20) {
 					throw new CameraConnectionException("shoot fail. Try again");
 				}
 			}
-			
+
 			log.info("Camera is ready to send image!");
 
 			PTPPacket getChunk = new PTPPacket(
@@ -429,7 +443,7 @@ public abstract class AbstractCamera implements ICamera {
 
 			byte[] image = new byte[10000000]; // this will need to get bigger
 												// if the images are more than
-												// 10mb
+												// 10MB
 			int position = 0; // position in the buffer.
 			while (true) {
 				connection.sendPTPPacket(getChunk);
@@ -444,7 +458,7 @@ public abstract class AbstractCamera implements ICamera {
 					position = offset;
 					// log.debug("Seeking");
 				}
-				
+
 				System.arraycopy(chunk.getData(), 0, image, position,
 						chunk.getDataLength());
 				position += chunk.getDataLength();
@@ -459,45 +473,49 @@ public abstract class AbstractCamera implements ICamera {
 			log.info("Done!");
 			InputStream in = new ByteArrayInputStream(image);
 			BufferedImage bImageFromConvert = ImageIO.read(in);
-			
+
 			return bImageFromConvert;
-		} catch (InvalidPacketException | IOException
-				| PTPTimeoutException | InterruptedException e) {
+		} catch (InvalidPacketException | IOException | PTPTimeoutException
+				| InterruptedException e) {
 			throw new CameraConnectionException(e.getMessage());
 		} finally {
-			//try to uninit
+			// try to uninit
 			try {
 				this.executeLuaQuery("return init_usb_capture(0)");
 				// do sad. but seem i need to do it on sx160is
-			} catch (CameraConnectionException | PTPTimeoutException ex){
+			} catch (CameraConnectionException | PTPTimeoutException ex) {
 				throw new CameraConnectionException(ex.getMessage());
 			}
-			
+
 		}
 
 	}
 
 	private int cacheUsbCaptureSuport = -1;
+
 	private int getUsbCaptureSuport() throws CameraConnectionException,
 			PTPTimeoutException {
-		if(cacheUsbCaptureSuport == -1){
-			cacheUsbCaptureSuport = (Integer)executeLuaQuery("return get_usb_capture_support()");
+		if (cacheUsbCaptureSuport == -1) {
+			cacheUsbCaptureSuport = (Integer) executeLuaQuery("return get_usb_capture_support()");
 		}
 		return cacheUsbCaptureSuport;
 	}
-	
-	
+
 	private byte cacheUsbCaptureSupport = -1;
+
 	/**
 	 * 0 = not supported. 1 = supported
+	 * 
 	 * @return
-	 * @throws PTPTimeoutException 
-	 * @throws CameraConnectionException 
+	 * @throws PTPTimeoutException
+	 * @throws CameraConnectionException
 	 */
-	private byte getUsbCaptureSupport() throws CameraConnectionException, PTPTimeoutException{
-		if (cacheUsbCaptureSupport == -1){
-			if("function".equals(executeLuaQuery("return type(init_usb_capture)"))){
-				cacheUsbCaptureSupport = 1; 
+	private byte getUsbCaptureSupport() throws CameraConnectionException,
+			PTPTimeoutException {
+		if (cacheUsbCaptureSupport == -1) {
+			if ("function"
+					.equals(executeLuaQuery("return type(init_usb_capture)"))) {
+				cacheUsbCaptureSupport = 1;
 			} else {
 				cacheUsbCaptureSupport = 0;
 			}
@@ -508,10 +526,10 @@ public abstract class AbstractCamera implements ICamera {
 	@Override
 	public void setRecordingMode() throws CameraConnectionException,
 			PTPTimeoutException {
-		if(getMode() == MODE_RECORDING){
+		if (getMode() == MODE_RECORDING) {
 			return;
 		}
-		
+
 		this.executeLuaCommand("set_record(1)");
 		try {
 			Thread.sleep(2000);
@@ -525,10 +543,10 @@ public abstract class AbstractCamera implements ICamera {
 	@Override
 	public void setPlaybackMode() throws CameraConnectionException,
 			PTPTimeoutException {
-		if(getMode() == MODE_PLAYBACK){
+		if (getMode() == MODE_PLAYBACK) {
 			return;
 		}
-		
+
 		this.executeLuaCommand("set_record(0)");
 		try {
 			Thread.sleep(2000);
@@ -538,13 +556,13 @@ public abstract class AbstractCamera implements ICamera {
 			throw new CameraConnectionException(e.getMessage());
 		}
 	}
-	
+
 	@Override
 	public int getMode() throws CameraConnectionException, PTPTimeoutException {
-		//see http://chdk.wikia.com/wiki/Lua/Lua_Reference#get_mode
+		// see http://chdk.wikia.com/wiki/Lua/Lua_Reference#get_mode
 		List<Object> r = (List<Object>) executeLuaQuery("return get_mode()");
-		
-		boolean rec = (Boolean)r.get(0);
+
+		boolean rec = (Boolean) r.get(0);
 		return rec ? MODE_RECORDING : MODE_PLAYBACK;
 	}
 
@@ -573,11 +591,11 @@ public abstract class AbstractCamera implements ICamera {
 			throw new CameraConnectionException(e.getMessage());
 		}
 	}
-	
+
 	@Override
 	public int getZoomSteps() throws CameraConnectionException,
 			PTPTimeoutException {
-		if(zoomStepsCache == -1){
+		if (zoomStepsCache == -1) {
 			zoomStepsCache = (Integer) executeLuaQuery("return get_zoom_steps()");
 		}
 		return zoomStepsCache;
@@ -632,6 +650,5 @@ public abstract class AbstractCamera implements ICamera {
 		log.info("Camera is ready to recieve commands");
 		return session;
 	}
-	
-	
+
 }
