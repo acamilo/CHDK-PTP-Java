@@ -29,27 +29,30 @@ public class PTPPacket extends Packet {
 	public final static short PTP_OPPCODE_OpenSession = (short) 0x1002;
 	public final static short PTP_OPPCODE_Response_OK = (short) 0x2001;
 
-	
-	public final static short PTP_CHDK_SCRIPT_STATUS_RUN =  0x1; // script running
-	public final static short PTP_CHDK_SCRIPT_STATUS_MSG  = 0x2;
-	
+	public final static short PTP_CHDK_SCRIPT_STATUS_RUN = 0x1; // script
+																// running
+	public final static short PTP_CHDK_SCRIPT_STATUS_MSG = 0x2;
+
 	public final static int PTP_CHDK_S_MSGTYPE_NONE = 0; // no messages waiting
-	public final static int PTP_CHDK_S_MSGTYPE_ERR = 1;      // error message
-	public final static int PTP_CHDK_S_MSGTYPE_RET = 2;      // script return value
-	public final static int PTP_CHDK_S_MSGTYPE_USER = 3;     // message queued by script
-	
-	public final static int PTP_CHDK_TYPE_UNSUPPORTED = 0; // type name will be returned in data
+	public final static int PTP_CHDK_S_MSGTYPE_ERR = 1; // error message
+	public final static int PTP_CHDK_S_MSGTYPE_RET = 2; // script return value
+	public final static int PTP_CHDK_S_MSGTYPE_USER = 3; // message queued by
+															// script
+
+	public final static int PTP_CHDK_TYPE_UNSUPPORTED = 0; // type name will be
+															// returned in data
 	public final static int PTP_CHDK_TYPE_NIL = 1;
 	public final static int PTP_CHDK_TYPE_BOOLEAN = 2;
 	public final static int PTP_CHDK_TYPE_INTEGER = 3;
-	public final static int PTP_CHDK_TYPE_STRING = 4; // Empty strings are returned with length=0
+	public final static int PTP_CHDK_TYPE_STRING = 4; // Empty strings are
+														// returned with
+														// length=0
 	public final static int PTP_CHDK_TYPE_TABLE = 5;
-			  
-	
-	public final static int PTP_CHDK_SL_LUA    =0;
-	public final static int PTP_CHDK_SL_UBASIC =1;
-	public final static int PTP_CHDK_SL_MASK =0xFF;
-	
+
+	public final static int PTP_CHDK_SL_LUA = 0;
+	public final static int PTP_CHDK_SL_UBASIC = 1;
+	public final static int PTP_CHDK_SL_MASK = 0xFF;
+
 	// Locations of the fields in the PTP Packet
 	// chdk.ptp.java.connection.packet length including header. It is 12 bytes +
 	// data.length

@@ -1,8 +1,5 @@
 package chdk.ptp.java;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,24 +20,30 @@ import chdk.ptp.java.exception.CameraNotFoundException;
  * @author <a href="mailto:ankhazam@gmail.com">Mikolaj Dobski</a>
  * 
  */
-public class CameraFactory  {
+public class CameraFactory {
 
 	private static Logger log = Logger.getLogger(CameraFactory.class.getName());
 
-	
+	/**
+	 * Automatically connects to compatible camera
+	 * 
+	 * @return supported camera
+	 * @throws CameraNotFoundException
+	 *             when no supported camera is found
+	 */
 	public static ICamera getCamera() throws CameraNotFoundException {
 		ICamera camera = null;
-		try{
-			camera =  UsbUtils.findCamera();
+		try {
+			camera = UsbUtils.findCamera();
 		} catch (SecurityException | UsbException e) {
 			log.log(Level.SEVERE, e.getMessage(), e);
 			e.printStackTrace();
 			throw new CameraNotFoundException();
 		}
-		if (camera == null){
+		if (camera == null) {
 			throw new CameraNotFoundException();
 		}
-		
+
 		return camera;
 	}
 
@@ -61,8 +64,8 @@ public class CameraFactory  {
 
 			UsbServices services = UsbHostManager.getUsbServices();
 			UsbHub rootHub = services.getRootUsbHub();
-			cameraDevice = UsbUtils.findDevice(rootHub, cameraModel.getVendorID(),
-					cameraModel.getPID());
+			cameraDevice = UsbUtils.findDevice(rootHub,
+					cameraModel.getVendorID(), cameraModel.getPID());
 
 		} catch (SecurityException | UsbException e) {
 			log.log(Level.SEVERE, e.getMessage(), e);

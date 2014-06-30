@@ -76,7 +76,7 @@ public class LiveViewDemo extends JFrame {
 	JButton jBtnRec = null;
 	JButton jBtnPlay = null;
 	JButton jBtnLive = null;
-	
+
 	private void intGui() {
 
 		JPanel jPanTop = new javax.swing.JPanel();
@@ -91,13 +91,13 @@ public class LiveViewDemo extends JFrame {
 		jScrollPaneLog = new JScrollPane();
 		jTextAreaLog = new JTextArea();
 		JPanel jPanLiveArea = new JPanel();
-		
+
 		jBtnRec = new JButton("Rec");
 		jBtnPlay = new JButton("Play");
 		jBtnLive = new JButton("Live");
 
 		jTextAreaLog.setEditable(false);
-		
+
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
 		jBtnConnect.setText("Connect");
@@ -122,15 +122,20 @@ public class LiveViewDemo extends JFrame {
 												javax.swing.GroupLayout.PREFERRED_SIZE)
 										.addGap(18, 18, 18)
 										.addComponent(jBtnConnect)
-										.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+										.addPreferredGap(
+												javax.swing.LayoutStyle.ComponentPlacement.RELATED)
 										.addComponent(jBtnDisconnect)
-											.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+										.addPreferredGap(
+												javax.swing.LayoutStyle.ComponentPlacement.RELATED)
 										.addComponent(jBtnRec)
-											.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+										.addPreferredGap(
+												javax.swing.LayoutStyle.ComponentPlacement.RELATED)
 										.addComponent(jBtnPlay)
-											.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+										.addPreferredGap(
+												javax.swing.LayoutStyle.ComponentPlacement.RELATED)
 										.addComponent(jBtnLive)
-											.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+										.addPreferredGap(
+												javax.swing.LayoutStyle.ComponentPlacement.RELATED)
 										.addContainerGap(251, Short.MAX_VALUE)));
 		jPanTopLayout
 				.setVerticalGroup(jPanTopLayout
@@ -149,12 +154,14 @@ public class LiveViewDemo extends JFrame {
 																javax.swing.GroupLayout.PREFERRED_SIZE,
 																javax.swing.GroupLayout.DEFAULT_SIZE,
 																javax.swing.GroupLayout.PREFERRED_SIZE)
-														.addComponent(jBtnConnect)
-														.addComponent(jBtnDisconnect)
+														.addComponent(
+																jBtnConnect)
+														.addComponent(
+																jBtnDisconnect)
 														.addComponent(jBtnRec)
 														.addComponent(jBtnPlay)
 														.addComponent(jBtnLive))
-														
+
 										.addContainerGap(
 												javax.swing.GroupLayout.DEFAULT_SIZE,
 												Short.MAX_VALUE)));
@@ -386,7 +393,7 @@ public class LiveViewDemo extends JFrame {
 				@Override
 				public void stateChanged(ChangeEvent e) {
 					if (!jSliderZoom.getValueIsAdjusting()) {
-						int zoom = (int) jSliderZoom.getValue();
+						int zoom = jSliderZoom.getValue();
 
 						commandCamera(OP_ZOOM, zoom);
 
@@ -397,82 +404,79 @@ public class LiveViewDemo extends JFrame {
 		} catch (SecurityException | UsbException e) {
 			e.printStackTrace();
 		}
-		
-		
+
 		jBtnCmd.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				executeCmd();
 			}
 		});
-		
-		
+
 		jTxtCmd.addKeyListener(new KeyListener() {
-			
+
 			@Override
 			public void keyTyped(KeyEvent e) {
 			}
-			
+
 			@Override
 			public void keyReleased(KeyEvent e) {
-				 int key=e.getKeyCode();
-				 if(key==KeyEvent.VK_ENTER){
-					 executeCmd();
-				 }
-				
+				int key = e.getKeyCode();
+				if (key == KeyEvent.VK_ENTER) {
+					executeCmd();
+				}
+
 			}
-			
+
 			@Override
 			public void keyPressed(KeyEvent e) {
 			}
 		});
-		
-		
-		
-		jBtnRec.addActionListener(new ActionListener(){
+
+		jBtnRec.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				commandCamera(OP_REC);
 				keepAlive();
 			}
-			
+
 		});
-		
-		jBtnPlay.addActionListener(new ActionListener(){
+
+		jBtnPlay.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				commandCamera(OP_PLAY);
 			}
-			
-		});	
-		
-		jBtnLive.addActionListener(new ActionListener(){
+
+		});
+
+		jBtnLive.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				threadView = new Thread(new LiveCapture());
 				threadView.start();
 			}
-			
+
 		});
 
 	}
 
-	private void executeCmd(){
+	private void executeCmd() {
 		String cmd = jTxtCmd.getText();
-		jTextAreaLog.append("# "+cmd+"\n");
-		jTextAreaLog.append(">> " + commandCamera(OP_CMD, cmd) +"\n");
+		jTextAreaLog.append("# " + cmd + "\n");
+		jTextAreaLog.append(">> " + commandCamera(OP_CMD, cmd) + "\n");
 		jTextAreaLog.setCaretPosition(jTextAreaLog.getDocument().getLength());
-		
+
 		jTxtCmd.setText("");
 		jTxtCmd.requestFocus();
 	}
-	
+
 	public static void main(String[] args) {
 
 		java.awt.EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				new LiveViewDemo().setVisible(true);
 			}
@@ -488,34 +492,34 @@ public class LiveViewDemo extends JFrame {
 				cam = CameraFactory.getCamera();
 				cam.connect();
 				jSliderZoom.setMaximum(cam.getZoomSteps());
-//				cam.setRecordingMode();
+				// cam.setRecordingMode();
 				isConnected = true;
 				jTextAreaLog.append("_Camera Connected_\n");
 			} else if (op == OP_DISCONNECT) {
 				isConnected = false;
-//				cam.setPlaybackMode();
+				// cam.setPlaybackMode();
 				jTextAreaLog.append("_Disconnecting_\n");
 				cam.disconnect();
 				jTextAreaLog.append("_Camera Disonnected_\n");
 			} else if (op == OP_ZOOM) {
-				jTextAreaLog.append("_set zoom "+param[0]+"_\n");
-				cam.setZoom( (Integer) param[0]);
+				jTextAreaLog.append("_set zoom " + param[0] + "_\n");
+				cam.setZoom((Integer) param[0]);
 				jTextAreaLog.append("_zoom complete_\n");
 			} else if (op == OP_VIEW) {
 				return cam.getView();
 			} else if (op == OP_SHOOT) {
 				return cam.getPicture();
-			} else if (op == OP_CMD){
+			} else if (op == OP_CMD) {
 				return cam.executeLuaQuery(param[0].toString());
-			} else if (op == OP_PLAY){
+			} else if (op == OP_PLAY) {
 				cam.setPlaybackMode();
-			} else if (op == OP_REC){
+			} else if (op == OP_REC) {
 				cam.setRecordingMode();
 			}
 		} catch (CameraConnectionException | PTPTimeoutException
 				| CameraNotFoundException e1) {
 			e1.printStackTrace();
-			jTextAreaLog.append(">>>"+e1.getLocalizedMessage()+"\n");
+			jTextAreaLog.append(">>>" + e1.getLocalizedMessage() + "\n");
 		}
 
 		return null;
@@ -523,23 +527,25 @@ public class LiveViewDemo extends JFrame {
 	}
 
 	Thread threadKeepAlive = new Thread(new KeepAliveRunnable());
-	private void keepAlive(){
-//		 
-		if(!threadKeepAlive.isAlive()){
+
+	private void keepAlive() {
+		//
+		if (!threadKeepAlive.isAlive()) {
 			threadKeepAlive.start();
 		}
-		
+
 	}
-	
-	private class LiveCapture implements Runnable{
+
+	private class LiveCapture implements Runnable {
 
 		@Override
 		public void run() {
 			while (isConnected) {
 				BufferedImage visorImage = (BufferedImage) commandCamera(OP_VIEW);
-				visorImage = resizeImage(visorImage, (int) (visorImage.getHeight()*1.5), visorImage.getHeight());
-				imageLive
-						.setImage(visorImage);
+				visorImage = resizeImage(visorImage,
+						(int) (visorImage.getHeight() * 1.5),
+						visorImage.getHeight());
+				imageLive.setImage(visorImage);
 				repaint();
 				try {
 					Thread.sleep(100);
@@ -549,16 +555,15 @@ public class LiveViewDemo extends JFrame {
 			}
 		}
 	}
-	
-	
-	private class KeepAliveRunnable implements Runnable{
+
+	private class KeepAliveRunnable implements Runnable {
 		@Override
 		public void run() {
-			while (isConnected){
-				int zoomOriginal = (int) jSliderZoom.getValue();
+			while (isConnected) {
+				int zoomOriginal = jSliderZoom.getValue();
 				int zoom = 0;
-				if (zoomOriginal == 0){
-					zoom = 1; 
+				if (zoomOriginal == 0) {
+					zoom = 1;
 				} else {
 					zoom = zoomOriginal - 1;
 				}
@@ -569,21 +574,28 @@ public class LiveViewDemo extends JFrame {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				
+
 			}
 		}
 	}
-	
-    public static BufferedImage resizeImage(final Image image, int width, int height) {
-        final BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        final Graphics2D graphics2D = bufferedImage.createGraphics();
-        graphics2D.setComposite(AlphaComposite.Src);
-        //below three lines are for RenderingHints for better image quality at cost of higher processing time
-        graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        graphics2D.setRenderingHint(RenderingHints.KEY_RENDERING,RenderingHints.VALUE_RENDER_QUALITY);
-        graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
-        graphics2D.drawImage(image, 0, 0, width, height, null);
-        graphics2D.dispose();
-        return bufferedImage;
-    }
+
+	public static BufferedImage resizeImage(final Image image, int width,
+			int height) {
+		final BufferedImage bufferedImage = new BufferedImage(width, height,
+				BufferedImage.TYPE_INT_RGB);
+		final Graphics2D graphics2D = bufferedImage.createGraphics();
+		graphics2D.setComposite(AlphaComposite.Src);
+		// below three lines are for RenderingHints for better image quality at
+		// cost of
+		// higher processing time
+		graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+				RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		graphics2D.setRenderingHint(RenderingHints.KEY_RENDERING,
+				RenderingHints.VALUE_RENDER_QUALITY);
+		graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON);
+		graphics2D.drawImage(image, 0, 0, width, height, null);
+		graphics2D.dispose();
+		return bufferedImage;
+	}
 }

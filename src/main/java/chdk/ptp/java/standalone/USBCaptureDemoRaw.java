@@ -17,7 +17,7 @@ import chdk.ptp.java.connection.packet.ByteOrder;
 import chdk.ptp.java.connection.packet.PTPPacket;
 
 public class USBCaptureDemoRaw {
-	static Logger  log = Logger.getLogger(AbstractCamera.class.getName());
+	static Logger log = Logger.getLogger(AbstractCamera.class.getName());
 	private static ICamera cam;
 
 	/**

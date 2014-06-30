@@ -18,7 +18,6 @@ public class FailSafeCamera extends AbstractCamera {
 
 	private Logger log = Logger.getLogger(FailSafeCamera.class.getName());
 
-	
 	public FailSafeCamera(UsbDevice device) {
 		super(device);
 	}

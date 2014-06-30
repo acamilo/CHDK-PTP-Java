@@ -4,7 +4,7 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
 
-public class ImageFrame extends JFrame{
+public class ImageFrame extends JFrame {
 
 	public ImageFrame(BufferedImage image) {
 		super("Image Display");

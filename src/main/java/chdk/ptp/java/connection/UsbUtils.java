@@ -59,7 +59,7 @@ public class UsbUtils {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Searches for a device with matching serial number in given USB hub
 	 * 
@@ -94,48 +94,57 @@ public class UsbUtils {
 	}
 
 	public static ICamera findCamera() throws SecurityException, UsbException {
-		Collection<CameraUsbDevice> cams =  listAttachedCameras();
-		
-		if (cams.size() > 0){
+		Collection<CameraUsbDevice> cams = listAttachedCameras();
+
+		if (cams.size() > 0) {
 			// picks the first
-			CameraUsbDevice cameraDevice =  cams.iterator().next();
-			SupportedCamera sc = SupportedCamera.getCamera(cameraDevice.getIdVendor(), cameraDevice.getIdProduct());
-		
+			CameraUsbDevice cameraDevice = cams.iterator().next();
+			SupportedCamera sc = SupportedCamera.getCamera(
+					cameraDevice.getIdVendor(), cameraDevice.getIdProduct());
+
 			try {
-				return sc.getClazz().getConstructor(UsbDevice.class).newInstance(cameraDevice.getDevice());
-			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException e) {
+				return sc.getClazz().getConstructor(UsbDevice.class)
+						.newInstance(cameraDevice.getDevice());
+			} catch (InstantiationException | IllegalAccessException
+					| IllegalArgumentException | InvocationTargetException
+					| NoSuchMethodException e) {
 				log.log(Level.SEVERE, e.getLocalizedMessage(), e);
 			}
-		} 
+		}
 		return null;
 	}
-	
-	public static Collection<CameraUsbDevice> listAttachedCameras() throws SecurityException, UsbException {
+
+	public static Collection<CameraUsbDevice> listAttachedCameras()
+			throws SecurityException, UsbException {
 		UsbServices services = UsbHostManager.getUsbServices();
 		UsbHub rootHub = services.getRootUsbHub();
 		return listAttachedCameras(rootHub);
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	private static Collection<CameraUsbDevice> listAttachedCameras(UsbHub dev){
+	private static Collection<CameraUsbDevice> listAttachedCameras(UsbHub dev) {
 		List<CameraUsbDevice> list = new ArrayList<>();
-		
+
 		List<UsbDevice> devices = dev.getAttachedUsbDevices();
 		for (UsbDevice usbDevice : devices) {
 			UsbDeviceDescriptor desc = usbDevice.getUsbDeviceDescriptor();
 			if (usbDevice.isUsbHub()) {
 				list.addAll(listAttachedCameras((UsbHub) usbDevice));
 			} else {
-				if(SupportedCamera.isSuportedCamera(desc.idVendor(), desc.idProduct())){
+				if (SupportedCamera.isSuportedCamera(desc.idVendor(),
+						desc.idProduct())) {
 					try {
-						list.add(new CameraUsbDevice(desc.idVendor(), desc.idProduct(), usbDevice.getProductString(), usbDevice));
-					} catch (UnsupportedEncodingException | UsbDisconnectedException | UsbException e1) {
+						list.add(new CameraUsbDevice(desc.idVendor(), desc
+								.idProduct(), usbDevice.getProductString(),
+								usbDevice));
+					} catch (UnsupportedEncodingException
+							| UsbDisconnectedException | UsbException e1) {
 						log.info(e1.getLocalizedMessage());
 					}
 				}
 			}
 		}
-		
+
 		return list;
 	}
 

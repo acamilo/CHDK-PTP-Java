@@ -15,7 +15,7 @@ import chdk.ptp.java.exception.PTPTimeoutException;
 public class SX50Camera extends FailSafeCamera {
 
 	private Logger log = Logger.getLogger(SX50Camera.class.getName());
-	
+
 	public SX50Camera(UsbDevice device) {
 		super(device);
 	}
@@ -88,5 +88,5 @@ public class SX50Camera extends FailSafeCamera {
 	public SupportedCamera getCameraInfo() {
 		return SupportedCamera.SX50HS;
 	}
-	
+
 }

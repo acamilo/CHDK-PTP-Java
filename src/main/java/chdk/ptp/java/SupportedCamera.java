@@ -37,7 +37,7 @@ public enum SupportedCamera {
 	public short getPID() {
 		return pid;
 	}
-	
+
 	/**
 	 * Returns Canon camera USB Vendor ID
 	 * 
@@ -46,25 +46,27 @@ public enum SupportedCamera {
 	public short getVendorID() {
 		return vendoId;
 	}
-	
-	public Class<? extends ICamera> getClazz(){
+
+	/**
+	 * @return camera driver implementation
+	 */
+	public Class<? extends ICamera> getClazz() {
 		return clazz;
 	}
-	
-	public boolean equals(short idVendor, short idProduct){
+
+	public boolean equals(short idVendor, short idProduct) {
 		return vendoId == idVendor && idProduct == pid;
 	}
 
-	
 	public static SupportedCamera getCamera(short idVendor, short idProduct) {
 		for (SupportedCamera supportedCamera : values()) {
-			if(supportedCamera.equals(idVendor, idProduct)){
+			if (supportedCamera.equals(idVendor, idProduct)) {
 				return supportedCamera;
 			}
 		}
 		return null;
 	}
-	
+
 	public static boolean isSuportedCamera(short idVendor, short idProduct) {
 		return getCamera(idVendor, idProduct) != null;
 	}

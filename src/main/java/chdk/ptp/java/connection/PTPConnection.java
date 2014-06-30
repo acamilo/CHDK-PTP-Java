@@ -140,7 +140,7 @@ public class PTPConnection {
 		this.camInpipe.close();
 		this.camOutpipe.close();
 		camInpipe.getUsbEndpoint().getUsbInterface().release();
-		
+
 	}
 
 }

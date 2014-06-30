@@ -13,7 +13,11 @@ import chdk.ptp.java.exception.PTPTimeoutException;
  */
 public interface ICamera {
 
-	SupportedCamera getCameraInfo(); 
+	/**
+	 * @return access object to camera driver implementation
+	 */
+	SupportedCamera getCameraInfo();
+
 	/**
 	 * Connect via PTP to camera.
 	 * 
@@ -42,7 +46,9 @@ public interface ICamera {
 	 * 
 	 * @return script id. -1 if script fail
 	 * @throws CameraConnectionException
+	 *             on error
 	 * @throws PTPTimeoutException
+	 *             on error
 	 */
 	public int executeLuaCommand(String command)
 			throws CameraConnectionException, PTPTimeoutException;
@@ -59,8 +65,13 @@ public interface ICamera {
 	 *            to be issued
 	 * 
 	 * @return returned value
+	 * @throws CameraConnectionException
+	 *             on error
+	 * @throws PTPTimeoutException
+	 *             on error
 	 */
-	public Object executeLuaQuery(String command) throws CameraConnectionException, PTPTimeoutException;
+	public Object executeLuaQuery(String command)
+			throws CameraConnectionException, PTPTimeoutException;
 
 	/**
 	 * Takes picture with current camera settings and downloads the image.
@@ -93,6 +104,7 @@ public interface ICamera {
 	 * Switches a CHDK camera (eg. SX50HS) from MF to AF mode
 	 * 
 	 * @throws CameraConnectionException
+	 *             on error
 	 * 
 	 * @see <a
 	 *      href="http://chdk.wikia.com/wiki/CHDK_Manual_Focus_and_Subject_Distance_Overrides">CHDK
@@ -104,6 +116,7 @@ public interface ICamera {
 	 * Switches a CHDK camera (eg. SX50HS) from AF to MF mode
 	 * 
 	 * @throws CameraConnectionException
+	 *             on error
 	 * 
 	 * @see <a
 	 *      href="http://chdk.wikia.com/wiki/CHDK_Manual_Focus_and_Subject_Distance_Overrides">CHDK
@@ -123,7 +136,9 @@ public interface ICamera {
 	 * @param focusingDistance
 	 *            desired focusing distance
 	 * @throws CameraConnectionException
+	 *             on error
 	 * @throws PTPTimeoutException
+	 *             on error
 	 */
 	public void setFocus(int focusingDistance)
 			throws CameraConnectionException, PTPTimeoutException;
@@ -138,12 +153,13 @@ public interface ICamera {
 	 * @param zoomPosition
 	 *            desired lens zoom position
 	 * @throws CameraConnectionException
+	 *             on error
 	 * @throws PTPTimeoutException
+	 *             on error
 	 */
 	public void setZoom(int zoomPosition) throws CameraConnectionException,
 			PTPTimeoutException;
-	
-	
+
 	/**
 	 * Returns number of maximum zoom steps, irrespective of the processor..
 	 * 
@@ -153,7 +169,9 @@ public interface ICamera {
 	 * 
 	 * @return number of maximum zoom steps
 	 * @throws CameraConnectionException
+	 *             on error
 	 * @throws PTPTimeoutException
+	 *             on error
 	 */
 	public int getZoomSteps() throws CameraConnectionException,
 			PTPTimeoutException;
@@ -162,7 +180,9 @@ public interface ICamera {
 	 * Switches a CHDK camera (eg. SX50HS) into recording mode (image/video)
 	 * 
 	 * @throws CameraConnectionException
+	 *             on error
 	 * @throws PTPTimeoutException
+	 *             on error
 	 * 
 	 * @see <a
 	 *      href="http://chdk.wikia.com/wiki/Script_commands#set_record.28state.29">CHDK
@@ -176,7 +196,9 @@ public interface ICamera {
 	 * Switches a CHDK camera (eg. SX50HS) into Playback mode
 	 * 
 	 * @throws CameraConnectionException
+	 *             on error
 	 * @throws PTPTimeoutException
+	 *             on error
 	 * 
 	 * @see <a
 	 *      href="http://chdk.wikia.com/wiki/Script_commands#set_record.28state.29">CHDK
@@ -185,19 +207,21 @@ public interface ICamera {
 	 */
 	public void setPlaybackMode() throws CameraConnectionException,
 			PTPTimeoutException;
+
 	/**
 	 * Get camera mode
+	 * 
 	 * @return camera mode
 	 * @see ICamera#MODE_PLAYBACK
 	 * @see ICamera#MODE_RECORDING
 	 * @throws CameraConnectionException
+	 *             on error
 	 * @throws PTPTimeoutException
+	 *             on error
 	 */
-	public int getMode() throws CameraConnectionException,
-		PTPTimeoutException;
-	
+	public int getMode() throws CameraConnectionException, PTPTimeoutException;
+
 	public static final int MODE_PLAYBACK = 0;
 	public static final int MODE_RECORDING = 1;
-	
 
 }

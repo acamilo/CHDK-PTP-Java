@@ -12,10 +12,11 @@ import javax.swing.JPanel;
 public class BufferedImagePanel extends JPanel {
 	BufferedImage image;
 	JFrame frame;
-	
-	public BufferedImagePanel(){
+
+	public BufferedImagePanel() {
 		super();
 	}
+
 	public BufferedImagePanel(BufferedImage i) {
 		this();
 		image = i;
@@ -29,9 +30,10 @@ public class BufferedImagePanel extends JPanel {
 
 	@Override
 	public void paint(Graphics g) {
-		if(image != null){
+		if (image != null) {
 			Graphics2D g2d = (Graphics2D) g;
-			g2d.drawImage(image, 0, 0, image.getWidth(), image.getHeight(), null);
+			g2d.drawImage(image, 0, 0, image.getWidth(), image.getHeight(),
+					null);
 		}
 	}
 
