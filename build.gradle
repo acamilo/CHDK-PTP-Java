@@ -4,6 +4,7 @@ apply plugin: 'eclipse'
 apply plugin: 'eclipse-wtp'
 apply plugin: 'project-report'
 apply plugin: 'semver'
+apply plugin: 'artifactory'
 
 sourceCompatibility = 1.7
 project.version.with { major = 0; minor = 1; revision = 0 }
@@ -11,22 +12,39 @@ group = 'org.chdk.ptp.java'
 
 buildscript
 {
-	repositories
-	{ maven
-		{ url 'https://maven.man.poznan.pl/repository/kiwi-repo' } }
-	dependencies
-	{
-		classpath(group: 'io.fugu.gradle', name: 'gradle-semver-plugin', version: '0.2.0-SNAPSHOT')
-	}
+    repositories
+    { maven
+        { url 'https://maven.man.poznan.pl/repository/kiwi-repo' } }
+    dependencies
+    {
+        classpath(group: 'org.jfrog.buildinfo', name: 'build-info-extractor-gradle', version: '2.+')
+        classpath(group: 'io.fugu.gradle', name: 'gradle-semver-plugin', version: '0.2.0-SNAPSHOT')
+    }
 }
 
 repositories
 {
-	maven()
-	{
-		url 'http://nexus.ailis.de/content/groups/public/' // usb4java
-		mavenCentral()
-	}
+    maven() { url 'https://maven.man.poznan.pl/repository/kiwi-repo' } // virtual repo
+}
+
+artifactory
+{
+    contextUrl = 'https://maven.man.poznan.pl/repository'
+    publish
+    {
+        contextUrl = 'https://maven.man.poznan.pl/repository'
+        //A closure defining publishing information
+        repository {
+            repoKey = 'kiwi-libs-snapshots'
+            username = USER
+            password = PASSWORD
+        }
+    }
+    resolve {
+        contextUrl = 'https://maven.man.poznan.pl/repository' //The base Artifactory URL for the resolver
+        repository { repoKey = 'kiwi-repo'  //The Artifactory (preferably virtual) repository key to resolve from
+        }
+    }
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {

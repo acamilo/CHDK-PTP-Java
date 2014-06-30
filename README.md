@@ -41,6 +41,16 @@ unzip gradle-1.12-bin.zip
 echo "export PATH=\$PATH:$HOME/gradle-1.12/bin" >> ~/.bashrc
 source ~/.bashrc
 ```
+#### Set-up gradle ####
+Artifactory plugin requires a file
+```
+$HOME\.gradle
+```
+to be created and filled with the following two lines:
+```
+USER=wont_be_used
+PASSWORD=but_needs_to_be_here
+```
 #### Eclipse integration ####
 Spring offers Gradle integration which can be acquired from:
 https://github.com/spring-projects/eclipse-integration-gradle
