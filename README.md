@@ -5,6 +5,35 @@ Pure Java (jsr80 usb) interface to the Cannon cameras running CHDK PTP
 
 Interface reference https://github.com/c10ud/CHDK/blob/master/core/ptp.h
 
+### Using in other project ###
+This code is has mirrored public repository available under:
+https://git.man.poznan.pl/stash/projects/KWE/repos/chdk-ptp-java/browse
+
+#### Artifacts and maven repository ####
+The codes found there are automatically tested and built as artifacts using Jenkins CI server and uploaded to maven repository:
+https://maven.man.poznan.pl/repository/webapp/browserepo.html?pathId=kiwi-libs-snapshots:org/chdk/ptp/java/CHDK-PTP-Java
+
+Which can be later used in gradle project by simply defining the repository maven address:
+
+```
+repositories
+{
+    maven() { url 'https://maven.man.poznan.pl/repository/kiwi-repo' } // virtual repo
+}
+```
+
+and adding appropriate entry in build.gradle or relevant in pom.xml
+
+```
+dependencies
+{
+	compile 'org.chdk.ptp.java:CHDK-PTP-Java:+'
+}	
+```
+
+#### Versioning ####
+For the sake of usability, rapid developement and usage sanity we use semantic versioning: http://semver.org/
+
 ### Example Usage ###
 
 ``` java
@@ -43,25 +72,31 @@ source ~/.bashrc
 ```
 #### Set-up gradle ####
 Artifactory plugin requires a file
+
 ```
 $HOME\.gradle
 ```
+
 to be created and filled with the following two lines:
+
 ```
 USER=wont_be_used
 PASSWORD=but_needs_to_be_here
 ```
+
 #### Eclipse integration ####
 Spring offers Gradle integration which can be acquired from:
 https://github.com/spring-projects/eclipse-integration-gradle
 
 #### Check out project ####
 Use console git:
+
 ```
 mkdir ~/git
 cd ~/git
 git clone https://github.com/acamilo/CHDK-PTP-Java.git
 ```
+
 or Eclipse plugin.
 #### Build ####
 ```
@@ -74,10 +109,13 @@ Import Gradle Project from within Eclipse.
 I.E Afternoon wasters...
 
 on some OSes gvfs will grab the PTP device and you'll get this error.
+
 ```
 javax.usb.UsbPlatformException: USB error 6: Unable to claim interface: Resource busy
 ```
+
 The solutionin ubuntu is this. 
+
 ```
 gsettings set org.gnome.desktop.media-handling automount false
 ```
