@@ -3,20 +3,52 @@ apply plugin: 'maven'
 apply plugin: 'eclipse'
 apply plugin: 'eclipse-wtp'
 apply plugin: 'project-report'
+apply plugin: 'semver'
 
-// project name must be set in settings.gradle
-group = 'acamilo'
+sourceCompatibility = 1.7
+project.version.with { major = 0; minor = 1; revision = 0 }
+group = 'org.chdk.ptp.java'
 
-repositories {
-    maven() {
-        url 'http://nexus.ailis.de/content/groups/public/' // usb4java
-        mavenCentral()
-    }
+buildscript
+{
+	repositories
+	{ maven
+		{ url 'https://maven.man.poznan.pl/repository/kiwi-repo' } }
+	dependencies
+	{
+		classpath(group: 'io.fugu.gradle', name: 'gradle-semver-plugin', version: '0.2.0-SNAPSHOT')
+	}
 }
 
-dependencies {
-    // usb communication
-    compile 'org.usb4java:usb4java-javax:1.2+'
-    
-    testCompile 'junit:junit:+'
+repositories
+{
+	maven()
+	{
+		url 'http://nexus.ailis.de/content/groups/public/' // usb4java
+		mavenCentral()
+	}
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+	classifier 'sources'
+	from sourceSets.main.allSource
+}
+
+task testsJar(type: Jar, dependsOn: classes) {
+	classifier = "tests"
+	from sourceSets.test.allSource
+	from sourceSets.test.output
+}
+
+artifacts {
+	archives sourcesJar
+	archives testsJar
+}
+
+dependencies
+{
+	// usb communication
+	compile 'org.usb4java:usb4java-javax:1.2+'
+
+	testCompile 'junit:junit:+'
 }

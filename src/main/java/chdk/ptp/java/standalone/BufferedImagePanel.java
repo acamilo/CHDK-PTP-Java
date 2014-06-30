@@ -9,7 +9,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-public class BufferedImagePanel extends JPanel {
+class BufferedImagePanel extends JPanel {
 	BufferedImage image;
 	JFrame frame;
 

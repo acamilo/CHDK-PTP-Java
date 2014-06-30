@@ -3,11 +3,13 @@ package testing;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import chdk.ptp.java.connection.packet.ByteOrder;
 import chdk.ptp.java.connection.packet.Packet;
 
+@Ignore("Needs to be checked")
 public class testPacket {
 
 	@Test

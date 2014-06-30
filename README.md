@@ -41,23 +41,25 @@ unzip gradle-1.12-bin.zip
 echo "export PATH=\$PATH:$HOME/gradle-1.12/bin" >> ~/.bashrc
 source ~/.bashrc
 ```
+#### Eclipse integration ####
+Spring offers Gradle integration which can be acquired from:
+https://github.com/spring-projects/eclipse-integration-gradle
 
 #### Check out project ####
+Use console git:
 ```
 mkdir ~/git
 cd ~/git
-git cone https://github.com/acamilo/CHDK-PTP-Java.git
+git clone https://github.com/acamilo/CHDK-PTP-Java.git
 ```
-#### Compile ####
+or Eclipse plugin.
+#### Build ####
 ```
 cd CHDK-PTP-Java
 gradle build
-gradle eclipse
 ```
-
 #### Open in eclipse ####
-import CHDK-PTP-Java as an eclipse project
-
+Import Gradle Project from within Eclipse.
 #### other problems ####
 I.E Afternoon wasters...
 
@@ -80,4 +82,4 @@ http://chdk.setepontos.com/index.php?topic=10664.10
 solition is to either kill gvfs-gphoto2-volume-monitor or to make it perminent, change it's name so it doesn't start.
 
 ### Other OSes ##
-this uses libusb4java so it probubly works in windows and mac. I've never tried it though.
+This uses libusb4java so it probably works in windows and mac. I've never tried it though.

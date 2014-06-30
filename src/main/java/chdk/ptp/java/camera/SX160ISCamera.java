@@ -14,7 +14,7 @@ public class SX160ISCamera extends FailSafeCamera {
 	public SX160ISCamera(UsbDevice device) {
 		super(device);
 	}
-	
+
 	/**
 	 * Creates a new instance of
 	 * 
@@ -75,7 +75,7 @@ public class SX160ISCamera extends FailSafeCamera {
 			throw new CameraConnectionException(e.getMessage());
 		}
 	}
-	
+
 	@Override
 	public SupportedCamera getCameraInfo() {
 		return SupportedCamera.SX160IS;
