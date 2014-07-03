@@ -35,12 +35,12 @@ dependencies
 For the sake of usability, rapid developement and usage sanity we use semantic versioning: http://semver.org/
 
 ### Example Usage ###
+Try to follow chdk.ptp.java.standalone.LiveViewApiDemo.java but part of the example is below:
 
 ``` java
 	    cam = CameraFactory.getCamera(SupportedCamera.SX160IS);
 	    cam.connect();
-	    cam.setRecordingMode();
-	    cam.setManualFocusMode();
+	    cam.setOperaionMode(CameraMode.RECORD);
 	    int i = 0;
 	    BufferedImagePanel d = new BufferedImagePanel(cam.getView()); // displays live view
 	    Random random = new Random();
@@ -49,14 +49,14 @@ For the sake of usability, rapid developement and usage sanity we use semantic v
 		++i;
 		cam.setZoom(i % 100);
 		if (i % 40 == 0) {
-		    cam.setAutoFocusMode();
 		    cam.setZoom(random.nextInt(100));
-		    cam.setManualFocusMode();
 		}
 
-		if (i % 8 == 0)
+		if (i % 8 == 0) {
 			cam.setZoom(random.nextInt(100));
-		    cam.setFocus(random.nextInt(1000) + 100);
+			cam.setFocus(random.nextInt(1000) + 100);
+		}
+		cam.setFocusMode(FocusMode.AUTO);
 	    }
 
 ```
