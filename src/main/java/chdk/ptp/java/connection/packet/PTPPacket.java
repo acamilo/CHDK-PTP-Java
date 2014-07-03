@@ -36,17 +36,18 @@ public class PTPPacket extends Packet {
 	public final static int PTP_CHDK_S_MSGTYPE_NONE = 0; // no messages waiting
 	public final static int PTP_CHDK_S_MSGTYPE_ERR = 1; // error message
 	public final static int PTP_CHDK_S_MSGTYPE_RET = 2; // script return value
-	public final static int PTP_CHDK_S_MSGTYPE_USER = 3; // message queued by
-															// script
+	public final static int PTP_CHDK_S_MSGTYPE_USER = 3; // message queued by script
 
-	public final static int PTP_CHDK_TYPE_UNSUPPORTED = 0; // type name will be
-															// returned in data
+	// type name will be returned in data
+	public final static int PTP_CHDK_TYPE_UNSUPPORTED = 0;
+
 	public final static int PTP_CHDK_TYPE_NIL = 1;
 	public final static int PTP_CHDK_TYPE_BOOLEAN = 2;
 	public final static int PTP_CHDK_TYPE_INTEGER = 3;
-	public final static int PTP_CHDK_TYPE_STRING = 4; // Empty strings are
-														// returned with
-														// length=0
+
+	// Empty strings are returned with length=0
+	public final static int PTP_CHDK_TYPE_STRING = 4;
+
 	public final static int PTP_CHDK_TYPE_TABLE = 5;
 
 	public final static int PTP_CHDK_SL_LUA = 0;

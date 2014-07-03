@@ -2,6 +2,7 @@ package chdk.ptp.java.standalone;
 
 import chdk.ptp.java.CameraFactory;
 import chdk.ptp.java.ICamera;
+import chdk.ptp.java.model.CameraMode;
 
 /**
  * Displays a panel with live view from camera.
@@ -23,10 +24,10 @@ public class CaptureDemo {
 			cam = CameraFactory.getCamera();
 			cam.connect();
 			// switch to capture mode
-			cam.setRecordingMode();
+			cam.setOperaionMode(CameraMode.RECORD);
 
 			// show taken image
-			new BufferedImagePanel(cam.getPicture());
+			new BufferedImagePanel(cam.getPicture(), true);
 			cam.disconnect();
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -3,7 +3,10 @@ package chdk.ptp.java;
 import java.awt.image.BufferedImage;
 
 import chdk.ptp.java.exception.CameraConnectionException;
+import chdk.ptp.java.exception.GenericCameraException;
 import chdk.ptp.java.exception.PTPTimeoutException;
+import chdk.ptp.java.model.CameraMode;
+import chdk.ptp.java.model.FocusMode;
 
 /**
  * Standardized to Canon CHDK-enabled cameras.
@@ -45,13 +48,13 @@ public interface ICamera {
 	 *            to be issued
 	 * 
 	 * @return script id. -1 if script fail
-	 * @throws CameraConnectionException
-	 *             on error
 	 * @throws PTPTimeoutException
 	 *             on error
+	 * @throws GenericCameraException
+	 *             on error
 	 */
-	public int executeLuaCommand(String command)
-			throws CameraConnectionException, PTPTimeoutException;
+	public int executeLuaCommand(String command) throws PTPTimeoutException,
+			GenericCameraException;
 
 	/**
 	 * Submits provided Lua command for execution on camera, expects result to
@@ -65,22 +68,22 @@ public interface ICamera {
 	 *            to be issued
 	 * 
 	 * @return returned value
-	 * @throws CameraConnectionException
-	 *             on error
 	 * @throws PTPTimeoutException
 	 *             on error
+	 * @throws GenericCameraException
+	 *             on error
 	 */
-	public Object executeLuaQuery(String command)
-			throws CameraConnectionException, PTPTimeoutException;
+	public Object executeLuaQuery(String command) throws PTPTimeoutException,
+			GenericCameraException;
 
 	/**
 	 * Takes picture with current camera settings and downloads the image.
 	 * 
 	 * @return taken picture image
-	 * @throws CameraConnectionException
+	 * @throws GenericCameraException
 	 *             on error
 	 */
-	public BufferedImage getPicture() throws CameraConnectionException;
+	public BufferedImage getPicture() throws GenericCameraException;
 
 	/**
 	 * Downloads camera display content, might be interpreted as Live View
@@ -94,36 +97,66 @@ public interface ICamera {
 	/**
 	 * Downloads camera display content, might be interpreted as Live View
 	 * 
-	 * @return Raw 'live view' image. sutable for openCV mat
+	 * @return Raw 'live view' image. suitable for openCV mat
 	 * @throws CameraConnectionException
 	 *             on error
 	 */
 	public BufferedImage getRawView() throws CameraConnectionException;
 
 	/**
-	 * Switches a CHDK camera (eg. SX50HS) from MF to AF mode
+	 * Retrieves camera focusing mode
 	 * 
-	 * @throws CameraConnectionException
+	 * @return current focus mode
+	 * 
+	 * @throws PTPTimeoutException
+	 *             on error
+	 * @throws GenericCameraException
 	 *             on error
 	 * 
 	 * @see <a
-	 *      href="http://chdk.wikia.com/wiki/CHDK_Manual_Focus_and_Subject_Distance_Overrides">CHDK
-	 *      toggle MF/AF</a>
+	 *      href="http://chdk.wikia.com/wiki/Script_commands#get_focus_mode">CHDK
+	 *      get_focus_mode()</a>
 	 */
-	public void setAutoFocusMode() throws CameraConnectionException;
+	public FocusMode getFocusMode() throws PTPTimeoutException,
+			GenericCameraException;
 
 	/**
-	 * Switches a CHDK camera (eg. SX50HS) from AF to MF mode
+	 * Switches a CHDK camera to selected focusing mode
 	 * 
-	 * @throws CameraConnectionException
+	 * @param mode
+	 *            read {@link FocusMode}
+	 * 
+	 * @throws PTPTimeoutException
+	 *             on error
+	 * @throws GenericCameraException
 	 *             on error
 	 * 
 	 * @see <a
 	 *      href="http://chdk.wikia.com/wiki/CHDK_Manual_Focus_and_Subject_Distance_Overrides">CHDK
 	 *      toggle MF/AF</a>
-	 * 
 	 */
-	public void setManualFocusMode() throws CameraConnectionException;
+	public void setFocusMode(FocusMode mode) throws PTPTimeoutException,
+			GenericCameraException;
+
+	/**
+	 * Focuses the camera at selected distance
+	 * 
+	 * @return camera focusing distance
+	 * 
+	 * @see <a
+	 *      href="http://chdk.wikia.com/wiki/CHDK_Manual_Focus_and_Subject_Distance_Overrides">CHDK
+	 *      manual focusing dispute</a>
+	 * 
+	 * @see <a
+	 *      href="http://chdk.wikia.com/wiki/CHDK_scripting#set_focus_.2F_get_focus">CHDK
+	 *      get/set focus</a>
+	 * 
+	 * @throws PTPTimeoutException
+	 *             on error
+	 * @throws GenericCameraException
+	 *             on error
+	 */
+	public int getFocus() throws PTPTimeoutException, GenericCameraException;
 
 	/**
 	 * Focuses the camera at selected distance
@@ -132,16 +165,34 @@ public interface ICamera {
 	 *      href="http://chdk.wikia.com/wiki/CHDK_Manual_Focus_and_Subject_Distance_Overrides">CHDK
 	 *      manual focusing dispute</a>
 	 * 
+	 * @see <a
+	 *      href="http://chdk.wikia.com/wiki/CHDK_scripting#set_focus_.2F_get_focus">CHDK
+	 *      get/set focus</a>
 	 * 
 	 * @param focusingDistance
 	 *            desired focusing distance
-	 * @throws CameraConnectionException
-	 *             on error
 	 * @throws PTPTimeoutException
 	 *             on error
+	 * @throws GenericCameraException
+	 *             on error
 	 */
-	public void setFocus(int focusingDistance)
-			throws CameraConnectionException, PTPTimeoutException;
+	public void setFocus(int focusingDistance) throws PTPTimeoutException,
+			GenericCameraException;
+
+	/**
+	 * Returns zoom position
+	 * 
+	 * @see <a
+	 *      href="http://chdk.wikia.com/wiki/CHDK_scripting#set_zoom_.2F_set_zoom_rel_.2F_get_zoom_.2F_set_zoom_speed">CHDK
+	 *      lua get_zoom()</a>
+	 * 
+	 * @return number of maximum zoom steps
+	 * @throws PTPTimeoutException
+	 *             on error
+	 * @throws GenericCameraException
+	 *             on error
+	 */
+	public int getZoom() throws PTPTimeoutException, GenericCameraException;
 
 	/**
 	 * Sets camera zoom to designated position.
@@ -152,13 +203,13 @@ public interface ICamera {
 	 * 
 	 * @param zoomPosition
 	 *            desired lens zoom position
-	 * @throws CameraConnectionException
-	 *             on error
 	 * @throws PTPTimeoutException
 	 *             on error
+	 * @throws GenericCameraException
+	 *             on error
 	 */
-	public void setZoom(int zoomPosition) throws CameraConnectionException,
-			PTPTimeoutException;
+	public void setZoom(int zoomPosition) throws PTPTimeoutException,
+			GenericCameraException;
 
 	/**
 	 * Returns number of maximum zoom steps, irrespective of the processor..
@@ -168,36 +219,35 @@ public interface ICamera {
 	 *      lua set_zoom()</a>
 	 * 
 	 * @return number of maximum zoom steps
-	 * @throws CameraConnectionException
-	 *             on error
 	 * @throws PTPTimeoutException
+	 *             on error
+	 * @throws GenericCameraException
 	 *             on error
 	 */
-	public int getZoomSteps() throws CameraConnectionException,
-			PTPTimeoutException;
+	public int getZoomSteps() throws PTPTimeoutException,
+			GenericCameraException;
 
 	/**
-	 * Switches a CHDK camera (eg. SX50HS) into recording mode (image/video)
+	 * Get camera operation mode
 	 * 
-	 * @throws CameraConnectionException
-	 *             on error
+	 * @return camera mode
 	 * @throws PTPTimeoutException
 	 *             on error
-	 * 
-	 * @see <a
-	 *      href="http://chdk.wikia.com/wiki/Script_commands#set_record.28state.29">CHDK
-	 *      set_record(1)</a>
-	 * 
+	 * @throws GenericCameraException
+	 *             on error
 	 */
-	public void setRecordingMode() throws CameraConnectionException,
-			PTPTimeoutException;
+	public CameraMode getOperationMode() throws PTPTimeoutException,
+			GenericCameraException;
 
 	/**
-	 * Switches a CHDK camera (eg. SX50HS) into Playback mode
+	 * Switches a CHDK camera into a selected mode
 	 * 
-	 * @throws CameraConnectionException
-	 *             on error
+	 * @param mode
+	 *            read {@link CameraMode}
+	 * 
 	 * @throws PTPTimeoutException
+	 *             on error
+	 * @throws GenericCameraException
 	 *             on error
 	 * 
 	 * @see <a
@@ -205,23 +255,7 @@ public interface ICamera {
 	 *      set_record(0)</a>
 	 * 
 	 */
-	public void setPlaybackMode() throws CameraConnectionException,
-			PTPTimeoutException;
-
-	/**
-	 * Get camera mode
-	 * 
-	 * @return camera mode
-	 * @see ICamera#MODE_PLAYBACK
-	 * @see ICamera#MODE_RECORDING
-	 * @throws CameraConnectionException
-	 *             on error
-	 * @throws PTPTimeoutException
-	 *             on error
-	 */
-	public int getMode() throws CameraConnectionException, PTPTimeoutException;
-
-	public static final int MODE_PLAYBACK = 0;
-	public static final int MODE_RECORDING = 1;
+	public void setOperaionMode(CameraMode mode) throws PTPTimeoutException,
+			GenericCameraException;
 
 }

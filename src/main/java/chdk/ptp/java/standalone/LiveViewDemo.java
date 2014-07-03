@@ -27,9 +27,9 @@ import chdk.ptp.java.CameraFactory;
 import chdk.ptp.java.ICamera;
 import chdk.ptp.java.connection.CameraUsbDevice;
 import chdk.ptp.java.connection.UsbUtils;
-import chdk.ptp.java.exception.CameraConnectionException;
-import chdk.ptp.java.exception.CameraNotFoundException;
+import chdk.ptp.java.exception.GenericCameraException;
 import chdk.ptp.java.exception.PTPTimeoutException;
+import chdk.ptp.java.model.CameraMode;
 
 /**
  * Displays a panel with live view from camera.
@@ -512,12 +512,11 @@ public class LiveViewDemo extends JFrame {
 			} else if (op == OP_CMD) {
 				return cam.executeLuaQuery(param[0].toString());
 			} else if (op == OP_PLAY) {
-				cam.setPlaybackMode();
+				cam.setOperaionMode(CameraMode.PLAYBACK);
 			} else if (op == OP_REC) {
-				cam.setRecordingMode();
+				cam.setOperaionMode(CameraMode.RECORD);
 			}
-		} catch (CameraConnectionException | PTPTimeoutException
-				| CameraNotFoundException e1) {
+		} catch (GenericCameraException | PTPTimeoutException e1) {
 			e1.printStackTrace();
 			jTextAreaLog.append(">>>" + e1.getLocalizedMessage() + "\n");
 		}

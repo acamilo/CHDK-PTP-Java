@@ -17,8 +17,15 @@ class BufferedImagePanel extends JPanel {
 		super();
 	}
 
-	public BufferedImagePanel(BufferedImage i) {
+	public BufferedImagePanel(BufferedImage i, boolean setIntoJFrame) {
 		this();
+		if (setIntoJFrame) {
+			frame = new JFrame("Image Display");
+			frame.add(this);
+			frame.setSize(i.getWidth(), i.getHeight());
+			frame.setVisible(true);
+			// frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		}
 		image = i;
 		setSize(i.getWidth(), i.getHeight());
 	}

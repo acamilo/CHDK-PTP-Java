@@ -5,8 +5,9 @@ import java.util.logging.Logger;
 import javax.usb.UsbDevice;
 
 import chdk.ptp.java.SupportedCamera;
-import chdk.ptp.java.exception.CameraConnectionException;
+import chdk.ptp.java.exception.GenericCameraException;
 import chdk.ptp.java.exception.PTPTimeoutException;
+import chdk.ptp.java.model.FocusMode;
 
 /**
  * Fail safe camera class which should at least show live view from camera.
@@ -32,23 +33,9 @@ public class FailSafeCamera extends AbstractCamera {
 		super(SerialNo);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see chdk.ptp.java.ICamera#setAutoFocusMode()
-	 */
 	@Override
-	public void setAutoFocusMode() throws CameraConnectionException {
-		log.info("Dummy method here, won't do anything");
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see chdk.ptp.java.ICamera#setManualFocusMode()
-	 */
-	@Override
-	public void setManualFocusMode() throws CameraConnectionException {
+	public void setFocusMode(FocusMode mode) throws GenericCameraException,
+			PTPTimeoutException {
 		log.info("Dummy method here, won't do anything");
 	}
 
@@ -56,5 +43,4 @@ public class FailSafeCamera extends AbstractCamera {
 	public SupportedCamera getCameraInfo() {
 		return SupportedCamera.FailsafeCamera;
 	}
-
 }

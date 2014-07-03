@@ -116,20 +116,20 @@ public class PTPConnection {
 			throw new CameraConnectionException("USB exception!");
 		}
 		read.waitUntilComplete(4000); // so we don't block forever when the
-										// camera poops itself and throw a
-										// proper exception
+									  // camera poops itself and throw a
+									  // proper exception
 		if (read.isComplete() == false)
 			throw new PTPTimeoutException("Camera Reply Timeout");
 		PTPPacket response;
 		response = new PTPPacket(Arrays.copyOfRange(recbuf, 0,
 				read.getActualLength())); // +40 this is a hack to get it to
-											// kinda work right now. some of the
-											// packets come back malformed. if
-											// you retry it breaks. if you
-											// ignore it then it sometimes works
-											// and when it doesn't you can reset
-											// the camera. need to look into
-											// this.
+										  // kinda work right now. some of the
+										  // packets come back malformed. if
+										  // you retry it breaks. if you
+										  // ignore it then it sometimes works
+										  // and when it doesn't you can reset
+										  // the camera. need to look into
+										  // this.
 		// read.waitUntilComplete(4000);
 		return response;
 
