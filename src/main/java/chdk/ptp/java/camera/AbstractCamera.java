@@ -515,7 +515,7 @@ public abstract class AbstractCamera implements ICamera {
 		// see http://chdk.wikia.com/wiki/Lua/Lua_Reference#get_mode
 		List<Object> r = (List<Object>) executeLuaQuery("return get_mode();");
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -560,7 +560,7 @@ public abstract class AbstractCamera implements ICamera {
 	public int getFocus() throws PTPTimeoutException, GenericCameraException {
 		int focus = (int) executeLuaQuery("return get_focus();");
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -573,7 +573,7 @@ public abstract class AbstractCamera implements ICamera {
 		try {
 			setFocusMode(FocusMode.MF);
 			this.executeLuaCommand("set_focus(" + focusingDistance + ");");
-			Thread.sleep(1000);
+			Thread.sleep(500);
 		} catch (Exception e) {
 			log.log(Level.SEVERE, e.getLocalizedMessage(), e);
 			throw new CameraConnectionException(e.getMessage());
@@ -598,7 +598,7 @@ public abstract class AbstractCamera implements ICamera {
 	public int getZoom() throws PTPTimeoutException, GenericCameraException {
 		int zoom = (int) executeLuaQuery("return get_zoom();");
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
