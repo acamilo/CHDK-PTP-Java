@@ -35,6 +35,7 @@ import chdk.ptp.java.exception.InvalidPacketException;
 import chdk.ptp.java.exception.PTPTimeoutException;
 import chdk.ptp.java.model.CameraMode;
 import chdk.ptp.java.model.FocusMode;
+import chdk.ptp.java.model.ImageResolution;
 
 /**
  * Generic CHDK camera implementation with functions that should work for all
@@ -665,6 +666,27 @@ public abstract class AbstractCamera implements ICamera {
 		PTPConnection session = new PTPConnection(camIn, camOut);
 		log.info("Camera is ready to recieve commands");
 		return session;
+	}
+	
+	@Override
+	public ImageResolution getImageResolution() throws PTPTimeoutException,
+			GenericCameraException {
+		int res = (int) executeLuaQuery("return get_prop(222);");
+		return ImageResolution.valueOf(res);
+	}
+	
+	@Override
+	public void setImageResolution(ImageResolution resolution)
+			throws PTPTimeoutException, GenericCameraException {
+		try {
+			this.executeLuaCommand("set_prop(24, " + resolution.getValue() + ");");
+			Thread.sleep(500);
+			this.executeLuaCommand("set_prop(222, " + resolution.getValue() + ");");
+			Thread.sleep(500);
+		} catch (Exception e) {
+			log.log(Level.SEVERE, e.getLocalizedMessage(), e);
+			throw new CameraConnectionException(e.getMessage());
+		}
 	}
 
 }

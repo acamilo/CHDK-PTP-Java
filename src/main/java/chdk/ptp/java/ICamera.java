@@ -7,6 +7,7 @@ import chdk.ptp.java.exception.GenericCameraException;
 import chdk.ptp.java.exception.PTPTimeoutException;
 import chdk.ptp.java.model.CameraMode;
 import chdk.ptp.java.model.FocusMode;
+import chdk.ptp.java.model.ImageResolution;
 
 /**
  * Standardized to Canon CHDK-enabled cameras.
@@ -256,6 +257,32 @@ public interface ICamera {
 	 * 
 	 */
 	public void setOperaionMode(CameraMode mode) throws PTPTimeoutException,
+			GenericCameraException;
+	
+	/**
+	 * Get camera resolution
+	 * 
+	 * @return image resolution
+	 * @throws PTPTimeoutException
+	 *             on error
+	 * @throws GenericCameraException
+	 *             on error
+	 */
+	public ImageResolution getImageResolution() throws PTPTimeoutException,
+			GenericCameraException;
+	
+	
+	/**
+	 * Set camera resolution
+	 * 
+	 * @param resolution
+	 * @return image resolution
+	 * @throws PTPTimeoutException
+	 *             on error
+	 * @throws GenericCameraException
+	 *             on error
+	 */
+	public void setImageResolution(ImageResolution resolution) throws PTPTimeoutException,
 			GenericCameraException;
 
 }
