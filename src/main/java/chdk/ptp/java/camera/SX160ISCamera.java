@@ -8,6 +8,7 @@ import javax.usb.UsbDevice;
 
 import chdk.ptp.java.SupportedCamera;
 import chdk.ptp.java.exception.CameraConnectionException;
+import chdk.ptp.java.exception.CameraShootException;
 import chdk.ptp.java.exception.GenericCameraException;
 import chdk.ptp.java.exception.PTPTimeoutException;
 import chdk.ptp.java.model.FocusMode;
@@ -108,7 +109,7 @@ public class SX160ISCamera extends FailSafeCamera {
 	 * @see chdk.ptp.java.camera.AbstractCamera#getPicture()
 	 */
 	@Override
-	public BufferedImage getPicture() throws GenericCameraException {
+	public BufferedImage getPicture() throws CameraConnectionException, CameraShootException {
 		try {
 			return super.getPicture();
 		} finally {
