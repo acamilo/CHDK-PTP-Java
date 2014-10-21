@@ -3,10 +3,12 @@ package chdk.ptp.java;
 import java.awt.image.BufferedImage;
 
 import chdk.ptp.java.exception.CameraConnectionException;
+import chdk.ptp.java.exception.CameraShootException;
 import chdk.ptp.java.exception.GenericCameraException;
 import chdk.ptp.java.exception.PTPTimeoutException;
 import chdk.ptp.java.model.CameraMode;
 import chdk.ptp.java.model.FocusMode;
+import chdk.ptp.java.model.ImageResolution;
 
 /**
  * Standardized to Canon CHDK-enabled cameras.
@@ -80,10 +82,12 @@ public interface ICamera {
 	 * Takes picture with current camera settings and downloads the image.
 	 * 
 	 * @return taken picture image
-	 * @throws GenericCameraException
-	 *             on error
+	 * @throws CameraShootException 
+	 *             on shoot error
+	 * @throws CameraConnectionException
+	 * 			   on error
 	 */
-	public BufferedImage getPicture() throws GenericCameraException;
+	public BufferedImage getPicture() throws CameraConnectionException, CameraShootException;
 
 	/**
 	 * Downloads camera display content, might be interpreted as Live View
@@ -256,6 +260,32 @@ public interface ICamera {
 	 * 
 	 */
 	public void setOperaionMode(CameraMode mode) throws PTPTimeoutException,
+			GenericCameraException;
+	
+	/**
+	 * Get camera resolution
+	 * 
+	 * @return image resolution
+	 * @throws PTPTimeoutException
+	 *             on error
+	 * @throws GenericCameraException
+	 *             on error
+	 */
+	public ImageResolution getImageResolution() throws PTPTimeoutException,
+			GenericCameraException;
+	
+	
+	/**
+	 * Set camera resolution
+	 * 
+	 * @param resolution
+	 * @return image resolution
+	 * @throws PTPTimeoutException
+	 *             on error
+	 * @throws GenericCameraException
+	 *             on error
+	 */
+	public void setImageResolution(ImageResolution resolution) throws PTPTimeoutException,
 			GenericCameraException;
 
 }

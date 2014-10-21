@@ -30,11 +30,13 @@ import chdk.ptp.java.connection.packet.CHDKScreenImage;
 import chdk.ptp.java.connection.packet.PTPPacket;
 import chdk.ptp.java.exception.CameraConnectionException;
 import chdk.ptp.java.exception.CameraNotFoundException;
+import chdk.ptp.java.exception.CameraShootException;
 import chdk.ptp.java.exception.GenericCameraException;
 import chdk.ptp.java.exception.InvalidPacketException;
 import chdk.ptp.java.exception.PTPTimeoutException;
 import chdk.ptp.java.model.CameraMode;
 import chdk.ptp.java.model.FocusMode;
+import chdk.ptp.java.model.ImageResolution;
 
 /**
  * Generic CHDK camera implementation with functions that should work for all
@@ -132,7 +134,7 @@ public abstract class AbstractCamera implements ICamera {
 
 	@Override
 	public int executeLuaCommand(String command) throws PTPTimeoutException,
-			GenericCameraException {
+			CameraConnectionException {
 
 		StringBuilder formattedCommand = new StringBuilder(command);
 		if (!formattedCommand.toString().endsWith(";"))
@@ -181,7 +183,7 @@ public abstract class AbstractCamera implements ICamera {
 
 	@Override
 	public Object executeLuaQuery(String command) throws PTPTimeoutException,
-			GenericCameraException {
+		CameraConnectionException {
 		int scriptId = executeLuaCommand(command);
 
 		waitScriptReady();
@@ -255,7 +257,6 @@ public abstract class AbstractCamera implements ICamera {
 			// recive script metadata
 			p = connection.getResponse();
 		} catch (InvalidPacketException e) {
-			// TODO Auto-generated catch block
 			throw new CameraConnectionException(e.getMessage());
 		}
 
@@ -376,7 +377,7 @@ public abstract class AbstractCamera implements ICamera {
 	}
 
 	@Override
-	public BufferedImage getPicture() throws GenericCameraException {
+	public BufferedImage getPicture() throws CameraConnectionException, CameraShootException  {
 		try {
 			if (getUsbCaptureSupport() != 1) {
 				throw new CameraConnectionException("usb capture not supported");
@@ -479,7 +480,7 @@ public abstract class AbstractCamera implements ICamera {
 	private int cacheUsbCaptureSuport = -1;
 
 	private int getUsbCaptureSuport() throws PTPTimeoutException,
-			GenericCameraException {
+			CameraConnectionException {
 		if (cacheUsbCaptureSuport == -1) {
 			cacheUsbCaptureSuport = (Integer) executeLuaQuery("return get_usb_capture_support()");
 		}
@@ -495,8 +496,7 @@ public abstract class AbstractCamera implements ICamera {
 	 * @throws PTPTimeoutException
 	 * @throws GenericCameraException
 	 */
-	private byte getUsbCaptureSupport() throws PTPTimeoutException,
-			GenericCameraException {
+	private byte getUsbCaptureSupport() throws PTPTimeoutException, CameraConnectionException {
 		if (cacheUsbCaptureSupport == -1) {
 			if ("function"
 					.equals(executeLuaQuery("return type(init_usb_capture)"))) {
@@ -665,6 +665,27 @@ public abstract class AbstractCamera implements ICamera {
 		PTPConnection session = new PTPConnection(camIn, camOut);
 		log.info("Camera is ready to recieve commands");
 		return session;
+	}
+	
+	@Override
+	public ImageResolution getImageResolution() throws PTPTimeoutException,
+			GenericCameraException {
+		int res = (int) executeLuaQuery("return get_prop(222);");
+		return ImageResolution.valueOf(res);
+	}
+	
+	@Override
+	public void setImageResolution(ImageResolution resolution)
+			throws PTPTimeoutException, GenericCameraException {
+		try {
+			this.executeLuaCommand("set_prop(24, " + resolution.getValue() + ");");
+			Thread.sleep(500);
+			this.executeLuaCommand("set_prop(222, " + resolution.getValue() + ");");
+			Thread.sleep(500);
+		} catch (Exception e) {
+			log.log(Level.SEVERE, e.getLocalizedMessage(), e);
+			throw new CameraConnectionException(e.getMessage());
+		}
 	}
 
 }

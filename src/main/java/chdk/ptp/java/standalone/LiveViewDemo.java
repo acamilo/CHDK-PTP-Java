@@ -30,6 +30,7 @@ import chdk.ptp.java.connection.UsbUtils;
 import chdk.ptp.java.exception.GenericCameraException;
 import chdk.ptp.java.exception.PTPTimeoutException;
 import chdk.ptp.java.model.CameraMode;
+import chdk.ptp.java.model.ImageResolution;
 
 /**
  * Displays a panel with live view from camera.
@@ -62,6 +63,7 @@ public class LiveViewDemo extends JFrame {
 	private static int OP_CMD = 5;
 	private static int OP_PLAY = 6;
 	private static int OP_REC = 7;
+	private static int OP_RES = 8;
 	private static boolean isConnected = false;
 
 	JComboBox<CameraUsbDevice> jcboCameras = null;
@@ -76,6 +78,7 @@ public class LiveViewDemo extends JFrame {
 	JButton jBtnRec = null;
 	JButton jBtnPlay = null;
 	JButton jBtnLive = null;
+	JComboBox<ImageResolution> jcboResol = null;
 
 	private void intGui() {
 
@@ -95,6 +98,7 @@ public class LiveViewDemo extends JFrame {
 		jBtnRec = new JButton("Rec");
 		jBtnPlay = new JButton("Play");
 		jBtnLive = new JButton("Live");
+		jcboResol = new JComboBox<ImageResolution>(ImageResolution.values());
 
 		jTextAreaLog.setEditable(false);
 
@@ -136,6 +140,9 @@ public class LiveViewDemo extends JFrame {
 										.addComponent(jBtnLive)
 										.addPreferredGap(
 												javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+										.addComponent(jcboResol)
+										.addPreferredGap(
+												javax.swing.LayoutStyle.ComponentPlacement.RELATED)
 										.addContainerGap(251, Short.MAX_VALUE)));
 		jPanTopLayout
 				.setVerticalGroup(jPanTopLayout
@@ -160,7 +167,8 @@ public class LiveViewDemo extends JFrame {
 																jBtnDisconnect)
 														.addComponent(jBtnRec)
 														.addComponent(jBtnPlay)
-														.addComponent(jBtnLive))
+														.addComponent(jBtnLive)
+														.addComponent(jcboResol))
 
 										.addContainerGap(
 												javax.swing.GroupLayout.DEFAULT_SIZE,
@@ -384,6 +392,7 @@ public class LiveViewDemo extends JFrame {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					BufferedImage image = (BufferedImage) commandCamera(OP_SHOOT);
+					System.out.println(image.getWidth() + " x " + image.getHeight());
 					imageShoot.setImage(image);
 				}
 			});
@@ -460,6 +469,14 @@ public class LiveViewDemo extends JFrame {
 			}
 
 		});
+		
+		jcboResol.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ImageResolution r = (ImageResolution) jcboResol.getSelectedItem();
+				commandCamera(OP_RES, r);
+			}
+		});
 
 	}
 
@@ -515,6 +532,8 @@ public class LiveViewDemo extends JFrame {
 				cam.setOperaionMode(CameraMode.PLAYBACK);
 			} else if (op == OP_REC) {
 				cam.setOperaionMode(CameraMode.RECORD);
+			} else if (op == OP_RES) {
+				cam.setImageResolution((ImageResolution) param[0]);
 			}
 		} catch (GenericCameraException | PTPTimeoutException e1) {
 			e1.printStackTrace();
