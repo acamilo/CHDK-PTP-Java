@@ -9,28 +9,28 @@ import chdk.ptp.java.model.CameraMode;
  */
 public class CaptureDemo {
 
-	private static ICamera cam;
+    private static ICamera cam;
 
-	/**
-	 * Runs the demo.
-	 * 
-	 * @param args
-	 *            currently unused
-	 * 
-	 */
-	public static void main(String[] args) {
-		cam = null;
-		try {
-			cam = CameraFactory.getCamera();
-			cam.connect();
-			// switch to capture mode
-			cam.setOperaionMode(CameraMode.RECORD);
+    /**
+     * Runs the demo.
+     * 
+     * @param args currently unused
+     * 
+     */
+    public static void main(String[] args) {
+        cam = null;
+        try {
+            cam = CameraFactory.getCamera();
+            cam.connect();
+            // switch to capture mode
+            cam.setOperaionMode(CameraMode.RECORD);
 
-			// show taken image
-			new BufferedImagePanel(cam.getPicture(), true);
-			cam.disconnect();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+            cam.setZoom(150);
+            // show taken image
+            new BufferedImagePanel(cam.getPicture(), true);
+            cam.disconnect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -7,7 +7,7 @@ apply plugin: 'semver'
 apply plugin: 'artifactory'
 
 sourceCompatibility = 1.7
-project.version.with { major = 0; minor = 3; revision = 0 }
+project.version.with { major = 0; minor = 4; revision = 0 }
 group = 'org.chdk.ptp.java'
 
 buildscript
