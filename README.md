@@ -32,7 +32,7 @@ dependencies
 ```
 
 #### Versioning ####
-For the sake of usability, rapid developement and usage sanity we use semantic versioning: http://semver.org/
+For the sake of usability, rapid development and usage sanity we use semantic versioning: http://semver.org/
 
 ### Example Usage ###
 Try to follow chdk.ptp.java.standalone.LiveViewApiDemo.java but part of the example is below:
@@ -65,9 +65,9 @@ Try to follow chdk.ptp.java.standalone.LiveViewApiDemo.java but part of the exam
 #### Download gradle ####
 ``` 
 cd ~/
-wget https://services.gradle.org/distributions/gradle-1.12-bin.zip
-unzip gradle-1.12-bin.zip
-echo "export PATH=\$PATH:$HOME/gradle-1.12/bin" >> ~/.bashrc
+wget https://services.gradle.org/distributions/gradle-2.2-bin.zip
+unzip gradle-2.2-bin.zip
+echo "export PATH=\$PATH:$HOME/gradle-2.2/bin" >> ~/.bashrc
 source ~/.bashrc
 ```
 #### Set-up gradle ####

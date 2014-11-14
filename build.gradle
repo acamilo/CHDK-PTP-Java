@@ -4,20 +4,22 @@ apply plugin: 'eclipse'
 apply plugin: 'eclipse-wtp'
 apply plugin: 'project-report'
 apply plugin: 'semver'
-apply plugin: 'artifactory'
+apply plugin: 'com.jfrog.artifactory-upload'
 
 sourceCompatibility = 1.7
-project.version.with { major = 0; minor = 4; revision = 0 }
+project.version.with { major = 0; minor = 4; revision = 1 }
 group = 'org.chdk.ptp.java'
 
 buildscript
 {
     repositories
-    { maven
-        { url 'https://maven.man.poznan.pl/repository/kiwi-repo' } }
+    {
+        maven{ url 'https://maven.man.poznan.pl/repository/kiwi-repo' }
+        maven{ url 'http://oss.jfrog.org/artifactory/oss-snapshot-local' }
+    }
     dependencies
     {
-        classpath(group: 'org.jfrog.buildinfo', name: 'build-info-extractor-gradle', version: '2.+')
+        classpath(group: 'org.jfrog.buildinfo', name: 'build-info-extractor-gradle', version: '3.0.x-SNAPSHOT')
         classpath(group: 'io.fugu.gradle', name: 'gradle-semver-plugin', version: '0.2.0-SNAPSHOT')
     }
 }
@@ -48,25 +50,25 @@ artifactory
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
-	classifier 'sources'
-	from sourceSets.main.allSource
+    classifier 'sources'
+    from sourceSets.main.allSource
 }
 
 task testsJar(type: Jar, dependsOn: classes) {
-	classifier = "tests"
-	from sourceSets.test.allSource
-	from sourceSets.test.output
+    classifier = "tests"
+    from sourceSets.test.allSource
+    from sourceSets.test.output
 }
 
 artifacts {
-	archives sourcesJar
-	archives testsJar
+    archives sourcesJar
+    archives testsJar
 }
 
 dependencies
 {
-	// usb communication
-	compile 'org.usb4java:usb4java-javax:1.2+'
+    // usb communication
+    compile 'org.usb4java:usb4java-javax:1.2+'
 
-	testCompile 'junit:junit:+'
+    testCompile 'junit:junit:4.11+'
 }
