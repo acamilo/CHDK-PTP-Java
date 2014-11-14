@@ -39,7 +39,8 @@ import chdk.ptp.java.model.FocusMode;
 import chdk.ptp.java.model.ImageResolution;
 
 /**
- * Generic CHDK camera implementation with functions that should work for all cameras.
+ * Generic CHDK camera implementation with functions that should work for all
+ * cameras.
  * 
  * @author <a href="mailto:ankhazam@gmail.com">Mikolaj Dobski</a>
  * 
@@ -64,7 +65,8 @@ public abstract class AbstractCamera implements ICamera {
     /**
      * Creates a new instance of
      * 
-     * @param SerialNo canon camera serial number
+     * @param SerialNo
+     *            canon camera serial number
      */
     public AbstractCamera(String SerialNo) {
         cameraSerialNo = SerialNo;
@@ -312,10 +314,8 @@ public abstract class AbstractCamera implements ICamera {
     }
 
     @Override
-    public BufferedImage getView() throws CameraConnectionException {
+    public byte[] getByteView() throws CameraConnectionException {
         try {
-            BufferedImage image = null;
-
             // preparing command packet
             PTPPacket p = new PTPPacket(PTPPacket.PTP_USB_CONTAINER_COMMAND,
                     PTPPacket.PTP_OPPCODE_CHDK, 0, new byte[8]);
@@ -330,9 +330,9 @@ public abstract class AbstractCamera implements ICamera {
 
             // We should get 2 packets back. A Data and a status packet.
             p = connection.getResponse();
+            byte[] viewPortData;
             if (p.getContainerCommand() == PTPPacket.PTP_USB_CONTAINER_DATA) {
-                CHDKScreenImage i = new CHDKScreenImage(p.getData());
-                image = i.decodeViewport();
+                viewPortData = p.getData();
             } else {
                 String message = "SX50Camera did not respond to a Live View request with a data packet!";
                 log.log(Level.SEVERE, message);
@@ -341,7 +341,7 @@ public abstract class AbstractCamera implements ICamera {
 
             p = connection.getResponse();
             if (isResponseOK(p))
-                return image;
+                return viewPortData;
             String message = "SX50Camera did not end session with an OK response even though a data packet was sent!";
             log.log(Level.SEVERE, message);
             throw new CameraConnectionException(message);
@@ -351,8 +351,8 @@ public abstract class AbstractCamera implements ICamera {
     }
 
     @Override
-    public BufferedImage getRawView() throws CameraConnectionException {
-        return null;
+    public BufferedImage getView() throws CameraConnectionException {
+        return new CHDKScreenImage(getByteView()).decodeViewport();
     }
 
     @Override

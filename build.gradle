@@ -7,7 +7,7 @@ apply plugin: 'semver'
 apply plugin: 'com.jfrog.artifactory-upload'
 
 sourceCompatibility = 1.7
-project.version.with { major = 0; minor = 4; revision = 1 }
+project.version.with { major = 0; minor = 5; revision = 0 }
 group = 'org.chdk.ptp.java'
 
 buildscript

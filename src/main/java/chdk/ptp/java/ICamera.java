@@ -25,7 +25,7 @@ public interface ICamera {
 
     /**
      * Connect via PTP to camera.
-     * 
+     *
      * @throws CameraConnectionException on error
      */
     public void connect() throws CameraConnectionException;
@@ -40,7 +40,8 @@ public interface ICamera {
     /**
      * Submits provided Lua command for execution on camera.
      * 
-     * @see <a href="http://chdk.wikia.com/wiki/CHDK_Scripting_Cross_Reference_Page">CHDK
+     * @see <a
+     *      href="http://chdk.wikia.com/wiki/CHDK_Scripting_Cross_Reference_Page">CHDK
      *      scripting reference</a>
      * 
      * @param command to be issued
@@ -52,10 +53,11 @@ public interface ICamera {
     public int executeLuaCommand(String command) throws PTPTimeoutException, GenericCameraException;
 
     /**
-     * Submits provided Lua command for execution on camera, expects result to be returned
-     * by camera
+     * Submits provided Lua command for execution on camera, expects result to
+     * be returned by camera
      * 
-     * @see <a href="http://chdk.wikia.com/wiki/CHDK_Scripting_Cross_Reference_Page">CHDK
+     * @see <a
+     *      href="http://chdk.wikia.com/wiki/CHDK_Scripting_Cross_Reference_Page">CHDK
      *      scripting reference</a>
      * 
      * @param command to be issued
@@ -96,10 +98,10 @@ public interface ICamera {
     /**
      * Downloads camera display content, might be interpreted as Live View
      * 
-     * @return Raw 'live view' image. suitable for openCV mat
+     * @return Raw viewport buffer array from camera, suitable for openCV mat
      * @throws CameraConnectionException on error
      */
-    public BufferedImage getRawView() throws CameraConnectionException;
+    public byte[] getByteView() throws CameraConnectionException;
 
     /**
      * Retrieves camera focusing mode
@@ -109,7 +111,8 @@ public interface ICamera {
      * @throws PTPTimeoutException on error
      * @throws GenericCameraException on error
      * 
-     * @see <a href="http://chdk.wikia.com/wiki/Script_commands#get_focus_mode">CHDK
+     * @see <a
+     *      href="http://chdk.wikia.com/wiki/Script_commands#get_focus_mode">CHDK
      *      get_focus_mode()</a>
      */
     public FocusMode getFocusMode() throws PTPTimeoutException, GenericCameraException;
@@ -192,8 +195,9 @@ public interface ICamera {
     /**
      * Returns number of maximum zoom steps, irrespective of the processor..
      * 
-     * @see <a href="http://chdk.wikia.com/wiki/Script_commands#get_zoom_steps">CHDK lua
-     *      set_zoom()</a>
+     * @see <a
+     *      href="http://chdk.wikia.com/wiki/Script_commands#get_zoom_steps">CHDK
+     *      lua set_zoom()</a>
      * 
      * @return number of maximum zoom steps
      * @throws PTPTimeoutException on error
@@ -237,8 +241,7 @@ public interface ICamera {
     /**
      * Set camera resolution
      * 
-     * @param resolution
-     * @return image resolution
+     * @param resolution {@link ImageResolution} to be set
      * @throws PTPTimeoutException on error
      * @throws GenericCameraException on error
      */
