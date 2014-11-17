@@ -39,8 +39,7 @@ import chdk.ptp.java.model.FocusMode;
 import chdk.ptp.java.model.ImageResolution;
 
 /**
- * Generic CHDK camera implementation with functions that should work for all
- * cameras.
+ * Generic CHDK camera implementation with functions that should work for all cameras.
  * 
  * @author <a href="mailto:ankhazam@gmail.com">Mikolaj Dobski</a>
  * 
@@ -65,8 +64,7 @@ public abstract class AbstractCamera implements ICamera {
     /**
      * Creates a new instance of
      * 
-     * @param SerialNo
-     *            canon camera serial number
+     * @param SerialNo canon camera serial number
      */
     public AbstractCamera(String SerialNo) {
         cameraSerialNo = SerialNo;
@@ -569,20 +567,17 @@ public abstract class AbstractCamera implements ICamera {
      */
     @Override
     public int getZoom() throws PTPTimeoutException, GenericCameraException {
-        int zoom = (int) executeLuaQuery("return get_zoom();");
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return zoom;
+        return (Integer) executeLuaQuery("return get_zoom();");
     }
 
     @Override
     public void setZoom(int zoomPosition) throws PTPTimeoutException, GenericCameraException {
+        int waitTime = (int) ((Math.abs(zoomPosition - getZoom()) * 1.0 / getZoomSteps()) * 4000.0) + 500;
         this.executeLuaCommand("set_zoom(" + zoomPosition + ");");
         try {
-            Thread.sleep(3000);
+            // need to wait for the operation to finish
+            System.out.println(waitTime);
+            Thread.sleep(waitTime);
         } catch (Exception e) {
             log.log(Level.SEVERE, e.getLocalizedMessage(), e);
             throw new CameraConnectionException(e.getMessage());
