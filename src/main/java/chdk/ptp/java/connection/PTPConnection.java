@@ -68,8 +68,7 @@ public class PTPConnection {
             // Send init command
             long startTime = System.nanoTime();
             p.setTransaction(Seq);
-            if(write == null)
-                write = camOutpipe.createUsbIrp();
+            write = camOutpipe.createUsbIrp();
             write.setData(p.getPacket());
             write.setLength(p.getPacket().length);
             write.setOffset(0);
@@ -77,7 +76,6 @@ public class PTPConnection {
 
             camOutpipe.syncSubmit(write);
             write.waitUntilComplete(10000);
-            write.complete();
             long stopTime = System.nanoTime();
             // System.out.println("TX Delta:\t"+((stopTime -
             // startTime)/(float)10000000)+"ms");
@@ -93,8 +91,7 @@ public class PTPConnection {
 
         if (camInpipe == null)
             throw new CameraConnectionException("My pipe is null.!");
-        if(read == null)
-            read = camInpipe.createUsbIrp();
+        read = camInpipe.createUsbIrp();
         read.setData(recbuf);
         read.setLength(recbuf.length);
         read.setOffset(0);
@@ -113,12 +110,10 @@ public class PTPConnection {
         read.waitUntilComplete(10000); // so we don't block forever when the
                                        // camera poops itself and throw a
                                        // proper exception
-        int readLen =  read.getActualLength();
-        read.complete();
         if (read.isComplete() == false)
             throw new PTPTimeoutException("Camera Reply Timeout");
         PTPPacket response;
-        response = new PTPPacket(Arrays.copyOfRange(recbuf, 0, readLen)); // +40
+        response = new PTPPacket(Arrays.copyOfRange(recbuf, 0, read.getActualLength())); // +40
                                                                                          // this
                                                                                          // is
                                                                                          // a
