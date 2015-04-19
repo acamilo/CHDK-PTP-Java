@@ -387,7 +387,7 @@ public abstract class AbstractCamera implements ICamera {
 
                 if (response.decodeInt(PTPPacket.iPTPCommandARG0, ByteOrder.LittleEndian) == 0x10000000)
                     throw new CameraConnectionException(
-                            "balls. camera doesn't think it's capturing an image");
+                            "camera doesn't think it's capturing an image");
                 else if (response.decodeInt(PTPPacket.iPTPCommandARG0, ByteOrder.LittleEndian) != 0)
                     break;
                 else {
