@@ -10,8 +10,8 @@ sourceCompatibility = 1.7
 project.version.with { major = 0; minor = 5; revision = 1 }
 group = 'org.chdk.ptp.java'
 
-project.USER = "something"
-project.PASSWORD = "random"
+//project.USER = "something"
+//project.PASSWORD = "random"
 
 buildscript
 {
@@ -41,8 +41,8 @@ artifactory
         //A closure defining publishing information
         repository {
             repoKey = 'kiwi-libs-snapshots'
-            username = USER
-            password = PASSWORD
+     //       username = USER
+     //       password = PASSWORD
         }
     }
     resolve {
