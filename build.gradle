@@ -32,25 +32,25 @@ repositories
     maven() { url 'https://maven.man.poznan.pl/repository/kiwi-repo' } // virtual repo
 }
 
-artifactory
-{
-    contextUrl = 'https://maven.man.poznan.pl/repository'
-    publish
-    {
-        contextUrl = 'https://maven.man.poznan.pl/repository'
-        //A closure defining publishing information
-        repository {
-            repoKey = 'kiwi-libs-snapshots'
-     //       username = USER
-     //       password = PASSWORD
-        }
-    }
-    resolve {
-        contextUrl = 'https://maven.man.poznan.pl/repository' //The base Artifactory URL for the resolver
-        repository { repoKey = 'kiwi-repo'  //The Artifactory (preferably virtual) repository key to resolve from
-        }
-    }
-}
+//artifactory
+//{
+//    contextUrl = 'https://maven.man.poznan.pl/repository'
+//    publish
+//    {
+//        contextUrl = 'https://maven.man.poznan.pl/repository'
+//        //A closure defining publishing information
+//        repository {
+//            repoKey = 'kiwi-libs-snapshots'
+//     //       username = USER
+//     //       password = PASSWORD
+//        }
+//    }
+//    resolve {
+//        contextUrl = 'https://maven.man.poznan.pl/repository' //The base Artifactory URL for the resolver
+//        repository { repoKey = 'kiwi-repo'  //The Artifactory (preferably virtual) repository key to resolve from
+//        }
+//    }
+//}
 
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier 'sources'
