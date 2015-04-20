@@ -22,6 +22,13 @@ import javax.usb.UsbHub;
 import javax.usb.UsbInterface;
 import javax.usb.UsbServices;
 
+import org.usb4java.Device;
+import org.usb4java.DeviceDescriptor;
+import org.usb4java.DeviceHandle;
+import org.usb4java.DeviceList;
+import org.usb4java.LibUsb;
+import org.usb4java.LibUsbException;
+
 import chdk.ptp.java.ICamera;
 import chdk.ptp.java.connection.PTPConnection;
 import chdk.ptp.java.connection.UsbUtils;
@@ -109,6 +116,8 @@ public abstract class AbstractCamera implements ICamera {
             throw new CameraNotFoundException();
         this.device = cameraDevice;
     }
+    
+
 
     @Override
     public void disconnect() throws CameraConnectionException {
@@ -467,6 +476,8 @@ public abstract class AbstractCamera implements ICamera {
 
     private byte cacheUsbCaptureSupport = -1;
 
+	private UsbInterface interf;
+
     /**
      * 0 = not supported. 1 = supported
      * 
@@ -602,7 +613,7 @@ public abstract class AbstractCamera implements ICamera {
         UsbEndpoint camIn = null;
         UsbEndpoint camOut = null;
         for (int i = 0; i < totalInterfaces.size(); i++) {
-            UsbInterface interf = (UsbInterface) totalInterfaces.get(i);
+            interf = (UsbInterface) totalInterfaces.get(i);
             log.info("\t\tFound Interface:\t" + interf);
             interf.claim();
             List<?> totalEndpoints = interf.getUsbEndpoints();
