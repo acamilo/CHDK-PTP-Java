@@ -143,6 +143,7 @@ public class UsbUtils {
 					if (r != LibUsb.SUCCESS && r != LibUsb.ERROR_NOT_SUPPORTED
 							&& r != LibUsb.ERROR_NOT_FOUND)
 						throw new LibUsbException("Unable to detach kernel     driver", r);
+					System.out.println("Camera CHDK Kernel Takeover");
 				}
 			}
 
