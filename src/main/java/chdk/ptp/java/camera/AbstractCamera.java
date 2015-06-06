@@ -22,12 +22,7 @@ import javax.usb.UsbHub;
 import javax.usb.UsbInterface;
 import javax.usb.UsbServices;
 
-import org.usb4java.Device;
-import org.usb4java.DeviceDescriptor;
-import org.usb4java.DeviceHandle;
-import org.usb4java.DeviceList;
-import org.usb4java.LibUsb;
-import org.usb4java.LibUsbException;
+import org.usb4java.javax.UsbHelper;
 
 import chdk.ptp.java.ICamera;
 import chdk.ptp.java.connection.PTPConnection;
@@ -75,6 +70,13 @@ public abstract class AbstractCamera implements ICamera {
      */
     public AbstractCamera(String SerialNo) {
         cameraSerialNo = SerialNo;
+    }
+
+    /**
+     * USB reset required for camera initialization after close previous connection without disconnect.
+     */
+    public void usbReset() throws Exception {
+        UsbHelper.reset(device);
     }
 
     /*
