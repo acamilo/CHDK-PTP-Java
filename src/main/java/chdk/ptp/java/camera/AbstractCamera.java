@@ -92,6 +92,7 @@ public abstract class AbstractCamera implements ICamera {
             }
 
             connection = getConenctionFromUSBDevice(device);
+            cameraSerialNo = device.getSerialNumberString();
             log.info("Connected to camera");
         } catch (SecurityException | UsbException | UnsupportedEncodingException
                 | UsbDisconnectedException | CameraNotFoundException e) {
@@ -100,6 +101,10 @@ public abstract class AbstractCamera implements ICamera {
             e.printStackTrace();
             throw new CameraConnectionException(message);
         }
+    }
+
+    public String getCameraSerialNumber() {
+        return cameraSerialNo;
     }
 
     private void findCameraDevice() throws SecurityException, UsbException, CameraNotFoundException {
