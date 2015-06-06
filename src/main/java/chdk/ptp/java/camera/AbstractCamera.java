@@ -602,6 +602,80 @@ public abstract class AbstractCamera implements ICamera {
         }
     }
 
+    /**
+     * Lock/unlock Canon manual focus (MF) mode.
+     * 
+     * Similar to set_aflock(), this function places the camera in a mode where SD override commands (e.g.
+     * set_focus) can be used and the value requested will be maintained across multiple shots.
+     * 
+     * Note: works on almost all cameras, even those that do not have a Canon MF mode. More information here:
+     * http://chdk.setepontos.com/index.php?topic=11078.0
+     * 
+     * @param lock
+     *            true locks the camera in MF mode and false unlocks it.
+     * 
+     * @since CHDK 1.3.0 or later
+     */
+    public void set_mf(boolean lock) throws PTPTimeoutException, GenericCameraException {
+        int r = (int) executeLuaQuery("return set_mf(" + (lock ? 1 : 0) + ");");
+        switch (r) {
+        case 1: // OK
+            return;
+        case 0: // not supported
+            throw new GenericCameraException("set_mf is not supported");
+        default:
+            throw new GenericCameraException("Unknown result of set_mf: " + r);
+        }
+    }
+
+    /**
+     * Lock/unlock autofocus.
+     * 
+     * It is like Canon's built-in manual focus mode (MF), but better because focus stays locked even after
+     * camera returns from deep display sleep (via display key cycle or print button shortcut), which is very
+     * good for timelapse.
+     * 
+     * Note: In older versions of CHDK (prior to 1.3.0), this function does not work on all cameras and may
+     * actually crash the camera. More information here: http://chdk.setepontos.com/index.php?topic=11078.0
+     * See also {@link #set_mf(boolean)}.
+     * 
+     * @param lock
+     *            true locks the autofocus and false unlocks it.
+     */
+    public void set_aflock(boolean lock) throws PTPTimeoutException, GenericCameraException {
+        Object r = executeLuaQuery("return set_aflock(" + (lock ? 1 : 0) + ");");
+        if (r != null) {
+            throw new GenericCameraException("Unknown result of set_aflock: " + r);
+        }
+    }
+
+    /**
+     * Returns the propset number used by the camera. Returns 1 for propset1, 2 for propset2, 3 for propset3
+     * etc. Useful for writing scripts that are not dependent on a particular camera model or DIGIC processor.
+     * Information about values used for propsets can be found here: http://chdk.wikia.com/wiki/PropertyCase
+     */
+    public int get_propset() throws PTPTimeoutException, GenericCameraException {
+        int r = (int) executeLuaQuery("return get_propset();");
+        if (r < 1 || r > 10) {
+            throw new GenericCameraException("Unknown result of get_propset: " + r);
+        }
+        return r;
+    }
+
+    /**
+     * get_prop (and set_prop) can be used with propcase.lua library which is included in the 'complete'
+     * download packages. This module loads a table which maps camera property case names the correct number
+     * for a given camera.
+     * 
+     * There are several different "property sets" known for CHDK cameras: Propset 1 on most Digic II cameras,
+     * propset 2 on most Digic III and some Digic IV, and further propsets on later Digic IV and Digic V.
+     * During the CHDK build process a Lua library with a table of the property case names and numbers is
+     * generated for each propset. These generated tables are saved in the \CHDK\LUALIB\GEN\ folder.
+     */
+    public int get_prop(int prop) throws PTPTimeoutException, GenericCameraException {
+        return (int) executeLuaQuery("return get_prop(" + prop + ");");
+    }
+
     private PTPConnection getConenctionFromUSBDevice(UsbDevice dev)
             throws UnsupportedEncodingException, UsbDisconnectedException, UsbException,
             CameraConnectionException {
