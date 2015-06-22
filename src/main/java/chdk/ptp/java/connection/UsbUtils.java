@@ -4,9 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,6 +33,7 @@ import chdk.ptp.java.SupportedCamera;
  * 
  * @author <a href="mailto:ankhazam@gmail.com">Mikolaj Dobski</a>
  * 
+ * @author Aleś Bułojčyk (alex73mail@gmail.com)
  */
 public class UsbUtils {
 
@@ -208,6 +207,52 @@ public class UsbUtils {
 		}
 		return null;
 	}
+
+    /**
+     * Multiple cameras initialization support.
+     */
+    public static Collection<ICamera> findCameras() throws SecurityException, UsbException {
+        List<ICamera> result = new ArrayList<>();
+
+        for (CameraUsbDevice cameraDevice : listAttachedCameras()) {
+            SupportedCamera sc = SupportedCamera.getCamera(cameraDevice.getIdVendor(),
+                    cameraDevice.getIdProduct());
+
+            try {
+                ICamera camera = sc.getClazz().getConstructor(UsbDevice.class)
+                        .newInstance(cameraDevice.getDevice());
+                result.add(camera);
+            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+                    | InvocationTargetException | NoSuchMethodException e) {
+                log.log(Level.SEVERE, e.getLocalizedMessage(), e);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Find all attached USB devices.
+     */
+    public static Collection<UsbDevice> listAttachedDevices()
+            throws SecurityException, UsbException {
+        UsbServices services = UsbHostManager.getUsbServices();
+        UsbHub rootHub = services.getRootUsbHub();
+        List<UsbDevice> result = new ArrayList<>();
+        listAttachedDevices(rootHub, result);
+        return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void listAttachedDevices(UsbHub dev, List<UsbDevice> result) {
+        List<UsbDevice> devices = dev.getAttachedUsbDevices();
+        for (UsbDevice usbDevice : devices) {
+            if (usbDevice.isUsbHub()) {
+                listAttachedDevices((UsbHub) usbDevice, result);
+            } else {
+                result.add(usbDevice);
+            }
+        }
+    }
 
 	public static Collection<CameraUsbDevice> listAttachedCameras()
 			throws SecurityException, UsbException {

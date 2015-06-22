@@ -1,9 +1,13 @@
 package chdk.ptp.java;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.usb.UsbDevice;
+import javax.usb.UsbDeviceDescriptor;
 import javax.usb.UsbException;
 import javax.usb.UsbHostManager;
 import javax.usb.UsbHub;
@@ -19,33 +23,90 @@ import chdk.ptp.java.exception.CameraNotFoundException;
  * 
  * @author <a href="mailto:ankhazam@gmail.com">Mikolaj Dobski</a>
  * 
+ * @author Aleś Bułojčyk (alex73mail@gmail.com)
+ * 
  */
 public class CameraFactory {
 
 	private static Logger log = Logger.getLogger(CameraFactory.class.getName());
 
-	/**
-	 * Automatically connects to compatible camera
-	 * 
-	 * @return supported camera
-	 * @throws CameraNotFoundException
-	 *             when no supported camera is found
-	 */
-	public static ICamera getCamera() throws CameraNotFoundException {
-		ICamera camera = null;
-		try {
-			camera = UsbUtils.findCamera();
-		} catch (SecurityException | UsbException e) {
-			log.log(Level.SEVERE, e.getMessage(), e);
-			e.printStackTrace();
-			throw new CameraNotFoundException();
-		}
-		if (camera == null) {
-			throw new CameraNotFoundException();
-		}
+    /**
+     * Find any known cameras.
+     */
+    public static Collection<ICamera> getCameras() throws Exception {
+        List<ICamera> cameras = new ArrayList<>();
+        // iterate by all USB devices
+        for (UsbDevice usbDevice : UsbUtils.listAttachedDevices()) {
+            UsbDeviceDescriptor desc = usbDevice.getUsbDeviceDescriptor();
+            SupportedCamera sc = SupportedCamera.getCamera(desc.idVendor(), desc.idProduct());
+            if (sc != null) {
+                // known camera - create specified class
+                try {
+                    ICamera camera = sc.getClazz().getConstructor(UsbDevice.class).newInstance(usbDevice);
+                    cameras.add(camera);
+                } catch (Exception ex) {
+                    log.log(Level.SEVERE, "Error instantiate camera class", ex);
+                    throw ex;
+                }
+            }
+        }
+        return cameras;
+    }
 
-		return camera;
-	}
+    /**
+     * Find specified cameras.
+     */
+    public static Collection<ICamera> getCameras(short idVendor, short idProduct) throws Exception {
+        List<ICamera> cameras = new ArrayList<>();
+        for (UsbDevice usbDevice : UsbUtils.listAttachedDevices()) {
+            UsbDeviceDescriptor desc = usbDevice.getUsbDeviceDescriptor();
+            if (desc.idVendor() == idVendor && desc.idProduct() == idProduct) {
+                // requested vendor/product
+                SupportedCamera sc = SupportedCamera.getCamera(desc.idVendor(), desc.idProduct());
+                if (sc == null) {
+                    // unknown camera
+                    sc = SupportedCamera.FailsafeCamera;
+                }
+                // known camera - create specified class
+                try {
+                    ICamera camera = sc.getClazz().getConstructor(UsbDevice.class).newInstance(usbDevice);
+                    cameras.add(camera);
+                } catch (Exception ex) {
+                    log.log(Level.SEVERE, "Error instantiate camera class", ex);
+                    throw ex;
+                }
+            }
+        }
+        return cameras;
+    }
+
+    /**
+     * Find known camera. It returns only first one if multiple cameras found.
+     * 
+     * @throws CameraNotFoundException
+     *             when no supported camera is found
+     */
+    public static ICamera getCamera() throws Exception {
+        Collection<ICamera> cameras = getCameras();
+        if (cameras.isEmpty()) {
+            throw new CameraNotFoundException();
+        }
+        return cameras.iterator().next();
+    }
+
+    /**
+     * Find specified camera. It returns only first one if multiple cameras found.
+     * 
+     * @throws CameraNotFoundException
+     *             when no supported camera is found
+     */
+    public static ICamera getCamera(short idVendor, short idProduct) throws Exception {
+        Collection<ICamera> cameras = getCameras(idVendor, idProduct);
+        if (cameras.isEmpty()) {
+            throw new CameraNotFoundException();
+        }
+        return cameras.iterator().next();
+    }
 
 	/**
 	 * Attempts to get known camera implementation or backs up to failsafe
