@@ -506,7 +506,12 @@ public class LiveViewDemo extends JFrame {
 			if (op == OP_CONNECT) {
 				jTextAreaLog.append("_Connecting..._\n");
 				jTextAreaLog.updateUI();
-				cam = CameraFactory.getCamera();
+				try {
+					cam = CameraFactory.getCamera();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				cam.connect();
 				jSliderZoom.setMaximum(cam.getZoomSteps());
 				// cam.setRecordingMode();

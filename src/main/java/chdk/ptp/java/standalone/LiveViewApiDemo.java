@@ -27,7 +27,12 @@ public class LiveViewApiDemo {
 		Random random = new Random();
 		int i = 0;
 		try {
-			cam = CameraFactory.getCamera();
+			try {
+				cam = CameraFactory.getCamera();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			cam.connect();
 			cam.setOperaionMode(CameraMode.RECORD);
 			d = new BufferedImagePanel(cam.getView(), true);
