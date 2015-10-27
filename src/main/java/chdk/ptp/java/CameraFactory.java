@@ -21,7 +21,7 @@ import chdk.ptp.java.exception.CameraNotFoundException;
 
 /**
  * 
- * @author <a href="mailto:ankhazam@gmail.com">Mikolaj Dobski</a>
+ * @author ankhazam@gmail.com Mikolaj Dobski
  * 
  * @author Aleś Bułojčyk (alex73mail@gmail.com)
  * 

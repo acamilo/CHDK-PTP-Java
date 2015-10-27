@@ -8,7 +8,7 @@ import org.usb4java.LibUsb;
 /**
  * Helper for some USB calls.
  * 
- * @author Aleś Bułojčyk <alex73mail@gmail.com>
+ * @author Aleś Bułojčyk alex73mail@gmail.com
  */
 public class UsbHelper {
     public static void reset(UsbDevice device) throws Exception {
