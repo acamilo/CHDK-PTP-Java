@@ -96,16 +96,16 @@ uploadArchives {
 		}
   
 		pom.project {
-		  name 'Bowler Scripting Kernel'
+		  name 'CHDK Camera interface for Java'
 		  packaging 'jar'
 		  // optionally artifactId can be defined here
-		  description 'A command line utility for accsing the bowler framework.'
+		  description 'A Java based interface for sending and receiving comands to CHDK cameras'
 		  url 'http://neuronrobotics.com'
   
 		  scm {
-			connection 			'scm:git:https://github.com/NeuronRobotics/bowler-script-kernel.git'
-			developerConnection 'scm:git:git@github.com:NeuronRobotics/bowler-script-kernel.git'
-			url 'https://github.com/NeuronRobotics/bowler-script-kernel'
+			connection 			'scm:git:https://github.com/acamilo/CHDK-PTP-Java'
+			developerConnection 'scm:git:git@github.com:acamilo/CHDK-PTP-Java.git'
+			url 'https://github.com/acamilo/CHDK-PTP-Java'
 		  }
   
 		  licenses {
