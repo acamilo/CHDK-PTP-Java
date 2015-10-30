@@ -4,6 +4,7 @@ apply plugin: 'eclipse'
 apply plugin: 'eclipse-wtp'
 apply plugin: 'project-report'
 apply plugin: 'semver'
+apply plugin: 'signing'
 //apply plugin: 'com.jfrog.artifactory-upload'
 
 sourceCompatibility = 1.7
@@ -66,6 +67,7 @@ task testsJar(type: Jar, dependsOn: classes) {
 artifacts {
     archives sourcesJar
     archives testsJar
+	archives jar
 }
 
 dependencies
@@ -75,3 +77,54 @@ dependencies
 
     testCompile 'junit:junit:4.11+'
 }
+
+signing {
+	sign configurations.archives
+}
+
+uploadArchives {
+	repositories {
+	  mavenDeployer {
+		beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+  
+		repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+		  authentication(userName: ossrhUsername, password: ossrhPassword)
+		}
+  
+		snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+		  authentication(userName: ossrhUsername, password: ossrhPassword)
+		}
+  
+		pom.project {
+		  name 'Bowler Scripting Kernel'
+		  packaging 'jar'
+		  // optionally artifactId can be defined here
+		  description 'A command line utility for accsing the bowler framework.'
+		  url 'http://neuronrobotics.com'
+  
+		  scm {
+			connection 			'scm:git:https://github.com/NeuronRobotics/bowler-script-kernel.git'
+			developerConnection 'scm:git:git@github.com:NeuronRobotics/bowler-script-kernel.git'
+			url 'https://github.com/NeuronRobotics/bowler-script-kernel'
+		  }
+  
+		  licenses {
+			license {
+			  name 'The Apache License, Version 2.0'
+			  url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+			}
+		  }
+  
+		  developers {
+			developer {
+			  id 'madhephaestus'
+			  name 'Kevin Harrington'
+			  email 'kharrington@neuronrobotics.com'
+			}
+		  }
+		}
+	  }
+	}
+  }
+
+
