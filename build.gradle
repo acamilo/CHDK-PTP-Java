@@ -8,8 +8,7 @@ apply plugin: 'signing'
 //apply plugin: 'com.jfrog.artifactory-upload'
 
 sourceCompatibility = 1.7
-project.version.with { major = 0; minor = 5; revision = 1 }
-group = 'org.chdk.ptp.java'
+project.version.with { major = 0; minor = 5; revision = 3 }
 
 //project.USER = "something"
 //project.PASSWORD = "random"
@@ -53,6 +52,13 @@ repositories
 //    }
 //}
 
+
+task javadocJar(type: Jar) {
+	classifier = 'javadoc'
+	from javadoc
+}
+
+
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier 'sources'
     from sourceSets.main.allSource
@@ -66,7 +72,7 @@ task testsJar(type: Jar, dependsOn: classes) {
 
 artifacts {
     archives sourcesJar
-    archives testsJar
+    archives javadocJar
 	archives jar
 }
 
@@ -77,6 +83,9 @@ dependencies
 
     testCompile 'junit:junit:4.11+'
 }
+
+group = "com.neuronrobotics"
+archivesBaseName = "CHDK-PTP-Java"
 
 signing {
 	sign configurations.archives
