@@ -36,3 +36,4 @@ local.properties
 *.log
 *.bin
 /gradle.properties
+gradle.properties
