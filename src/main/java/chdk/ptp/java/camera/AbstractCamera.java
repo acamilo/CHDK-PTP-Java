@@ -91,7 +91,7 @@ public abstract class AbstractCamera implements ICamera {
                 findCameraDevice();
             }
 
-            connection = getConenctionFromUSBDevice(device);
+            connection = getConnectionFromUSBDevice(device);
             cameraSerialNo = device.getSerialNumberString();
             log.info("Connected to camera");
         } catch (SecurityException | UsbException | UnsupportedEncodingException
@@ -517,7 +517,7 @@ public abstract class AbstractCamera implements ICamera {
     }
 
     @Override
-    public void setOperaionMode(CameraMode mode) throws PTPTimeoutException, GenericCameraException {
+    public void setOperationMode(CameraMode mode) throws PTPTimeoutException, GenericCameraException {
         if (getOperationMode() == mode) {
             return;
         }
@@ -676,7 +676,7 @@ public abstract class AbstractCamera implements ICamera {
         return (int) executeLuaQuery("return get_prop(" + prop + ");");
     }
 
-    private PTPConnection getConenctionFromUSBDevice(UsbDevice dev)
+    private PTPConnection getConnectionFromUSBDevice(UsbDevice dev)
             throws UnsupportedEncodingException, UsbDisconnectedException, UsbException,
             CameraConnectionException {
 

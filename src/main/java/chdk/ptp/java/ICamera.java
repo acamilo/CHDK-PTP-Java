@@ -227,7 +227,7 @@ public interface ICamera {
      *      set_record(0)</a>
      * 
      */
-    public void setOperaionMode(CameraMode mode) throws PTPTimeoutException, GenericCameraException;
+    public void setOperationMode(CameraMode mode) throws PTPTimeoutException, GenericCameraException;
 
     /**
      * Get camera resolution

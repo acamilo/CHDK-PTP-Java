@@ -23,7 +23,7 @@ public class CaptureDemo {
             cam = CameraFactory.getCamera();
             cam.connect();
             // switch to capture mode
-            cam.setOperaionMode(CameraMode.RECORD);
+            cam.setOperationMode(CameraMode.RECORD);
 
             cam.setZoom(150);
             // show taken image
