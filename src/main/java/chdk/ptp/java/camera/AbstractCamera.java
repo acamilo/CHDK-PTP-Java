@@ -36,6 +36,7 @@ import chdk.ptp.java.exception.CameraShootException;
 import chdk.ptp.java.exception.GenericCameraException;
 import chdk.ptp.java.exception.InvalidPacketException;
 import chdk.ptp.java.exception.PTPTimeoutException;
+import chdk.ptp.java.model.Button;
 import chdk.ptp.java.model.CameraMode;
 import chdk.ptp.java.model.FocusMode;
 import chdk.ptp.java.model.ImageResolution;
@@ -742,6 +743,11 @@ public abstract class AbstractCamera implements ICamera {
             log.log(Level.SEVERE, e.getLocalizedMessage(), e);
             throw new CameraConnectionException(e.getMessage());
         }
+    }
+    
+    @Override
+    public void clickButton(Button button) throws CameraConnectionException, PTPTimeoutException {
+    	this.executeLuaCommand("click('" + button.getCommand() + "')");
     }
 
 }
