@@ -353,6 +353,11 @@ public class CHDKScreenImage extends Packet {
 			return (byte) v;	
 	}
 
+	// illustration for the inserted & 0xFF
+	// byte test = (byte) 0xDE;
+	// System.out.println("in fact, " + ( test << 12 ) + " is very different from " + (( test & 0xFF) << 12 ) + 
+	//		" when by convention, you mean that test is an unsigned byte."); 
+
 	public byte yuv_to_r(byte y, byte v) {
 	    //System.out.println("y:0x" + Integer.toHexString(y & 0xFF));
 	    //System.out.println("v:0x" + Integer.toHexString(v));	
