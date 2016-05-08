@@ -338,8 +338,8 @@ public abstract class AbstractCamera implements ICamera {
             // oppcode 12 is transfer framebuffer
             p.encodeInt(PTPPacket.iPTPCommandARG0, PTPPacket.CHDK_GetDisplayData,
                     ByteOrder.LittleEndian);
-            // argument value 1 sends viewport
-            p.encodeInt(PTPPacket.iPTPCommandARG1, PTPPacket.CHDK_GetMemory, ByteOrder.LittleEndian);
+            // argument value 1 sends viewport, 4+8 is Bitmap
+            p.encodeInt(PTPPacket.iPTPCommandARG1, 1, ByteOrder.LittleEndian);
 
             connection.sendPTPPacket(p);
 
@@ -347,6 +347,7 @@ public abstract class AbstractCamera implements ICamera {
             p = connection.getResponse();
             byte[] viewPortData;
             if (p.getContainerCommand() == PTPPacket.PTP_USB_CONTAINER_DATA) {
+            	// log.info("data_size: " + p.decodeInt(PTPPacket.iPTPCommandARG0, ByteOrder.LittleEndian));
                 viewPortData = p.getData();
             } else {
                 String message = "SX50Camera did not respond to a Live View request with a data packet!";
@@ -401,12 +402,18 @@ public abstract class AbstractCamera implements ICamera {
                 connection.sendPTPPacket(ready);
 
                 PTPPacket response = connection.getResponse();
-
+                // isready: 0: not ready, lowest 2 bits: available image formats, 0x10000000: error
                 if (response.decodeInt(PTPPacket.iPTPCommandARG0, ByteOrder.LittleEndian) == 0x10000000)
                     throw new CameraConnectionException(
                             "camera doesn't think it's capturing an image");
-                else if (response.decodeInt(PTPPacket.iPTPCommandARG0, ByteOrder.LittleEndian) != 0)
-                    break;
+                else if (response.decodeInt(PTPPacket.iPTPCommandARG0, ByteOrder.LittleEndian) != 0) {
+                	// how chdkptp does it: filename =
+					// string.format('IMG_%04d',hdata.imgnum)
+					// log.info("imgnum = " +
+					// response.decodeInt(PTPPacket.iPTPCommandARG1,
+					// ByteOrder.LittleEndian));
+                	break;
+                }                    
                 else {
                     nTry++;
                     Thread.sleep(200);
@@ -428,8 +435,10 @@ public abstract class AbstractCamera implements ICamera {
             getChunk.encodeInt(PTPPacket.iPTPCommandARG1, 1, // image type
                     ByteOrder.LittleEndian);
 
-            // XXX: must be changed for over 10MB images
-            byte[] image = new byte[10000000];
+            // we need some sort of buffer here because ByteArrayOutputStream
+            // doesnt work as we might seek back in
+            // already written data
+            byte[] image = new byte[0];
             int position = 0; // position in the buffer.
             while (true) {
                 connection.sendPTPPacket(getChunk);
@@ -438,10 +447,22 @@ public abstract class AbstractCamera implements ICamera {
                 // log.debug(chunk);
                 PTPPacket response = connection.getResponse();
                 int offset = response.decodeInt(PTPPacket.iPTPCommandARG2, ByteOrder.LittleEndian);
-                log.info("Got Image Chunk! Offset: " + offset);
+                int chunkLength = chunk.getDataLength();
+                // log.info("Got Image Chunk! size: " + chunkLength + " offset: " + offset + " last:?");
+
                 if (offset != -1) {
                     position = offset;
                     // log.debug("Seeking");
+                }
+                int newSize = position + chunkLength;
+
+                // hack for buffer resizing
+                // might be resonable to grow and arraycopy, because usually an
+                // image consists of 2 packets...
+                if (newSize > image.length) {
+                	byte[] imageTmpBigger = new byte[newSize];
+                	System.arraycopy(image, 0, imageTmpBigger, 0, image.length);
+                	image = imageTmpBigger;
                 }
 
                 System.arraycopy(chunk.getData(), 0, image, position, chunk.getDataLength());
@@ -591,6 +612,9 @@ public abstract class AbstractCamera implements ICamera {
 
     @Override
     public void setZoom(int zoomPosition) throws PTPTimeoutException, GenericCameraException {
+		if (zoomPosition > getZoomSteps()) {
+			return;
+		}
         int waitTime = (int) ((Math.abs(zoomPosition - getZoom()) * 1.0 / getZoomSteps()) * 4000.0) + 500;
         this.executeLuaCommand("set_zoom(" + zoomPosition + ");");
         try {
