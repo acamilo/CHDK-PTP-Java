@@ -266,7 +266,7 @@ public abstract class AbstractCamera implements ICamera {
             int type = p.decodeInt(PTPPacket.iPTPCommandARG0, ByteOrder.LittleEndian);
             int subType = p.decodeInt(PTPPacket.iPTPCommandARG1, ByteOrder.LittleEndian);
             int scriptIdMsg = p.decodeInt(PTPPacket.iPTPCommandARG2, ByteOrder.LittleEndian);
-            int size = p.decodeInt(PTPPacket.iPTPCommandARG3, ByteOrder.LittleEndian);
+            // int size = p.decodeInt(PTPPacket.iPTPCommandARG3, ByteOrder.LittleEndian);
 
             if (scriptIdMsg == 0) {
                 return null;
