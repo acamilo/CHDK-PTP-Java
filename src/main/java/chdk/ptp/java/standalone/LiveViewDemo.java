@@ -37,6 +37,10 @@ import chdk.ptp.java.model.ImageResolution;
  */
 public class LiveViewDemo extends JFrame {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6369236757029148622L;
 	private static ICamera cam = null;
 	static BufferedImagePanel imageLive = new BufferedImagePanel();
 	static BufferedImagePanel imageShoot = new BufferedImagePanel();

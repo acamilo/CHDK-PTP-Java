@@ -10,6 +10,11 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 class BufferedImagePanel extends JPanel {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8642722090642508800L;
 	BufferedImage image;
 	JFrame frame;
 
