@@ -6,6 +6,7 @@ import chdk.ptp.java.exception.CameraConnectionException;
 import chdk.ptp.java.exception.CameraShootException;
 import chdk.ptp.java.exception.GenericCameraException;
 import chdk.ptp.java.exception.PTPTimeoutException;
+import chdk.ptp.java.model.Button;
 import chdk.ptp.java.model.CameraMode;
 import chdk.ptp.java.model.FocusMode;
 import chdk.ptp.java.model.ImageResolution;
@@ -37,6 +38,9 @@ public interface ICamera {
      */
     public void disconnect() throws CameraConnectionException;
 
+    
+    public void clickButton(Button button) throws CameraConnectionException, PTPTimeoutException;
+    
     /**
      * Submits provided Lua command for execution on camera.
      * 
@@ -227,7 +231,7 @@ public interface ICamera {
      *      set_record(0)</a>
      * 
      */
-    public void setOperaionMode(CameraMode mode) throws PTPTimeoutException, GenericCameraException;
+    public void setOperationMode(CameraMode mode) throws PTPTimeoutException, GenericCameraException;
 
     /**
      * Get camera resolution

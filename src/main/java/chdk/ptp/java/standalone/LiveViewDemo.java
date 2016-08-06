@@ -37,6 +37,10 @@ import chdk.ptp.java.model.ImageResolution;
  */
 public class LiveViewDemo extends JFrame {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6369236757029148622L;
 	private static ICamera cam = null;
 	static BufferedImagePanel imageLive = new BufferedImagePanel();
 	static BufferedImagePanel imageShoot = new BufferedImagePanel();
@@ -534,9 +538,9 @@ public class LiveViewDemo extends JFrame {
 			} else if (op == OP_CMD) {
 				return cam.executeLuaQuery(param[0].toString());
 			} else if (op == OP_PLAY) {
-				cam.setOperaionMode(CameraMode.PLAYBACK);
+				cam.setOperationMode(CameraMode.PLAYBACK);
 			} else if (op == OP_REC) {
-				cam.setOperaionMode(CameraMode.RECORD);
+				cam.setOperationMode(CameraMode.RECORD);
 			} else if (op == OP_RES) {
 				cam.setImageResolution((ImageResolution) param[0]);
 			}

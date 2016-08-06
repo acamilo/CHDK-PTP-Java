@@ -17,7 +17,7 @@ import chdk.ptp.java.exception.InvalidPacketException;
 import chdk.ptp.java.exception.PTPTimeoutException;
 
 public class PTPConnection {
-    private static final String PTP_USB_CONTAINER_COMMAND = null;
+    // private static final String PTP_USB_CONTAINER_COMMAND = null;
     private int Seq = 0;
     UsbPipe camInpipe = null;
     UsbPipe camOutpipe = null;
@@ -62,11 +62,11 @@ public class PTPConnection {
     public void sendPTPPacket(PTPPacket p) throws CameraConnectionException {
         try {
 
-            if (p.getContainerCommand() == p.PTP_USB_CONTAINER_COMMAND)
+            if (p.getContainerCommand() == PTPPacket.PTP_USB_CONTAINER_COMMAND)
                 Seq++;// if its a new outgoing command
             // chdk.ptp.java.connection.packet, inc seq counter
             // Send init command
-            long startTime = System.nanoTime();
+            // long startTime = System.nanoTime();
             p.setTransaction(Seq);
             write = camOutpipe.createUsbIrp();
             write.setData(p.getPacket());
@@ -76,7 +76,7 @@ public class PTPConnection {
 
             camOutpipe.syncSubmit(write);
             write.waitUntilComplete(10000);
-            long stopTime = System.nanoTime();
+            // long stopTime = System.nanoTime();
             // System.out.println("TX Delta:\t"+((stopTime -
             // startTime)/(float)10000000)+"ms");
             // System.out.print(p);

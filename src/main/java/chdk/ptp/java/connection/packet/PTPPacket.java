@@ -146,24 +146,24 @@ public class PTPPacket extends Packet {
 	@Override
 	public String toString() {
 		String DIR = "";
-		if (this.getContainerCommand() == this.PTP_USB_CONTAINER_COMMAND)
+		if (this.getContainerCommand() == PTPPacket.PTP_USB_CONTAINER_COMMAND)
 			DIR = " >>>";
-		if (this.getContainerCommand() == this.PTP_USB_CONTAINER_DATA)
+		if (this.getContainerCommand() == PTPPacket.PTP_USB_CONTAINER_DATA)
 			DIR = " ***";
-		if (this.getContainerCommand() == this.PTP_USB_CONTAINER_RESPONSE)
+		if (this.getContainerCommand() == PTPPacket.PTP_USB_CONTAINER_RESPONSE)
 			DIR = " <<<";
-		if (this.getContainerCommand() == this.PTP_USB_CONTAINER_EVENT)
+		if (this.getContainerCommand() == PTPPacket.PTP_USB_CONTAINER_EVENT)
 			DIR = " <<<!";
 
 		String r = "PTP Packet" + DIR + "\n\tLength:\t\t" + this.getLength()
 				+ "\n\tType:\t\t";
-		if (this.getContainerCommand() == this.PTP_USB_CONTAINER_COMMAND)
+		if (this.getContainerCommand() == PTPPacket.PTP_USB_CONTAINER_COMMAND)
 			r += "Command(1)\n";
-		else if (this.getContainerCommand() == this.PTP_USB_CONTAINER_DATA)
+		else if (this.getContainerCommand() == PTPPacket.PTP_USB_CONTAINER_DATA)
 			r += "Data(2)\n";
-		else if (this.getContainerCommand() == this.PTP_USB_CONTAINER_RESPONSE)
+		else if (this.getContainerCommand() == PTPPacket.PTP_USB_CONTAINER_RESPONSE)
 			r += "Response(3)\n";
-		else if (this.getContainerCommand() == this.PTP_USB_CONTAINER_EVENT)
+		else if (this.getContainerCommand() == PTPPacket.PTP_USB_CONTAINER_EVENT)
 			r += "Event(4)\n";
 		else
 			r += "Unknown(" + this.getContainerCommand() + ")\n";

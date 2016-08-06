@@ -34,7 +34,7 @@ public class LiveViewApiDemo {
 				e.printStackTrace();
 			}
 			cam.connect();
-			cam.setOperaionMode(CameraMode.RECORD);
+			cam.setOperationMode(CameraMode.RECORD);
 			d = new BufferedImagePanel(cam.getView(), true);
 		} catch (PTPTimeoutException | GenericCameraException e1) {
 			e1.printStackTrace();

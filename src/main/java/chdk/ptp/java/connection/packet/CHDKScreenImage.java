@@ -41,10 +41,10 @@ public class CHDKScreenImage extends Packet {
 	public BufferedImage decodeViewport() {
 		// each group of 4 is represented by 6 bytes
 		int buflen = ((this.viewportBufferWidth() * this
-				.viewportVisableHeight()) / 4) * 6;
+				.viewportVisibleHeight()) / 4) * 6;
 
 		BufferedImage b = new BufferedImage(this.viewportBufferWidth(),
-				this.viewportVisableHeight(), BufferedImage.TYPE_INT_ARGB);
+				this.viewportVisibleHeight(), BufferedImage.TYPE_INT_RGB);
 		WritableRaster raster = b.getRaster();
 		DataBufferInt dataBuffer = (DataBufferInt) raster.getDataBuffer();
 		int[] convertedImageArray = dataBuffer.getData();
@@ -59,19 +59,19 @@ public class CHDKScreenImage extends Packet {
 			byte y2 = buf[(i + offset) + 4];
 			byte y3 = buf[(i + offset) + 5];
 
-			convertedImageArray[rgbIndex + 0] = ((byte) 0xff) << 24 | // Alpha
+			convertedImageArray[rgbIndex + 0] = // Alpha
 					(yuv_to_r(y0, v) << 16) & (0xff0000) | // Red
 					(yuv_to_g(y0, v, u) << 8) & (0xff00) | // Green
 					(yuv_to_b(y0, u)) & (0xff); // Blue
-			convertedImageArray[rgbIndex + 1] = ((byte) 0xff) << 24 | // Alpha
+			convertedImageArray[rgbIndex + 1] = // Alpha
 					(yuv_to_r(y1, v) << 16) & (0xff0000) | // Red
 					(yuv_to_g(y1, v, u) << 8) & (0xff00) | // Green
 					(yuv_to_b(y1, u)) & (0xff); // Blue; // Blue
-			convertedImageArray[rgbIndex + 2] = ((byte) 0xff) << 24 | // Alpha
+			convertedImageArray[rgbIndex + 2] = // Alpha
 					(yuv_to_r(y2, v) << 16) & (0xff0000) | // Red
 					(yuv_to_g(y2, v, u) << 8) & (0xff00) | // Green
 					(yuv_to_b(y2, u)) & (0xff); // Blue // Blue
-			convertedImageArray[rgbIndex + 3] = ((byte) 0xff) << 24 | // Alpha
+			convertedImageArray[rgbIndex + 3] = // Alpha
 					(yuv_to_r(y3, v) << 16) & (0xff0000) | // Red
 					(yuv_to_g(y3, v, u) << 8) & (0xff00) | // Green
 					(yuv_to_b(y3, u)) & (0xff); // Blue // Blue
@@ -110,8 +110,8 @@ public class CHDKScreenImage extends Packet {
 			r += "[Valid Image]";
 		r += "\n";
 		r += "\t\tBuffer Width:\t\t\t" + viewportBufferWidth() + "\n";
-		r += "\t\tBuffer Visable Width:\t\t" + viewportVisableWidth() + "\n";
-		r += "\t\tBuffer Visable Height:\t\t" + viewportVisableHeight() + "\n";
+		r += "\t\tBuffer Visable Width:\t\t" + viewportVisibleWidth() + "\n";
+		r += "\t\tBuffer Visable Height:\t\t" + viewportVisibleHeight() + "\n";
 		r += "\t\tMargin Left:\t\t\t" + viewportMarginLeft() + "\n";
 		r += "\t\tMargin Top:\t\t\t" + viewportMarginTop() + "\n";
 		r += "\t\tMargin Right:\t\t\t" + viewportMarginRight() + "\n";
@@ -246,12 +246,12 @@ public class CHDKScreenImage extends Packet {
 	 * the additional data should be skipped visible_height also defines the
 	 * number of data rows
 	 */
-	public int viewportVisableWidth() {
+	public int viewportVisibleWidth() {
 		return this.decodeInt(iDescriptorFrameBufferVisibleWidth
 				+ getViewportDescriptorStart(), ByteOrder.LittleEndian);
 	}
 
-	public int viewportVisableHeight() {
+	public int viewportVisibleHeight() {
 		return this.decodeInt(iDescriptorFrameBufferVisibleHeight
 				+ getViewportDescriptorStart(), ByteOrder.LittleEndian);
 	}
@@ -342,20 +342,34 @@ public class CHDKScreenImage extends Packet {
 				+ getBitmapDescriptorStart(), ByteOrder.LittleEndian);
 	}
 
+	// watch out for the sign extensions when you use (java signed) byte, but for
+	// y's you actually _mean_ unsigned byte.
 	public byte clip_yuv(int v) {
-		return (byte) v;
+		if (v > 255)
+			return (byte) 0xFF; // cap on 255
+		else if (v< 0)
+			return (byte) 0x00;
+		else 
+			return (byte) v;	
 	}
+
+	// illustration for the inserted & 0xFF
+	// byte test = (byte) 0xDE;
+	// System.out.println("in fact, " + ( test << 12 ) + " is very different from " + (( test & 0xFF) << 12 ) + 
+	//		" when by convention, you mean that test is an unsigned byte."); 
 
 	public byte yuv_to_r(byte y, byte v) {
-		return clip_yuv(((y << 12) + v * 5743 + 2048) >> 12);
+	    //System.out.println("y:0x" + Integer.toHexString(y & 0xFF));
+	    //System.out.println("v:0x" + Integer.toHexString(v));	
+		return clip_yuv((((y & 0xFF) << 12) + v * 5743 + 2048) >> 12);
 	}
-
+	
 	public byte yuv_to_g(byte y, byte u, byte v) {
-		return clip_yuv(((y << 12) - u * 1411 - v * 2925 + 2048) >> 12);
+		return clip_yuv((((y & 0xFF) << 12) - u * 1411 - v * 2925 + 2048) >> 12);
 	}
 
 	public byte yuv_to_b(byte y, byte u) {
-		return clip_yuv(((y << 12) + u * 7258 + 2048) >> 12);
+		return clip_yuv((((y & 0xFF) << 12) + u * 7258 + 2048) >> 12);
 	}
 
 }
