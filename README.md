@@ -131,3 +131,9 @@ solition is to either kill gvfs-gphoto2-volume-monitor or to make it perminent, 
 
 ### Other OSes ##
 This uses libusb4java so it probably works in windows and mac. I've never tried it though.
+
+### USB IDs
+
+<http://www.linux-usb.org/usb.ids>
+
+04a9  Canon, Inc. - 322a  PowerShot A2200

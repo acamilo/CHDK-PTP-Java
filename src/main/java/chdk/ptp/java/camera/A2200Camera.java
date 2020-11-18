@@ -1,20 +1,19 @@
 package chdk.ptp.java.camera;
 
 import chdk.ptp.java.SupportedCamera;
-import chdk.ptp.java.exception.CameraConnectionException;
-import chdk.ptp.java.exception.CameraShootException;
 import chdk.ptp.java.exception.GenericCameraException;
 import chdk.ptp.java.exception.PTPTimeoutException;
 import chdk.ptp.java.model.FocusMode;
-import java.awt.image.BufferedImage;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.usb.UsbDevice;
 
-public class SX160ISCamera extends FailSafeCamera {
-  private Logger log = Logger.getLogger(SX160ISCamera.class.getName());
+/** A2200Camera implementation. */
+public class A2200Camera extends FailSafeCamera {
 
-  public SX160ISCamera(UsbDevice device) {
+  private Logger log = Logger.getLogger(A2200Camera.class.getName());
+
+  public A2200Camera(UsbDevice device) {
     super(device);
   }
 
@@ -23,13 +22,13 @@ public class SX160ISCamera extends FailSafeCamera {
    *
    * @param SerialNo canon camera serial number
    */
-  public SX160ISCamera(String SerialNo) {
+  public A2200Camera(String SerialNo) {
     super(SerialNo);
   }
 
   @Override
   public SupportedCamera getCameraInfo() {
-    return SupportedCamera.SX160IS;
+    return SupportedCamera.SX50HS;
   }
 
   @Override
@@ -43,11 +42,11 @@ public class SX160ISCamera extends FailSafeCamera {
             return;
           case MF:
             try {
-              this.executeLuaCommand("click('left')");
+              this.executeLuaCommand("click('left');");
               Thread.sleep(1000);
-              this.executeLuaCommand("click('left')");
+              this.executeLuaCommand("click('left');");
               Thread.sleep(500);
-              this.executeLuaCommand("click('set')");
+              this.executeLuaCommand("click('set');");
               Thread.sleep(1000);
             } catch (InterruptedException e) {
               log.log(Level.SEVERE, e.getLocalizedMessage(), e);
@@ -68,13 +67,13 @@ public class SX160ISCamera extends FailSafeCamera {
         switch (currentFocusMode) {
           case AUTO:
             try {
-              this.executeLuaCommand("click('left')");
+              this.executeLuaCommand("click('left');");
               Thread.sleep(1000);
-              this.executeLuaCommand("click('right')");
+              this.executeLuaCommand("click('right');");
               Thread.sleep(500);
-              this.executeLuaCommand("click('set')");
+              this.executeLuaCommand("click('set');");
               Thread.sleep(1000);
-              this.executeLuaCommand("click('set')");
+              this.executeLuaCommand("click('set');");
               Thread.sleep(1000);
             } catch (InterruptedException e) {
               log.log(Level.SEVERE, e.getLocalizedMessage(), e);
@@ -101,20 +100,13 @@ public class SX160ISCamera extends FailSafeCamera {
   /*
    * (non-Javadoc)
    *
-   * @see chdk.ptp.java.camera.AbstractCamera#getPicture()
+   * @see chdk.ptp.java.camera.AbstractCamera#setZoom(int)
    */
   @Override
-  public BufferedImage getPicture() throws CameraConnectionException, CameraShootException {
-    try {
-      return super.getPicture();
-    } finally {
-      // try to uninit
-      try {
-        // do sad. but seem i need to do it on sx160is
-        this.executeLuaQuery("return init_usb_capture(0)");
-      } catch (CameraConnectionException | PTPTimeoutException ex) {
-        throw new CameraConnectionException(ex.getMessage());
-      }
-    }
+  public void setZoom(int zoomPosition) throws PTPTimeoutException, GenericCameraException {
+    // need to switch to AF or camera would crash
+    setFocusMode(FocusMode.AUTO);
+    // set zoom
+    super.setZoom(zoomPosition);
   }
 }
