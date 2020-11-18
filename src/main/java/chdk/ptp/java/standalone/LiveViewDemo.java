@@ -18,6 +18,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
+import java.util.Optional;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -42,7 +43,7 @@ public class LiveViewDemo extends JFrame {
   static Thread threadView = null;
 
   public LiveViewDemo() {
-    intGui();
+    initGui();
     initActions();
   }
 
@@ -77,7 +78,7 @@ public class LiveViewDemo extends JFrame {
   JButton jBtnLive = null;
   JComboBox<ImageResolution> jcboResol = null;
 
-  private void intGui() {
+  private void initGui() {
 
     JPanel jPanTop = new javax.swing.JPanel();
     jcboCameras = new JComboBox();
@@ -117,7 +118,7 @@ public class LiveViewDemo extends JFrame {
                     .addComponent(
                         jcboCameras,
                         javax.swing.GroupLayout.PREFERRED_SIZE,
-                        300,
+                        600,
                         javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGap(18, 18, 18)
                     .addComponent(jBtnConnect)
@@ -346,13 +347,23 @@ public class LiveViewDemo extends JFrame {
       for (CameraUsbDevice cameraUsbDevice : cameras) {
         jcboCameras.addItem(cameraUsbDevice);
       }
+      jcboCameras.addActionListener(
+          new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+              JComboBox cb = (JComboBox) e.getSource();
+              CameraUsbDevice selectedCamera = (CameraUsbDevice) cb.getSelectedItem();
+              System.out.println(selectedCamera.toString());
+            }
+          });
 
       jBtnConnect.addActionListener(
           new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-              commandCamera(OP_CONNECT);
+              CameraUsbDevice selectedCamera = (CameraUsbDevice) jcboCameras.getSelectedItem();
+              commandCamera(selectedCamera, OP_CONNECT);
             }
           });
 
@@ -479,6 +490,38 @@ public class LiveViewDemo extends JFrame {
         });
   }
 
+  private synchronized Object commandCamera(
+      CameraUsbDevice selectedUsbDevice, int op, Object... param) {
+    try {
+      Collection<ICamera> cameras = CameraFactory.getCameras();
+      Optional<ICamera> selectedCameraOpt =
+          cameras.stream()
+              .filter(
+                  c ->
+                      c.getUsbDevice().getParentUsbPort().getPortNumber()
+                          == selectedUsbDevice.getDevice().getParentUsbPort().getPortNumber())
+              .findFirst();
+      if (selectedCameraOpt.isEmpty()) {
+        return null;
+      }
+      ICamera selectedCamera = selectedCameraOpt.get();
+      if (cam == null) {
+        cam = selectedCamera;
+      } else {
+        if (cam.getUsbDevice().getParentUsbPort().getPortNumber()
+            == selectedCamera.getUsbDevice().getParentUsbPort().getPortNumber()) {
+          cam.disconnect();
+          cam = selectedCamera;
+        }
+      }
+      return commandCamera(op, param);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      jTextAreaLog.append(">>>" + ex.getLocalizedMessage() + "\n");
+    }
+    return null;
+  }
+
   private synchronized Object commandCamera(int op, Object... param) {
     try {
       if (op == OP_CONNECT) {
@@ -555,6 +598,7 @@ public class LiveViewDemo extends JFrame {
   }
 
   private class KeepAliveRunnable implements Runnable {
+
     @Override
     public void run() {
       while (isConnected) {
