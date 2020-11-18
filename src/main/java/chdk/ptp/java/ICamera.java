@@ -9,6 +9,7 @@ import chdk.ptp.java.model.CameraMode;
 import chdk.ptp.java.model.FocusMode;
 import chdk.ptp.java.model.ImageResolution;
 import java.awt.image.BufferedImage;
+import javax.usb.UsbDevice;
 
 /**
  * Standardized to Canon CHDK-enabled cameras.
@@ -68,6 +69,8 @@ public interface ICamera {
    * @throws CameraConnectionException on error
    */
   public BufferedImage getPicture() throws CameraConnectionException, CameraShootException;
+
+  public UsbDevice getUsbDevice();
 
   /**
    * Takes picture with current camera settings and downloads the image.

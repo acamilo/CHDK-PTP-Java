@@ -125,6 +125,11 @@ public abstract class AbstractCamera implements ICamera {
   }
 
   @Override
+  public UsbDevice getUsbDevice() {
+    return this.device;
+  }
+
+  @Override
   public void disconnect() throws CameraConnectionException {
     try {
       connection.close();
