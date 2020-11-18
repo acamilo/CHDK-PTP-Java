@@ -209,7 +209,7 @@ public abstract class AbstractCamera implements ICamera {
   }
 
   private void waitScriptReady() throws CameraConnectionException {
-    boolean sctriptRunning = true;
+    boolean scriptRunning = true;
     try {
       do {
         // get status
@@ -226,12 +226,12 @@ public abstract class AbstractCamera implements ICamera {
 
         int scriptStatus = p.decodeByte(PTPPacket.iPTPCommandARG0);
         if (scriptStatus != PTPPacket.PTP_CHDK_SCRIPT_STATUS_RUN) {
-          sctriptRunning = false;
+          scriptRunning = false;
         } else {
           Thread.sleep(100);
         }
 
-      } while (sctriptRunning);
+      } while (scriptRunning);
     } catch (Exception e) {
       log.log(Level.SEVERE, e.getLocalizedMessage(), e);
       throw new CameraConnectionException(e.getMessage());
