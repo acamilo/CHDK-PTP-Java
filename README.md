@@ -3,6 +3,7 @@
 Pure Java (jsr80 usb) interface to the Canon cameras running CHDK PTP
 
 Interface reference https://github.com/c10ud/CHDK/blob/master/core/ptp.h
+(not found anymore, so this may be the same?: <https://github.com/DIYBookScanner/chdk/blob/master/chdk/core/ptp.h>)
 
 ## Introduction
 
