@@ -1,9 +1,20 @@
-CHDK-PTP-Java
-=============
+# CHDK-PTP-Java
 
-Pure Java (jsr80 usb) interface to the Cannon cameras running CHDK PTP
+Pure Java (jsr80 usb) interface to the Canon cameras running CHDK PTP
 
 Interface reference https://github.com/c10ud/CHDK/blob/master/core/ptp.h
+
+## Introduction
+
+Forked from <https://github.com/acamilo/CHDK-PTP-Java> on Wednesday, 18 November 2020.
+
+Values added:
+
+* Migrating it to a Maven project.
+* Adding Code formatting plugin
+* fixed typos
+* Adding Canon A2200 camera (LiveViewDemo working)
+
 
 ### Using in other project ###
 This code is has mirrored public repository available under:
@@ -114,7 +125,7 @@ on some OSes gvfs will grab the PTP device and you'll get this error.
 javax.usb.UsbPlatformException: USB error 6: Unable to claim interface: Resource busy
 ```
 
-The solutionin ubuntu is this. 
+The solution in ubuntu is this. 
 
 ```
 gsettings set org.gnome.desktop.media-handling automount false
