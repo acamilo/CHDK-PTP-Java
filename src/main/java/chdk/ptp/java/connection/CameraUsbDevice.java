@@ -50,6 +50,12 @@ public class CameraUsbDevice {
 
   @Override
   public String toString() {
-    return productString + " - VID: " + idVendor + " - PID: " + idProduct;
+    return productString
+        + " - VID: "
+        + idVendor
+        + " - PID: "
+        + idProduct
+        + " - Port: "
+        + device.getParentUsbPort().getPortNumber();
   }
 }
