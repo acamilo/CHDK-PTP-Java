@@ -64,9 +64,6 @@ public class PTPConnection {
 
   public void sendPTPPacket(PTPPacket p) throws CameraConnectionException {
     try {
-      if (p.getPacket().length == 0) {
-        return;
-      }
       if (p.getContainerCommand() == PTPPacket.PTP_USB_CONTAINER_COMMAND) {
         Seq++; // if its a new outgoing command
       }
