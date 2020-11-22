@@ -390,7 +390,7 @@ public abstract class AbstractCamera implements ICamera {
       executeLuaCommand("init_usb_capture(1,0,0);");
       // init capture, we have 3 seconds to take a picture
 
-      Thread.sleep(1000); // there needs to be a delay between this and
+      Thread.sleep(100); // there needs to be a delay between this and
       // the one below or camera will freak out
       executeLuaCommand("shoot();"); // take picture
 
