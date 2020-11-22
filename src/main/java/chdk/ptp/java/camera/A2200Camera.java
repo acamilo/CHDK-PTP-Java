@@ -28,7 +28,7 @@ public class A2200Camera extends FailSafeCamera {
 
   @Override
   public SupportedCamera getCameraInfo() {
-    return SupportedCamera.SX50HS;
+    return SupportedCamera.A2200;
   }
 
   @Override
