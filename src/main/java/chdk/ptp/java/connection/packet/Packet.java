@@ -33,9 +33,6 @@ public class Packet {
   }
 
   public int decodeInt(int index, ByteOrder order) {
-    if (packet.length == 0) {
-      return 0;
-    }
     switch (order) {
       case LittleEndian:
         return (0x000000ff & packet[index])
