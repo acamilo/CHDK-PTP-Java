@@ -70,7 +70,7 @@ public enum SupportedCamera {
     return null;
   }
 
-  public static boolean isSuportedCamera(short idVendor, short idProduct) {
+  public static boolean isSupportedCamera(short idVendor, short idProduct) {
     return getCamera(idVendor, idProduct) != null;
   }
 }

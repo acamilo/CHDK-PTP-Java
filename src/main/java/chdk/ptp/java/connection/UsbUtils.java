@@ -249,7 +249,7 @@ public class UsbUtils {
       if (usbDevice.isUsbHub()) {
         list.addAll(listAttachedCameras((UsbHub) usbDevice));
       } else {
-        if (SupportedCamera.isSuportedCamera(desc.idVendor(), desc.idProduct())) {
+        if (SupportedCamera.isSupportedCamera(desc.idVendor(), desc.idProduct())) {
           try {
             list.add(
                 new CameraUsbDevice(
