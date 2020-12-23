@@ -615,8 +615,8 @@ public abstract class AbstractCamera implements ICamera {
       // 0x01	set_focus() works in AutoFocus mode (i.e. MF or AFL not active)
       // 0x02	set_focus() works when AFL active (see set_aflock() command)
       // 0x04	set_focus() works when MF active (see set_mf() command)
-//      int sdOverModes = this.executeLuaCommand("return get_sd_over_modes();");
-//      String sdOverModesHex = Integer.toHexString(sdOverModes);
+      //      int sdOverModes = this.executeLuaCommand("return get_sd_over_modes();");
+      //      String sdOverModesHex = Integer.toHexString(sdOverModes);
       setFocusMode(FocusMode.MF);
       this.executeLuaCommand("set_focus(" + focusingDistance + ");");
       Thread.sleep(500);
