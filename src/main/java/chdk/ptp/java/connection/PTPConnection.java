@@ -20,7 +20,6 @@ public class PTPConnection {
   private int Seq = 0;
   UsbPipe camInpipe = null;
   UsbPipe camOutpipe = null;
-  Boolean isConnected = false;
   UsbIrp read, write;
   byte[] recbuf = new byte[43948288];
 

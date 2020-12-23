@@ -21,6 +21,9 @@ public interface ICamera {
   /** @return access object to camera driver implementation */
   SupportedCamera getCameraInfo();
 
+  /** @return true if camera currently is in connected state */
+  public boolean isConnected();
+
   /**
    * Connect via PTP to camera.
    *

@@ -51,6 +51,7 @@ public abstract class AbstractCamera implements ICamera {
   private String cameraSerialNo = "";
   private UsbDevice device = null;
   private int zoomStepsCache = -1;
+  private boolean isConnected = false;
 
   public PTPConnection getPTPConnection() {
     return connection;
@@ -84,23 +85,26 @@ public abstract class AbstractCamera implements ICamera {
    */
   @Override
   public void connect() throws CameraConnectionException {
-    try {
-      if (device == null) {
-        findCameraDevice();
-      }
+    if (!isConnected) {
+      try {
+        if (device == null) {
+          findCameraDevice();
+        }
 
-      connection = getConnectionFromUSBDevice(device);
-      cameraSerialNo = device.getSerialNumberString();
-      log.info("Connected to camera");
-    } catch (SecurityException
-        | UsbException
-        | UnsupportedEncodingException
-        | UsbDisconnectedException
-        | CameraNotFoundException e) {
-      String message = "Could not connect to camera device: " + e.getLocalizedMessage();
-      log.log(Level.SEVERE, message, e);
-      e.printStackTrace();
-      throw new CameraConnectionException(message);
+        connection = getConnectionFromUSBDevice(device);
+        isConnected = true;
+        cameraSerialNo = device.getSerialNumberString();
+        log.info("Connected to camera");
+      } catch (SecurityException
+          | UsbException
+          | UnsupportedEncodingException
+          | UsbDisconnectedException
+          | CameraNotFoundException e) {
+        String message = "Could not connect to camera device: " + e.getLocalizedMessage();
+        log.log(Level.SEVERE, message, e);
+        e.printStackTrace();
+        throw new CameraConnectionException(message);
+      }
     }
   }
 
@@ -113,14 +117,18 @@ public abstract class AbstractCamera implements ICamera {
     UsbServices services = UsbHostManager.getUsbServices();
     UsbHub rootHub = services.getRootUsbHub();
 
-    if (!cameraSerialNo.isEmpty())
+    if (!cameraSerialNo.isEmpty()) {
       cameraDevice = UsbUtils.findDeviceBySerialNumber(rootHub, cameraSerialNo);
+    }
 
-    if (getCameraInfo().getPID() != -1 && getCameraInfo().getVendorID() != -1)
+    if (getCameraInfo().getPID() != -1 && getCameraInfo().getVendorID() != -1) {
       cameraDevice =
           UsbUtils.findDevice(rootHub, getCameraInfo().getVendorID(), getCameraInfo().getPID());
+    }
 
-    if (cameraDevice == null) throw new CameraNotFoundException();
+    if (cameraDevice == null) {
+      throw new CameraNotFoundException();
+    }
     this.device = cameraDevice;
   }
 
@@ -133,6 +141,7 @@ public abstract class AbstractCamera implements ICamera {
   public void disconnect() throws CameraConnectionException {
     try {
       connection.close();
+      isConnected = false;
       log.info("Disconnected from camera");
     } catch (Exception e) {
       String message = "Failed to disconnect from camera: " + e.getLocalizedMessage();
@@ -143,11 +152,13 @@ public abstract class AbstractCamera implements ICamera {
   }
 
   @Override
-  public int executeLuaCommand(String command)
+  public synchronized int executeLuaCommand(String command)
       throws PTPTimeoutException, CameraConnectionException {
 
     StringBuilder formattedCommand = new StringBuilder(command);
-    if (!formattedCommand.toString().endsWith(";")) formattedCommand.append(';');
+    if (!formattedCommand.toString().endsWith(";")) {
+      formattedCommand.append(';');
+    }
     log.info("Executing: \t\"" + formattedCommand.toString() + "\"");
 
     // preparing command packet
@@ -186,13 +197,18 @@ public abstract class AbstractCamera implements ICamera {
     return scriptId;
   }
 
+  @Override
+  public boolean isConnected() {
+    return isConnected;
+  }
+
   private boolean isResponseOK(PTPPacket p) {
     return p.getContainerCommand() == PTPPacket.PTP_USB_CONTAINER_RESPONSE
         && p.getOppcode() == PTPPacket.PTP_OPPCODE_Response_OK;
   }
 
   @Override
-  public Object executeLuaQuery(String command)
+  public synchronized Object executeLuaQuery(String command)
       throws PTPTimeoutException, CameraConnectionException {
     int scriptId = executeLuaCommand(command);
 
@@ -281,9 +297,9 @@ public abstract class AbstractCamera implements ICamera {
       if (scriptId != scriptIdMsg) {
         // oops!!
         throw new CameraConnectionException(
-            "could not read script response. Is camera operations thread-safe?Script Run: "
+            "could not read script response. Is camera operations thread-safe? Script-ID Run: "
                 + scriptId
-                + ", Script Msg: "
+                + ", Script-ID Msg: "
                 + scriptIdMsg);
       }
 
@@ -321,7 +337,6 @@ public abstract class AbstractCamera implements ICamera {
     // (*msg)->subtype = ptp.Param2;
     // (*msg)->script_id = ptp.Param3;
     // (*msg)->size = ptp.Param4;
-
     return msg;
   }
 
@@ -355,15 +370,17 @@ public abstract class AbstractCamera implements ICamera {
         // log.info("data_size: " + p.decodeInt(PTPPacket.iPTPCommandARG0, ByteOrder.LittleEndian));
         viewPortData = p.getData();
       } else {
-        String message = "SX50Camera did not respond to a Live View request with a data packet!";
+        String message = "Camera did not respond to a Live View request with a data packet!";
         log.log(Level.SEVERE, message);
         throw new CameraConnectionException(message);
       }
 
       p = connection.getResponse();
-      if (isResponseOK(p)) return viewPortData;
+      if (isResponseOK(p)) {
+        return viewPortData;
+      }
       String message =
-          "SX50Camera did not end session with an OK response even though a data packet was sent!";
+          "Camera did not end session with an OK response even though a data packet was sent!";
       log.log(Level.SEVERE, message);
       throw new CameraConnectionException(message);
     } catch (InvalidPacketException | PTPTimeoutException e) {
@@ -408,9 +425,9 @@ public abstract class AbstractCamera implements ICamera {
 
         PTPPacket response = connection.getResponse();
         // isready: 0: not ready, lowest 2 bits: available image formats, 0x10000000: error
-        if (response.decodeInt(PTPPacket.iPTPCommandARG0, ByteOrder.LittleEndian) == 0x10000000)
+        if (response.decodeInt(PTPPacket.iPTPCommandARG0, ByteOrder.LittleEndian) == 0x10000000) {
           throw new CameraConnectionException("camera doesn't think it's capturing an image");
-        else if (response.decodeInt(PTPPacket.iPTPCommandARG0, ByteOrder.LittleEndian) != 0) {
+        } else if (response.decodeInt(PTPPacket.iPTPCommandARG0, ByteOrder.LittleEndian) != 0) {
           // how chdkptp does it: filename =
           // string.format('IMG_%04d',hdata.imgnum)
           // log.info("imgnum = " +
@@ -476,7 +493,9 @@ public abstract class AbstractCamera implements ICamera {
 
         // log.debug(response);
         if (response.decodeInt(PTPPacket.iPTPCommandARG1, ByteOrder.LittleEndian) == 0
-            && response.decodeInt(PTPPacket.iPTPCommandARG0, ByteOrder.LittleEndian) == 0) break;
+            && response.decodeInt(PTPPacket.iPTPCommandARG0, ByteOrder.LittleEndian) == 0) {
+          break;
+        }
       }
       log.info("Done!");
       return image;
@@ -564,7 +583,7 @@ public abstract class AbstractCamera implements ICamera {
    * @see chdk.ptp.java.ICamera#getFocusMode()
    */
   @Override
-  public FocusMode getFocusMode() throws PTPTimeoutException, GenericCameraException {
+  public synchronized FocusMode getFocusMode() throws PTPTimeoutException, GenericCameraException {
     FocusMode focusMode = FocusMode.valueOf((int) executeLuaQuery("return get_focus_mode();"));
     try {
       Thread.sleep(500);
@@ -575,7 +594,7 @@ public abstract class AbstractCamera implements ICamera {
   }
 
   @Override
-  public int getFocus() throws PTPTimeoutException, GenericCameraException {
+  public synchronized int getFocus() throws PTPTimeoutException, GenericCameraException {
     int focus = (int) executeLuaQuery("return get_focus();");
     try {
       Thread.sleep(500);
@@ -586,8 +605,18 @@ public abstract class AbstractCamera implements ICamera {
   }
 
   @Override
-  public void setFocus(int focusingDistance) throws PTPTimeoutException, GenericCameraException {
+  public synchronized void setFocus(int focusingDistance)
+      throws PTPTimeoutException, GenericCameraException {
     try {
+      // https://chdk.fandom.com/wiki/Script_commands#get_sd_over_modes
+      // Returns a bit field value indicating when subject distance override (i.e. set_focus() )
+      // will work with this camera.
+      //      Bit	Meaning
+      // 0x01	set_focus() works in AutoFocus mode (i.e. MF or AFL not active)
+      // 0x02	set_focus() works when AFL active (see set_aflock() command)
+      // 0x04	set_focus() works when MF active (see set_mf() command)
+//      int sdOverModes = this.executeLuaCommand("return get_sd_over_modes();");
+//      String sdOverModesHex = Integer.toHexString(sdOverModes);
       setFocusMode(FocusMode.MF);
       this.executeLuaCommand("set_focus(" + focusingDistance + ");");
       Thread.sleep(500);
@@ -669,6 +698,9 @@ public abstract class AbstractCamera implements ICamera {
    * and may actually crash the camera. More information here:
    * http://chdk.setepontos.com/index.php?topic=11078.0 See also {@link #set_mf(boolean)}.
    *
+   * <p>see:
+   * https://chdk.fandom.com/wiki/CHDK_Manual_Focus_and_Subject_Distance_Overrides/MF_Test_Status
+   *
    * @param lock true locks the autofocus and false unlocks it.
    */
   public void set_aflock(boolean lock) throws PTPTimeoutException, GenericCameraException {
@@ -743,9 +775,10 @@ public abstract class AbstractCamera implements ICamera {
         }
       }
     }
-    if (camIn == null || camOut == null)
+    if (camIn == null || camOut == null) {
       throw new CameraConnectionException(
           "Didn't find my endpoints Something verry bad happened..");
+    }
     log.info("\tFound my endpoints, Building PTPConnection");
 
     PTPConnection session = new PTPConnection(camIn, camOut);
