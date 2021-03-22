@@ -15,7 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.usb.UsbDevice;
 
-/** A2200Camera implementation. */
+/** Canon PowerShot A2200 */
 public class A2200Camera extends FailSafeCamera {
 
   private Logger log = Logger.getLogger(A2200Camera.class.getName());

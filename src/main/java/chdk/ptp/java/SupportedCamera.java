@@ -2,6 +2,7 @@ package chdk.ptp.java;
 
 import chdk.ptp.java.camera.A2200Camera;
 import chdk.ptp.java.camera.FailSafeCamera;
+import chdk.ptp.java.camera.Ixus160Camera;
 import chdk.ptp.java.camera.SX160ISCamera;
 import chdk.ptp.java.camera.SX50Camera;
 
@@ -15,12 +16,14 @@ import chdk.ptp.java.camera.SX50Camera;
  * @author <a href="mailto:ankhazam@gmail.com">Mikolaj Dobski</a>
  */
 public enum SupportedCamera {
-  /** Stores value of SX160IS */
-  SX160IS(0x04a9, 0x325a, SX160ISCamera.class),
-  /** Stores value of SX50HS */
-  SX50HS(0x04a9, 0x3259, SX50Camera.class),
-  /** Stores value of A2200 */
+  /** Canon PowerShot A2200 */
   A2200(0x04a9, 0x322a, A2200Camera.class),
+  /** Canon Powershot ELPH 160 / IXUS 160 */
+  IXUS160(0x04a9, 0x32aa, Ixus160Camera.class),
+  /** Canon PowerShot SX50 HS */
+  SX50HS(0x04a9, 0x3259, SX50Camera.class),
+  /** Canon PowerShot SX160 IS */
+  SX160IS(0x04a9, 0x325a, SX160ISCamera.class),
   /** Stores value of FailsafeCamera */
   FailsafeCamera(-1, -1, FailSafeCamera.class);
 

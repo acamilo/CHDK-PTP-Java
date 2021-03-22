@@ -18,10 +18,12 @@ Values added:
 
 
 ### Using in other project ###
+
 This code is has mirrored public repository available under:
 https://git.man.poznan.pl/stash/projects/KWE/repos/chdk-ptp-java/browse
 
 #### Artifacts and maven repository ####
+
 The codes found there are automatically tested and built as artifacts using Jenkins CI server and uploaded to maven repository:
 https://maven.man.poznan.pl/repository/webapp/browserepo.html?pathId=kiwi-libs-snapshots:org/chdk/ptp/java/CHDK-PTP-Java
 
@@ -44,9 +46,11 @@ dependencies
 ```
 
 #### Versioning ####
+
 For the sake of usability, rapid development and usage sanity we use semantic versioning: http://semver.org/
 
 ### Example Usage ###
+
 Try to follow chdk.ptp.java.standalone.LiveViewApiDemo.java but part of the example is below:
 
 ``` java
@@ -73,8 +77,10 @@ Try to follow chdk.ptp.java.standalone.LiveViewApiDemo.java but part of the exam
 
 ```
 
-### Instalation ###
+### Installation ###
+
 #### Download gradle ####
+
 ``` 
 cd ~/
 wget https://services.gradle.org/distributions/gradle-2.2-bin.zip
@@ -82,7 +88,9 @@ unzip gradle-2.2-bin.zip
 echo "export PATH=\$PATH:$HOME/gradle-2.2/bin" >> ~/.bashrc
 source ~/.bashrc
 ```
+
 #### Set-up gradle ####
+
 Artifactory plugin requires a file
 
 ```
@@ -97,10 +105,12 @@ PASSWORD=but_needs_to_be_here
 ```
 
 #### Eclipse integration ####
+
 Spring offers Gradle integration which can be acquired from:
 https://github.com/spring-projects/eclipse-integration-gradle
 
 #### Check out project ####
+
 Use console git:
 
 ```
@@ -110,14 +120,20 @@ git clone https://github.com/acamilo/CHDK-PTP-Java.git
 ```
 
 or Eclipse plugin.
+
 #### Build ####
+
 ```
 cd CHDK-PTP-Java
 gradle build
 ```
+
 #### Open in eclipse ####
+
 Import Gradle Project from within Eclipse.
+
 #### other problems ####
+
 I.E Afternoon wasters...
 
 on some OSes gvfs will grab the PTP device and you'll get this error.
@@ -142,6 +158,7 @@ http://chdk.setepontos.com/index.php?topic=10664.10
 solition is to either kill gvfs-gphoto2-volume-monitor or to make it perminent, change it's name so it doesn't start.
 
 ### Other OSes ##
+
 This uses libusb4java so it probably works in windows and mac. I've never tried it though.
 
 ### USB IDs

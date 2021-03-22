@@ -11,6 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.usb.UsbDevice;
 
+/** Canon PowerShot SX160 IS */
 public class SX160ISCamera extends FailSafeCamera {
   private Logger log = Logger.getLogger(SX160ISCamera.class.getName());
 

@@ -8,7 +8,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.usb.UsbDevice;
 
-/** SX50Camera implementation. */
+/** Canon PowerShot SX50 HS */
 public class SX50Camera extends FailSafeCamera {
 
   private Logger log = Logger.getLogger(SX50Camera.class.getName());
